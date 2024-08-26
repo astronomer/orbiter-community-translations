@@ -2,6 +2,7 @@
 set dotenv-load := true
 EXTRAS := "dev"
 VERSION := `echo $(python -c 'from orbiter_translations import __version__; print(__version__)')`
+PYTHON := `which python || which python3`
 
 default:
   @just --choose
@@ -12,7 +13,7 @@ help:
 
 # Install project and python dependencies (incl. pre-commit) locally
 install EDITABLE='':
-    pip install {{EDITABLE}} '.[{{EXTRAS}}]'
+    {{PYTHON}} -m pip install {{EDITABLE}} '.[{{EXTRAS}}]'
 
 # Install pre-commit to local project
 install-precommit: install
@@ -24,11 +25,11 @@ update-secrets:
 
 # Run pytests with config from pyproject.toml
 test:
-    pytest -c pyproject.toml
+    {{PYTHON}} -m pytest -c pyproject.toml
 
 # Test and emit a coverage report
 test-with-coverage:
-    pytest -c pyproject.toml --cov=./ --cov-report=xml
+    {{PYTHON}} -m pytest -c pyproject.toml --cov=./ --cov-report=xml
 
 # Run ruff and black (normally done with pre-commit)
 lint:
@@ -53,4 +54,20 @@ deploy: deploy-tag
 
 # Build the project
 build: install clean
-    python -m build
+    {{PYTHON}} -m build
+
+# [DO NOT RUN - RUN VIA CICD] Build the project as a .pyz, so it and it's dependencies can be installed and imported with the orbiter binary
+package:
+  #  https://docs.python.org/3/library/zipapp.html#creating-standalone-applications-with-zipapp
+  mkdir -p build
+  {{PYTHON}} -m pip install '.' --target build
+  cp -r orbiter_translations build
+  rm -rf build/*.dist-info/*
+  rmdir build/*.dist-info
+  {{PYTHON}} -m zipapp \
+    --compress \
+    --main orbiter_translations.__main__:main \
+    --python "/usr/bin/env python3" \
+    --output dist/orbiter_translations.pyz \
+    build
+
