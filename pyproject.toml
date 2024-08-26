@@ -1,0 +1,118 @@
+[build-system]
+requires = ["setuptools >= 68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.dynamic]
+version = { attr = "orbiter_translations.__version__" }
+
+[tool.setuptools.packages.find]
+exclude = [
+    "*venv", "*venv.*",
+    "*tests.*", "*tests",
+    "*build", "*build.*",
+    "*dist", "*dist.*"
+]
+
+[project]
+dynamic = ["version"]
+name = "orbiter-community-translations"
+description = "Astronomer Orbiter can take your legacy workloads and land them safely down in a new home on Apache Airflow!"
+readme = "README.md"
+authors = [
+    { name = "Fritz Davenport", email = "fritz@astronomer.io" },
+    { name = "CETA Team", email = "ceta@astronomer.io" },
+    { name = "Astronomer", email = "humans@astronomer.io" },
+]
+license = { file = "LICENSE" }
+requires-python = ">= 3.10"
+dependencies = [
+    # for converting to snake_case
+    "inflection",
+
+    # for templating within @rules
+    "jinja2",
+
+    # for merging defaults dict in DAG-Factory @rules
+    "deepmerge",
+
+    # for deep-parsing dicts within @rules
+    "jq",
+
+    # logging
+    "loguru",
+
+    # backport
+    "eval_type_backport; python_version < '3.10'",
+]
+
+[project.optional-dependencies]
+dev = [
+    # for testing
+    "astronomer-orbiter",
+
+    # package
+    "build",
+    "twine>=4.0.2",
+
+    # for generating docs
+    "mkdocs",
+    "mkdocs-click",
+    "mkdocs-material",
+    "mkdocstrings-python",
+    "pygments",
+
+    # test
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pytest-sugar>=0.9.7",
+    "pytest-mock",
+
+    # lint
+    "black>=23.12.0",
+    "ruff>=0.1.0",
+    "pylint>=3.0.0",
+    "isort>=5.13.0",
+
+    # pre-commit
+    "pre-commit>=3.6.0; python_version >= '3.9'",
+    "detect-secrets>=1.4.0",
+]
+
+
+[project.urls]
+Homepage = "https://astronomer.io"
+Source = "https://github.com/astronomer/orbiter-community-translations"
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = []
+
+[tool.black]
+# https://github.com/psf/black
+color = true
+
+[tool.ruff]
+line-length = 120
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+norecursedirs = [
+    "*expected*", "*output*", "*dags/", "*dags/*",
+    "venv", "*.egg", ".eggs", "dist", "build", "docs", ".tox", ".git", "__pycache__"
+]
+testpaths = ["orbiter_translations", "tests"]
+
+doctest_optionflags = ["ELLIPSIS", "NUMBER", "NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL"]
+addopts = [
+    "-s",
+    "--continue-on-collection-errors",
+    "--strict-markers",
+    "--tb=short",
+    "--disable-warnings",
+    "--no-header",
+    "--doctest-modules",
+    "--doctest-continue-on-failure",
+]
