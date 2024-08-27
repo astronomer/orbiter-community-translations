@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DEFTABLE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <SMART_FOLDER FOLDER_NAME="demo">
+        <JOB JOBNAME="TaskA" APPL_TYPE="OS" CMDLINE="echo job a">
+            <OUTCOND NAME="A" SIGN="+"></OUTCOND>
+        </JOB>
+        <JOB JOBNAME="TaskB" APPL_TYPE="OS" FILE_PATH="/x/y/z" FILE_NAME="job_b.sh">
+            <INCOND NAME="A"></INCOND>
+        </JOB>
+    </SMART_FOLDER>
+</DEFTABLE>
