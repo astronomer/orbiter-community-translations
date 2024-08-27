@@ -1,0 +1,26 @@
+<workflow-app xmlns="uri:oozie:workflow:1.0" name="demo-wf">
+    <start to="cleanup-node"/>
+
+    <action name="cleanup-node">
+        <fs>
+            <delete path="${nameNode}/user/${wf:user()}/${examplesRoot}/output-data/demo"/>
+        </fs>
+        <ok to="hdfs-node"/>
+        <error to="fail"/>
+    </action>
+
+    <action name="hdfs-node">
+        <fs>
+            <move source="${nameNode}/user/${wf:user()}/${examplesRoot}/output-data/demo/mr-node"
+                  target="/user/${wf:user()}/${examplesRoot}/output-data/demo/final-data"/>
+        </fs>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+
+    <kill name="fail">
+        <message>Demo workflow failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+
+    <end name="end"/>
+</workflow-app>
