@@ -70,4 +70,3 @@ package:
     --python "/usr/bin/env python3" \
     --output dist/orbiter_translations.pyz \
     build
-
