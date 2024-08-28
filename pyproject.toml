@@ -35,9 +35,6 @@ dependencies = [
     # for templating within @rules
     "jinja2",
 
-    # for merging defaults dict in DAG-Factory @rules
-    "deepmerge",
-
     # for deep-parsing dicts within @rules
     "jq",
 
