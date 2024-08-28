@@ -46,7 +46,7 @@ jobs:
         write
     steps:
       - uses: actions/download-artifact@v4
-      - run: ls -R
+      - run: ls -R && rm -f dist/*.pyz
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           skip-existing: true
