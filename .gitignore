@@ -9,3 +9,4 @@ site
 build
 *output*
 __pycache__
+.env
