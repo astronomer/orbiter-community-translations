@@ -9,8 +9,8 @@ from typing import MutableMapping, Literal
 
 import inflection
 from loguru import logger
-from orbiter import FileType
 from orbiter import import_from_qualname
+from orbiter.file_types import FileTypeYAML
 from orbiter.objects import OrbiterInclude
 from orbiter.objects.callbacks import OrbiterCallback
 from orbiter.objects.dag import OrbiterDAG
@@ -409,7 +409,7 @@ def move_tasks_to_task_group(val: OrbiterProject):
 
 
 translation_ruleset = TranslationRuleset(
-    file_type=FileType.YAML,
+    file_type={FileTypeYAML},
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(
