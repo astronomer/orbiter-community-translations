@@ -37,7 +37,8 @@ from itertools import chain
 from pathlib import Path
 
 import inflection
-from orbiter import FileType, clean_value
+from orbiter import clean_value
+from orbiter.file_types import FileTypeXML
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.bash import OrbiterBashOperator
 from orbiter.objects.operators.empty import OrbiterEmptyOperator
@@ -276,7 +277,7 @@ def to_task_dependency(val: OrbiterDAG) -> list[OrbiterTaskDependency] | None:
 
 
 translation_ruleset: TranslationRuleset = TranslationRuleset(
-    file_type=FileType.XML,
+    file_type={FileTypeXML},
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[dag_filter_rule]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[task_filter_rule]),
