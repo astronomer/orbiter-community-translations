@@ -85,7 +85,7 @@
                 </postconditions>
             </task>
 
-            <task Alias="" BranchType="0" Col="3" Lnr="3" OH_TITLE="process_and_upload_file" OType="JOBS" Object="JOBS.PROCESS.AND.UPLOAD.FILE" ParentAlias="" ParentObject="" Row="1" State="" Text1="Processes the file and uploads it." Text2="">
+            <task Alias="" BranchType="0" Col="3" Lnr="3" OH_TITLE="process_and_upload_file" OType="SCRI" Object="SCRI.PROCESS.AND.UPLOAD.FILE" ParentAlias="" ParentObject="" Row="1" State="" Text1="Processes the file and uploads it." Text2="">
                 <checkpoint RollbackFlag="1" RunPerPatch="0" RunPerTarget="0" TcpADays="0" TcpATime="00:00" TcpATimeTZ="" TcpExecute="" TcpOn="0" promptatgen="0" showprompt="0"/>
                 <after ActFlg="1" AtimOn="0" ErlstStDays="0" ErlstStTime="00:00" ErlstStTimeTZ="" HoldFlg="0"/>
                 <when ChkWhenExec="0" LtstEnd="0" LtstEndDays="0" LtstEndTime="00:00" LtstSt="0" LtstStDays="0" LtstStTime="00:00" LtstTimeTZ="" WCTypeAND="1" WCTypeOR="0" WElseA="0" WElseH="1" WElseS="0" WElseX="0" WhenExecute="" WtimOn="0"/>
@@ -272,9 +272,7 @@
             <MrtExecute>0</MrtExecute>
             <MrtExecuteObj/>
         </RUNTIME>
-        <SCRIPT mode="1" state="1">
-            <MSCRI><![CDATA[echo "John Doe, 45, Researcher"> myfile.txt]]></MSCRI>
-        </SCRIPT>
+        <SCRIPT mode="1" state="1">echo "I am a Script"</SCRIPT>
         <DOCU_Docu state="1" type="text">
             <DOC/>
         </DOCU_Docu>
@@ -299,7 +297,6 @@
             <Queue>CLIENT_QUEUE</Queue>
             <StartType/>
             <CodeName/>
-            <Login>LOGIN.CONN.DB_CONN</Login>
             <IntAccount/>
             <ExtRepDef>1</ExtRepDef>
             <ExtRepAll>0</ExtRepAll>
@@ -356,15 +353,7 @@
         <PRE_SCRIPT mode="1" replacementmode="1" state="1">
             <PSCRI/>
         </PRE_SCRIPT>
-        <SCRIPT>
-            <MSCRI>
-                <![CDATA[
-                    ! A SQL command
-                    :SQL
-                    INSERT INTO users VALUES ("name", "age", "profession");
-                ]]>
-            </MSCRI>
-        </SCRIPT>
+        <SCRIPT><![CDATA[! A SQL command :SQL INSERT INTO users VALUES ("name", "age", "profession");]]></SCRIPT>
         <OUTPUTSCAN state="1">
             <Inherit>N</Inherit>
             <filterobjects/>
@@ -379,7 +368,7 @@
         </DOCU_Docu>
     </JOBS>
 
-    <JOBS name="JOBS.PROCESS.AND.UPLOAD.FILE">
+    <SCRI name="SCRI.PROCESS.AND.UPLOAD.FILE">
         <XHEADER state="1">
             <Title>Run python code to process and upload file</Title>
             <ArchiveKey1/>
@@ -388,35 +377,29 @@
             <OH_SubType/>
             <CustomAttributes KeyListID="0" dataRequestID="0"/>
         </XHEADER>
-        <OUTPUTREG state="1">
-            <FileReg/>
-        </OUTPUTREG>
         <SYNCREF state="1">
             <Syncs/>
         </SYNCREF>
-        <ATTR_JOBS state="1">
+        <ATTR_SCRI state="1">
             <Queue>CLIENT_QUEUE</Queue>
             <StartType/>
-            <CodeName/>
-            <IntAccount/>
             <ExtRepDef>1</ExtRepDef>
             <ExtRepAll>0</ExtRepAll>
             <ExtRepNone>0</ExtRepNone>
-            <AutoDeactNo>0</AutoDeactNo>
-            <AutoDeact1ErrorFree>0</AutoDeact1ErrorFree>
-            <AutoDeactErrorFree>0</AutoDeactErrorFree>
-            <DeactWhen/>
-            <DeactDelay>0</DeactDelay>
-            <AutoDeactAlways>1</AutoDeactAlways>
-            <AttDialog>0</AttDialog>
-            <ActAtRun>0</ActAtRun>
-            <Consumption>0</Consumption>
+            <IntAccount/>
+            <ActAtRun>1</ActAtRun>
             <UC4Priority>0</UC4Priority>
             <MaxParallel2>0</MaxParallel2>
             <MpElse1>1</MpElse1>
             <MpElse2>0</MpElse2>
             <TZ/>
-        </ATTR_JOBS>
+            <AutoDeactNo>0</AutoDeactNo>
+            <AutoDeact1ErrorFree>0</AutoDeact1ErrorFree>
+            <AutoDeactErrorFree>0</AutoDeactErrorFree>
+            <DeactWhen/>
+            <AutoDeactAlways>1</AutoDeactAlways>
+            <DeactDelay>0</DeactDelay>
+        </ATTR_SCRI>
         <RUNTIME state="1">
             <MaxRetCode>0</MaxRetCode>
             <MrcExecute/>
@@ -451,31 +434,9 @@
             <MrtExecute>0</MrtExecute>
             <MrtExecuteObj/>
         </RUNTIME>
-        <ROLLBACK state="1">
-            <RollbackFlag>0</RollbackFlag>
-            <CBackupObj/>
-            <CRollbackObj/>
-            <FBackupPath/>
-            <FDeleteBefore>0</FDeleteBefore>
-            <FInclSubDirs>0</FInclSubDirs>
-        </ROLLBACK>
-        <PRE_SCRIPT mode="1" replacementmode="1" state="1">
-            <PSCRI/>
-        </PRE_SCRIPT>
-        <SCRIPT mode="1" state="1">
-            <MSCRI><![CDATA[! Python Code]]></MSCRI>
-        </SCRIPT>
-        <OUTPUTSCAN state="1">
-            <Inherit>N</Inherit>
-            <filterobjects/>
-            <HostFsc/>
-            <LoginFsc/>
-        </OUTPUTSCAN>
-        <POST_SCRIPT mode="1" replacementmode="1" state="1">
-            <OSCRI/>
-        </POST_SCRIPT>
+        <SCRIPT mode="1" state="1">echo "Runs a Python Script"</SCRIPT>
         <DOCU_Docu state="1" type="text">
             <DOC/>
         </DOCU_Docu>
-    </JOBS>
+    </SCRI>
 </uc-export>
