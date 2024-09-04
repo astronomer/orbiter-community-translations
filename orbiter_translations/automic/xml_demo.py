@@ -4,8 +4,11 @@ from pathlib import Path
 import inflection
 import jq
 from orbiter.file_types import FileTypeXML
+from orbiter.objects import conn_id
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.empty import OrbiterEmptyOperator
+from orbiter.objects.operators.bash import OrbiterBashOperator
+from orbiter.objects.operators.sql import OrbiterSQLExecuteQueryOperator
 from orbiter.objects.project import OrbiterProject
 from orbiter.objects.task import OrbiterOperator
 from orbiter.objects.task_group import OrbiterTaskGroup
@@ -32,12 +35,7 @@ from orbiter.rules.rulesets import (
 @dag_filter_rule
 def basic_dag_filter(val: dict) -> list | None:
     """Filter input down to a list of dictionaries that can be processed by the `@dag_rules`"""
-    dag = [
-        {dag_struct_key: struct}
-        for dag_struct_key, struct in val.get("uc-export", [{}])[0].items()
-        if dag_struct_key in ["JOBP", "JOBS", "SCRI"]
-    ]
-    return dag or None
+    return val.get("uc-export", {}) or None
 
 
 @dag_rule
@@ -46,8 +44,6 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     if isinstance(val, dict):
         try:
             dag_id = jq.compile(""".JOBP[0] | ."@name" """).input_value(val).first()
-            if not dag_id:
-                raise StopIteration("DAG struct not relavant")
             return OrbiterDAG(
                 dag_id=dag_id,
                 file_path=Path(f"{inflection.underscore(dag_id)}.py"),
@@ -63,18 +59,43 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
 @task_filter_rule
 def basic_task_filter(val: dict) -> list | None:
     """Filter input down to a list of dictionaries that can be processed by the `@task_rules`"""
-    for k, v in val.items():
-        pass
-    return []
+    task_definitions = {}
+    tasks = []
+    for dag_struct_key, struct in val.items():
+        if dag_struct_key in ["SCRI", "JOBS"]:
+            for task_details in struct:
+                task_definitions[task_details["@name"]] = task_details
+
+    for dag_struct_key, struct in val.items():
+        if "JOBP" in dag_struct_key:
+            for task in struct[0]["JobpStruct"][0]["task"]:
+                if task["@OType"] in ["SCRI", "JOBS"]:
+                    task["script"] = task_definitions[task["@Object"]]
+                tasks.append(task)
+    return tasks
 
 
 @task_rule(priority=2)
 def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
     """Translate input into an Operator (e.g. `OrbiterBashOperator`). will be applied first, with a higher priority"""
-    if "task_id" in val:
-        return OrbiterEmptyOperator(task_id=val["task_id"])
-    else:
-        return None
+    try:
+        if val["@OType"] == "SCRI":
+            return OrbiterBashOperator(
+                task_id=val["@OH_TITLE"],
+                bash_command=val["script"]["SCRIPT"][0]["#text"],
+            )
+        if val["@OType"] == "JOBS":
+            if "SQL" in val["script"]["SCRIPT"]:
+                return OrbiterSQLExecuteQueryOperator(
+                    task_id=val["@OH_TITLE"],
+                    sql=val["script"]["SCRIPT"].split(":SQL")[-1].strip(),
+                    **conn_id(conn_id="mssql_default", conn_type="mssql"),
+                )
+        return OrbiterEmptyOperator(task_id=val["@OH_TITLE"])
+
+    except StopIteration:
+        pass
+    return None
 
 
 @task_dependency_rule
