@@ -9,16 +9,15 @@ from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.empty import OrbiterEmptyOperator
 from orbiter.objects.operators.bash import OrbiterBashOperator
 from orbiter.objects.operators.sql import OrbiterSQLExecuteQueryOperator
-from orbiter.objects.project import OrbiterProject
 from orbiter.objects.task import OrbiterOperator
 from orbiter.objects.task_group import OrbiterTaskGroup
+from orbiter.objects.task import OrbiterTaskDependency
 from orbiter.rules import (
     dag_filter_rule,
     dag_rule,
     task_filter_rule,
     task_rule,
     task_dependency_rule,
-    post_processing_rule,
     cannot_map_rule,
 )
 from orbiter.rules.rulesets import (
@@ -78,6 +77,7 @@ def basic_task_filter(val: dict) -> list | None:
 @task_rule(priority=2)
 def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
     """Translate input into an Operator (e.g. `OrbiterBashOperator`). will be applied first, with a higher priority"""
+
     try:
         if val["@OType"] == "SCRI":
             return OrbiterBashOperator(
@@ -101,17 +101,31 @@ def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
 @task_dependency_rule
 def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
     """Translate input into a list of task dependencies"""
-    for task_dependency in val.orbiter_kwargs["task_dependencies"]:
-        pass
-    return []
-
-
-@post_processing_rule
-def basic_post_processing_rule(val: OrbiterProject) -> None:
-    """Modify the project in-place, after all other rules have applied"""
-    for dag_id, dag in val.dags.items():
-        for task_id, task in dag.tasks.items():
-            pass
+    all_tasks = {}
+    for task_id, task_attr in val.tasks.items():
+        task = task_attr.orbiter_kwargs.get("val", {})
+        task_no = task["@Lnr"]
+        if task.get("predecessors", None):
+            predecessor = (
+                task.get("predecessors", [{}])[0].get("pre", [{}])[0].get("@PreLnr", [])
+            )
+        else:
+            predecessor = None
+        all_tasks[task_no] = {
+            "task_id": task_id,
+            "predecessor": predecessor,
+        }
+    task_dependencies = []
+    for task_no, task_metadata in all_tasks.items():
+        if task_metadata["predecessor"]:
+            for predecessor_task_no in task_metadata["predecessor"]:
+                task_dependencies.append(
+                    OrbiterTaskDependency(
+                        task_id=all_tasks[predecessor_task_no]["task_id"],
+                        downstream=task_metadata["task_id"],
+                    )
+                )
+    return task_dependencies
 
 
 translation_ruleset = TranslationRuleset(
@@ -121,5 +135,5 @@ translation_ruleset = TranslationRuleset(
     task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter]),
     task_ruleset=TaskRuleset(ruleset=[basic_task_rule, cannot_map_rule]),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[basic_task_dependency_rule]),
-    post_processing_ruleset=PostProcessingRuleset(ruleset=[basic_post_processing_rule]),
+    post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
