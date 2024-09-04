@@ -18,7 +18,6 @@ from orbiter.rules import (
     task_filter_rule,
     task_rule,
     task_dependency_rule,
-    cannot_map_rule,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
@@ -32,7 +31,7 @@ from orbiter.rules.rulesets import (
 
 
 @dag_filter_rule
-def basic_dag_filter(val: dict) -> list | None:
+def dag_filter_rule(val: dict) -> list | None:
     """Filter input down to a list of dictionaries that can be processed by the `@dag_rules`"""
     return val.get("uc-export", {}) or None
 
@@ -56,7 +55,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
 
 
 @task_filter_rule
-def basic_task_filter(val: dict) -> list | None:
+def task_filter_rule(val: dict) -> list | None:
     """Filter input down to a list of dictionaries that can be processed by the `@task_rules`"""
     task_definitions = {}
     tasks = []
@@ -99,7 +98,7 @@ def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
 
 
 @task_dependency_rule
-def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
+def simple_task_dependencies(val: OrbiterDAG) -> list | None:
     """Translate input into a list of task dependencies"""
     all_tasks = {}
     for task_id, task_attr in val.tasks.items():
@@ -130,10 +129,10 @@ def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
 
 translation_ruleset = TranslationRuleset(
     file_type={FileTypeXML},
-    dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
+    dag_filter_ruleset=DAGFilterRuleset(ruleset=[dag_filter_rule]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
-    task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[basic_task_rule, cannot_map_rule]),
-    task_dependency_ruleset=TaskDependencyRuleset(ruleset=[basic_task_dependency_rule]),
+    task_filter_ruleset=TaskFilterRuleset(ruleset=[task_filter_rule]),
+    task_ruleset=TaskRuleset(ruleset=[basic_task_rule]),
+    task_dependency_ruleset=TaskDependencyRuleset(ruleset=[simple_task_dependencies]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
