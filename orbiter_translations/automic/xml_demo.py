@@ -1,4 +1,69 @@
+"""
+## Demo `translation_ruleset` Example
+
+```pycon
+>>> translation_ruleset.test(input_value='''<?xml version="1.0" encoding="ISO-8859-15"?>
+... <uc-export clientvers="21.0.9+hf.1.build.xxxxxxxxxxxxx">
+...    <JOBP AllowExternal="1" name="JOBP.DUMMY.WORKFLOW">
+...        <JobpStruct mode="design">
+...            <task Alias="" BranchType="0" Col="1" Lnr="1" OH_TITLE="start" OType="&lt;START&gt;" Object="START" Row="1" Text1="Start of the workflow.">
+...                <predecessors/>
+...            </task>
+...            <task Alias="" BranchType="0" Col="2" Lnr="2" OH_TITLE="generate_file" OType="SCRI" Object="SCRI.GENERATE.FILE" Row="1" State="" Text1="Runs a Script which generates a file for processing.">
+...                <predecessors>
+...                    <pre BranchType="0" Lnr="1" PreLnr="1" When="" type="container"/>
+...                </predecessors>
+...            </task>
+...            <task Alias="" BranchType="0" Col="3" Lnr="3" OH_TITLE="process_and_upload_file" OType="SCRI" Object="SCRI.PROCESS.AND.UPLOAD.FILE" Row="1" State="" Text1="Processes the file and uploads it.">
+...                <predecessors>
+...                    <pre BranchType="0" Lnr="1" PreLnr="2" When="" type="container"/>
+...                </predecessors>
+...            </task>
+...            <task Alias="" BranchType="0" Col="4" Lnr="4" OH_TITLE="insert_into_database" OType="JOBS" Object="JOBS.INSERT.INTO.DATABASE" Row="1" State="" Text1="Inserts the processed records into database.">
+...                <predecessors>
+...                    <pre BranchType="0" Lnr="1" PreLnr="3" When="" type="container"/>
+...                </predecessors>
+...            </task>
+...            <task Alias="" BranchType="0" Col="5" Lnr="5" OH_TITLE="end" OType="&lt;END&gt;" Object="END" Row="1" State="" Text1="End of the workflow.">
+...                <predecessors>
+...                    <pre BranchType="0" Lnr="1" PreLnr="4" When="" type="container"/>
+...                </predecessors>
+...            </task>
+...        </JobpStruct>
+...    </JOBP>
+...    <SCRI name="SCRI.GENERATE.FILE">
+...        <SCRIPT mode="1" state="1">echo "I am a Script"</SCRIPT>
+...    </SCRI>
+...    <JOBS name="JOBS.INSERT.INTO.DATABASE">
+...        <SCRIPT><![CDATA[! A SQL command :SQL INSERT INTO users VALUES ("name", "age", "profession");]]></SCRIPT>
+...    </JOBS>
+...    <SCRI name="SCRI.PROCESS.AND.UPLOAD.FILE">
+...        <SCRIPT mode="1" state="1">echo "Runs a Python Script"</SCRIPT>
+...    </SCRI>
+... </uc-export>
+... ''').dags['jobp.dummy.workflow']
+... # doctest: +ELLIPSIS
+from airflow import DAG
+from airflow.operators.bash import BashOperator
+from airflow.operators.empty import EmptyOperator
+from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
+from pendulum import DateTime, Timezone
+with DAG(dag_id='jobp.dummy.workflow', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=' **Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\\nContact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!'):
+    start_task = EmptyOperator(task_id='start')
+    generate_file_task = BashOperator(task_id='generate_file', bash_command='echo "I am a Script"')
+    process_and_upload_file_task = BashOperator(task_id='process_and_upload_file', bash_command='echo "Runs a Python Script"')
+    insert_into_database_task = SQLExecuteQueryOperator(task_id='insert_into_database', conn_id='mssql_default', sql='INSERT INTO users VALUES ("name", "age", "profession");')
+    end_task = EmptyOperator(task_id='end')
+    generate_file_task >> process_and_upload_file_task
+    insert_into_database_task >> end_task
+    process_and_upload_file_task >> insert_into_database_task
+    start_task >> generate_file_task
+
+```
+"""  # noqa: E501
+
 from __future__ import annotations
+import json
 from pathlib import Path
 
 import inflection
@@ -9,8 +74,6 @@ from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.empty import OrbiterEmptyOperator
 from orbiter.objects.operators.bash import OrbiterBashOperator
 from orbiter.objects.operators.sql import OrbiterSQLExecuteQueryOperator
-from orbiter.objects.task import OrbiterOperator
-from orbiter.objects.task_group import OrbiterTaskGroup
 from orbiter.objects.task import OrbiterTaskDependency
 from orbiter.rules import (
     dag_filter_rule,
@@ -32,13 +95,75 @@ from orbiter.rules.rulesets import (
 
 @dag_filter_rule
 def dag_filter_rule(val: dict) -> list | None:
-    """Filter input down to a list of dictionaries that can be processed by the `@dag_rules`"""
+    """
+    Filter input to the top level element <uc_export> and further,
+    to a list of dictionaries that can be processed by the `@dag_rules`
+    ```pycon
+    >>> dag_filter_rule(val={'uc-export': [
+    ...    {'@clientvers': '', 'JOBP': [
+    ...            {'@AllowExternal': '1', '@name': 'JOBP.DUMMY.WORKFLOW', 'JobpStruct': [
+    ...                    {'@mode': 'design', 'task': [
+    ...                            {'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': '', '@OType': 'SCRI', '@Object': 'SCRI.SCRIPT', '@Row': '1', '@State': '', '@Text1': '', 'predecessors': [
+    ...                                    {'pre': [
+    ...                                            {'@BranchType': '0', '@Lnr': '1', '@PreLnr': '1', '@When': '', '@type': 'container'
+    ...                                            }
+    ...                                        ]
+    ...                                    }
+    ...                                ]
+    ...                            }
+    ...                        ]
+    ...                    }
+    ...                ]
+    ...            }
+    ...        ], 'SCRI': [
+    ...            {'@name': 'SCRI.SCRIPT', 'SCRIPT': [
+    ...                    {'@mode': '1', '@state': '1', '#text': 'echo ""'
+    ...                    }
+    ...                ]
+    ...            }
+    ...        ]
+    ...    }
+    ... ]
+    ... })
+    ... # doctest: +ELLIPSIS
+    [{'@clientvers': '', 'JOBP': [{'@AllowExternal': '1', '@name': 'JOBP.DUMMY.WORKFLOW', 'JobpStruct': [{'@mode': 'design', 'task': [{'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': '', '@OType': 'SCRI', '@Object': 'SCRI.SCRIPT', '@Row': '1', '@State': '', '@Text1': '', 'predecessors': [{'pre': [{'@BranchType': '0', '@Lnr': '1', '@PreLnr': '1', '@When': '', '@type': 'container'}]}]}]}]}], 'SCRI': [{'@name': 'SCRI.SCRIPT', 'SCRIPT': [{'@mode': '1', '@state': '1', '#text': 'echo ""'}]}]}]
+
+    ```
+    """  # noqa: E501
     return val.get("uc-export", {}) or None
 
 
 @dag_rule
 def basic_dag_rule(val: dict) -> OrbiterDAG | None:
-    """Translate input into an `OrbiterDAG`"""
+    """
+     Translate input into an `OrbiterDAG`
+
+    ```pycon
+    >>> basic_dag_rule(val={'@clientvers': '21.0.9+hf.1.build.xxxxxxxxxxxxx', 'JOBP': [
+    ...    {'@AllowExternal': '1', '@name': 'JOBP.DUMMY.WORKFLOW', 'JobpStruct': [
+    ...            {'@mode': 'design', 'task': [
+    ...                    {'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': '', '@OType': 'SCRI', '@Object': 'SCRI.SCRIPT', '@Row': '1', '@State': '', '@Text1': '', 'predecessors': [
+    ...                            {'pre': [
+    ...                                    {'@BranchType': '0', '@Lnr': '1', '@PreLnr': '1', '@When': '', '@type': 'container'
+    ...                                    }
+    ...                               ]
+    ...                            }
+    ...                        ]
+    ...                    }
+    ...                ]
+    ...            }
+    ...        ]
+    ...    }
+    ... ]
+    ... })
+    ... # doctest: +ELLIPSIS
+    from airflow import DAG
+    from pendulum import DateTime, Timezone
+    with DAG(dag_id='jobp.dummy.workflow', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=' **Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\\nContact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!'):
+
+    ```
+    """  # noqa: E501
+    val = json.loads(json.dumps(val, default=str))  # pre-serialize values, for JQ
     if isinstance(val, dict):
         try:
             dag_id = jq.compile(""".JOBP[0] | ."@name" """).input_value(val).first()
@@ -56,7 +181,38 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
 
 @task_filter_rule
 def task_filter_rule(val: dict) -> list | None:
-    """Filter input down to a list of dictionaries that can be processed by the `@task_rules`"""
+    """
+    The task declaration is in 'task' inside 'JOBP.JobpStruct' and the definitions are in SCRI or JOBS.
+
+    ```pycon
+    >>> task_filter_rule(val={'@clientvers': '21.0.9+hf.1.build.xxxxxxxxxxxxx', 'JOBP': [
+    ...    {'@AllowExternal': '1', '@name': 'JOBP.DUMMY.WORKFLOW', 'JobpStruct': [
+    ...            {'@mode': 'design', 'task': [
+    ...                    {'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': '', '@OType': 'SCRI', '@Object': 'SCRI.SCRIPT', '@Row': '1', '@State': '', '@Text1': '', 'predecessors': [
+    ...                            {'pre': [
+    ...                                    {'@BranchType': '0', '@Lnr': '1', '@PreLnr': '1', '@When': '', '@type': 'container'
+    ...                                    }
+    ...                                ]
+    ...                            }
+    ...                        ]
+    ...                    }
+    ...               ]
+    ...            }
+    ...        ]
+    ...    }
+    ... ], 'SCRI': [
+    ...    {'@name': 'SCRI.SCRIPT', 'SCRIPT': [
+    ...            {'@mode': '1', '@state': '1', '#text': 'echo ""'
+    ...            }
+    ...        ]
+    ...    }
+    ... ]
+    ... })
+    ... # doctest: +ELLIPSIS
+    [{'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': '', '@OType': 'SCRI', '@Object': 'SCRI.SCRIPT', '@Row': '1', '@State': '', '@Text1': '', 'predecessors': [{'pre': [{'@BranchType': '0', '@Lnr': '1', '@PreLnr': '1', '@When': '', '@type': 'container'}]}], 'script': {'@name': 'SCRI.SCRIPT', 'SCRIPT': [{'@mode': '1', '@state': '1', '#text': 'echo ""'}]}}]
+
+    ```
+    """  # noqa: E501
     task_definitions = {}
     tasks = []
     for dag_struct_key, struct in val.items():
@@ -74,9 +230,29 @@ def task_filter_rule(val: dict) -> list | None:
 
 
 @task_rule(priority=2)
-def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
-    """Translate input into an Operator (e.g. `OrbiterBashOperator`). will be applied first, with a higher priority"""
+def basic_task_rule(
+    val: dict,
+) -> OrbiterEmptyOperator | OrbiterBashOperator | OrbiterSQLExecuteQueryOperator | None:
+    """Translate input into an Operator (e.g. `OrbiterBashOperator`)""
 
+    ```pycon
+    >>> basic_task_rule(val={'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': 'generate_file', '@OType': 'SCRI', '@Object': 'SCRI.SCRIPT', '@Row': '1', '@State': '', '@Text1': '', 'predecessors': [
+    ...    {'pre': [
+    ...            {'@BranchType': '0', '@Lnr': '1', '@PreLnr': '1', '@When': '', '@type': 'container'
+    ...            }
+    ...        ]
+    ...    }
+    ... ], 'script': {'@name': 'SCRI.SCRIPT', 'SCRIPT': [
+    ...        {'@mode': '1', '@state': '1', '#text': 'echo "I am a Script"'
+    ...        }
+    ...    ]
+    ... }
+    ... })
+    ... # doctest: +ELLIPSIS
+    generate_file_task = BashOperator(task_id='generate_file', bash_command='echo "I am a Script"')
+
+    ```
+    """  # noqa: E501
     try:
         if val["@OType"] == "SCRI":
             return OrbiterBashOperator(
@@ -98,8 +274,44 @@ def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
 
 
 @task_dependency_rule
-def simple_task_dependencies(val: OrbiterDAG) -> list | None:
-    """Translate input into a list of task dependencies"""
+def simple_task_dependencies(val: OrbiterDAG) -> list[OrbiterTaskDependency] | None:
+    """
+    Map all tasks to their predecessors to get the dependency graph
+
+    ```pycon
+    >>> simple_task_dependencies(val=OrbiterDAG(
+    ...     dag_id=".", file_path=".",
+    ...     tasks={
+    ...            'start': OrbiterEmptyOperator(task_id='start', orbiter_kwargs={'val':{'@Alias': '', '@BranchType': '0', '@Col': '1', '@Lnr': '1', '@OH_TITLE': 'start', '@OType': '<START>', '@Object': 'START', '@Row': '1', '@Text1': 'Start of the workflow.', 'predecessors': None
+    ...                        }}),
+    ...            'end': OrbiterEmptyOperator(task_id='end', orbiter_kwargs={'val': {'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': 'end', '@OType': '<END>', '@Object': 'END', '@Row': '1', '@State': '', '@Text1': 'End of the workflow.', 'predecessors': [{'pre': [{'@BranchType': '0', '@Lnr': '1', '@PreLnr': '1', '@When': '', '@type': 'container'}]}]}})
+    ...        },
+    ...     orbiter_kwargs={'val': {'@clientvers': '21.0.9+hf.1.build.xxxxxxxxxxxxx', 'JOBP': [
+    ...        {'@AllowExternal': '1', '@name': 'JOBP.DUMMY.WORKFLOW', 'JobpStruct': [
+    ...                {'@mode': 'design', 'task': [
+    ...                        {'@Alias': '', '@BranchType': '0', '@Col': '1', '@Lnr': '1', '@OH_TITLE': 'start', '@OType': '<START>', '@Object': 'START', '@Row': '1', '@Text1': 'Start of the workflow.', 'predecessors': None
+    ...                        },
+    ...                        {'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': 'end', '@OType': '<END>', '@Object': 'END', '@Row': '1', '@State': '', '@Text1': 'End of the workflow.', 'predecessors': [
+    ...                                {'pre': [
+    ...                                        {'@BranchType': '0', '@Lnr': '1', '@PreLnr': '1', '@When': '', '@type': 'container'
+    ...                                        }
+    ...                                    ]
+    ...                                }
+    ...                            ]
+    ...                        }
+    ...                    ]
+    ...                }
+    ...            ]
+    ...       }
+    ...    ]
+    ... },
+    ... }
+    ... ))
+    ... # doctest: +ELLIPSIS
+    [start >> end]
+
+    ```
+    """  # noqa: E501
     all_tasks = {}
     for task_id, task_attr in val.tasks.items():
         task = task_attr.orbiter_kwargs.get("val", {})
@@ -127,7 +339,7 @@ def simple_task_dependencies(val: OrbiterDAG) -> list | None:
     return task_dependencies
 
 
-translation_ruleset = TranslationRuleset(
+translation_ruleset: TranslationRuleset = TranslationRuleset(
     file_type={FileTypeXML},
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[dag_filter_rule]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
@@ -136,3 +348,12 @@ translation_ruleset = TranslationRuleset(
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[simple_task_dependencies]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod(
+        optionflags=doctest.ELLIPSIS
+        | doctest.NORMALIZE_WHITESPACE
+        | doctest.IGNORE_EXCEPTION_DETAIL
+    )
