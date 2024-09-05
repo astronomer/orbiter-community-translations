@@ -1,9 +1,9 @@
 from orbiter_translations.automic.xml_demo import translation_ruleset
 
 
-def test_ssis_demo(project_root):
+def test_automic_demo(project_root):
     actual = translation_ruleset.translate_fn(
-        translation_ruleset, (project_root / "tests_copy/automic/demo/workflow/")
+        translation_ruleset, (project_root / "tests/automic/demo/workflow/")
     )
 
     assert list(actual.dags.keys()) == ["jobp.dummy.workflow"]
