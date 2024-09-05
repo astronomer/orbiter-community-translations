@@ -48,7 +48,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from pendulum import DateTime, Timezone
-with DAG(dag_id='jobp.dummy.workflow', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=' **Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\\nContact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!'):
+with DAG(dag_id='jobp.dummy.workflow', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
     start_task = EmptyOperator(task_id='start')
     generate_file_task = BashOperator(task_id='generate_file', bash_command='echo "I am a Script"')
     process_and_upload_file_task = BashOperator(task_id='process_and_upload_file', bash_command='echo "Runs a Python Script"')
@@ -81,6 +81,7 @@ from orbiter.rules import (
     task_filter_rule,
     task_rule,
     task_dependency_rule,
+    cannot_map_rule,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
@@ -159,7 +160,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ... # doctest: +ELLIPSIS
     from airflow import DAG
     from pendulum import DateTime, Timezone
-    with DAG(dag_id='jobp.dummy.workflow', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=' **Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\\nContact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!'):
+    with DAG(dag_id='jobp.dummy.workflow', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...:
 
     ```
     """  # noqa: E501
@@ -170,7 +171,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
             return OrbiterDAG(
                 dag_id=dag_id,
                 file_path=Path(f"{inflection.underscore(dag_id)}.py"),
-                doc_md=" **Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\n"
+                doc_md="**Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\n"
                 "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
                 "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
             )
@@ -230,13 +231,49 @@ def task_filter_rule(val: dict) -> list | None:
 
 
 @task_rule(priority=2)
-def basic_task_rule(
+def sql_command_rule(
     val: dict,
-) -> OrbiterEmptyOperator | OrbiterBashOperator | OrbiterSQLExecuteQueryOperator | None:
-    """Translate input into an Operator (e.g. `OrbiterBashOperator`)""
+) -> OrbiterSQLExecuteQueryOperator | None:
+    """
+    Translate input into an OrbiterSQLExecuteQueryOperator""
 
     ```pycon
-    >>> basic_task_rule(val={'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': 'generate_file', '@OType': 'SCRI', '@Object': 'SCRI.SCRIPT', '@Row': '1', '@State': '', '@Text1': '', 'predecessors': [
+    >>> sql_command_rule(val={'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': 'insert_into_database', '@OType': 'JOBS', '@Object': 'JOBS.SQL', '@Row': '1', '@State': '', '@Text1': '', 'predecessors': [
+    ...    {'pre': [
+    ...            {'@BranchType': '0', '@Lnr': '1', '@PreLnr': '1', '@When': '', '@type': 'container'
+    ...            }
+    ...        ]
+    ...    }
+    ... ], 'script': {'@name': 'JOBS.SQL', 'SCRIPT': 'A SQL command :SQL INSERT INTO users VALUES ("name", "age", "profession");'
+    ... }
+    ... })
+    ... # doctest: +ELLIPSIS
+    insert_into_database_task = SQLExecuteQueryOperator(task_id='insert_into_database', conn_id='mssql_default', sql='INSERT INTO users VALUES ("name", "age", "profession");')
+
+    ```
+    """  # noqa: E501
+    try:
+        if val["@OType"] == "JOBS":
+            if "SQL" in val["script"]["SCRIPT"]:
+                return OrbiterSQLExecuteQueryOperator(
+                    task_id=val["@OH_TITLE"],
+                    sql=val["script"]["SCRIPT"].split(":SQL")[-1].strip(),
+                    **conn_id(conn_id="mssql_default", conn_type="mssql"),
+                )
+    except StopIteration:
+        pass
+    return None
+
+
+@task_rule(priority=2)
+def bash_command_rule(
+    val: dict,
+) -> OrbiterBashOperator | None:
+    """
+    Translate input into an OrbiterBashOperator
+
+    ```pycon
+    >>> bash_command_rule(val={'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': 'generate_file', '@OType': 'SCRI', '@Object': 'SCRI.SCRIPT', '@Row': '1', '@State': '', '@Text1': '', 'predecessors': [
     ...    {'pre': [
     ...            {'@BranchType': '0', '@Lnr': '1', '@PreLnr': '1', '@When': '', '@type': 'container'
     ...            }
@@ -259,18 +296,27 @@ def basic_task_rule(
                 task_id=val["@OH_TITLE"],
                 bash_command=val["script"]["SCRIPT"][0]["#text"],
             )
-        if val["@OType"] == "JOBS":
-            if "SQL" in val["script"]["SCRIPT"]:
-                return OrbiterSQLExecuteQueryOperator(
-                    task_id=val["@OH_TITLE"],
-                    sql=val["script"]["SCRIPT"].split(":SQL")[-1].strip(),
-                    **conn_id(conn_id="mssql_default", conn_type="mssql"),
-                )
-        return OrbiterEmptyOperator(task_id=val["@OH_TITLE"])
-
     except StopIteration:
         pass
     return None
+
+
+@task_rule(priority=2)
+def start_or_end_rule(val):
+    """
+    Translate input into an EmptyOperator for start and end tasks
+
+    ```pycon
+    >>> start_or_end_rule(val={'@Alias': '', '@BranchType': '0', '@Col': '2', '@Lnr': '2', '@OH_TITLE': 'start', '@OType': '', '@Object': 'START', '@Row': '1', '@State': '', '@Text1': '', 'predecessors': None,
+    ... })
+    ... # doctest: +ELLIPSIS
+    start_task = EmptyOperator(task_id='start')
+
+    ```
+    """  # noqa: E501
+    task_id = val["@OH_TITLE"]
+    if val["@Object"].lower() in ["start", "end"]:
+        return OrbiterEmptyOperator(task_id=task_id)
 
 
 @task_dependency_rule
@@ -344,7 +390,14 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[dag_filter_rule]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[task_filter_rule]),
-    task_ruleset=TaskRuleset(ruleset=[basic_task_rule]),
+    task_ruleset=TaskRuleset(
+        ruleset=[
+            sql_command_rule,
+            bash_command_rule,
+            start_or_end_rule,
+            cannot_map_rule,
+        ]
+    ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[simple_task_dependencies]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
