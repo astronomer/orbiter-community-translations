@@ -302,7 +302,9 @@ def bash_command_rule(
 
 
 @task_rule(priority=2)
-def start_or_end_rule(val):
+def start_or_end_rule(
+    val: dict,
+) -> OrbiterEmptyOperator | None:
     """
     Translate input into an EmptyOperator for start and end tasks
 
