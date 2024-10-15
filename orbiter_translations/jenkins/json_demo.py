@@ -1,3 +1,119 @@
+"""
+## Demo `translation_ruleset` Example for Jenkins pipeline.
+Jenkins provides a nifty API in the [pipeline-model-definition-plugin](https://github.com/jenkinsci/pipeline-model-definition-plugin/blob/master/EXTENDING.md#conversion-to-json-representation-from-jenkinsfile).
+This API can convert a Jenkins Pipeline script (Groovy) to a JSON schema. Users can leverage this API to convert Jenkins Pipeline to a JSON structure.
+
+```pycon
+>>> dags = translation_ruleset.test(input_value='''
+... {
+...     "status": "ok",
+...     "data": {
+...         "result": "success",
+...         "json": {
+...             "pipeline": {
+...                 "stages": [
+...                     {
+...                         "name": "Build",
+...                         "branches": [
+...                             {
+...                                 "name": "default",
+...                                 "steps": [
+...                                     {
+...                                         "name": "echo",
+...                                         "arguments": [
+...                                             {
+...                                                 "key": "message",
+...                                                 "value": {
+...                                                     "isLiteral": true,
+...                                                     "value": "Building.."
+...                                                 }
+...                                             }
+...                                         ]
+...                                     },
+...                                     {
+...                                         "name": "echo",
+...                                         "arguments": [
+...                                             {
+...                                                 "key": "message",
+...                                                 "value": {
+...                                                     "isLiteral": false,
+...                                                     "value": "${PATH}"
+...                                                 }
+...                                             }
+...                                         ]
+...                                     }
+...                                 ]
+...                             }
+...                         ]
+...                     },
+...                     {
+...                         "name": "Test",
+...                         "branches": [
+...                             {
+...                                 "name": "default",
+...                                 "steps": [
+...                                     {
+...                                         "name": "echo",
+...                                         "arguments": [
+...                                             {
+...                                                 "key": "message",
+...                                                 "value": {
+...                                                     "isLiteral": true,
+...                                                     "value": "Testing.."
+...                                                 }
+...                                             }
+...                                         ]
+...                                     }
+...                                 ]
+...                             }
+...                         ]
+...                     },
+...                     {
+...                         "name": "Deploy",
+...                         "branches": [
+...                             {
+...                                 "name": "default",
+...                                 "steps": [
+...                                     {
+...                                         "name": "echo",
+...                                         "arguments": [
+...                                             {
+...                                                 "key": "message",
+...                                                 "value": {
+...                                                     "isLiteral": true,
+...                                                     "value": "Deploying...."
+...                                                 }
+...                                             }
+...                                         ]
+...                                     }
+...                                 ]
+...                             }
+...                         ]
+...                     }
+...                 ],
+...                 "agent": {
+...                     "type": "any"
+...                 }
+...             }
+...         }
+...     }
+... }
+... ''').dags.values()
+>>> list(dags)[0]
+... # doctest: +ELLIPSIS
+from airflow import DAG
+from airflow.operators.bash import BashOperator
+from pendulum import DateTime, Timezone
+with DAG(dag_id=..., schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+    build_task = BashOperator(task_id='build', bash_command="echo 'Building..'; echo ${PATH}")
+    test_task = BashOperator(task_id='test', bash_command="echo 'Testing..'")
+    deploy_task = BashOperator(task_id='deploy', bash_command="echo 'Deploying....'")
+    build_task >> test_task
+    test_task >> deploy_task
+
+```
+"""  # noqa: E501
+
 from __future__ import annotations
 
 import inflection
@@ -7,8 +123,6 @@ import json
 from orbiter.file_types import FileTypeJSON
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.bash import OrbiterBashOperator
-from orbiter.objects.task import OrbiterOperator
-from orbiter.objects.task_group import OrbiterTaskGroup
 from orbiter.rules import (
     dag_filter_rule,
     dag_rule,
@@ -31,7 +145,84 @@ from orbiter.rules.rulesets import (
 
 @dag_filter_rule
 def basic_dag_filter(val: dict) -> list | None:
-    """Filter input down to a list of dictionaries that can be processed by the `@dag_rules`"""
+    """
+    Filter input to the top level element `pipeline` and further,
+    to a list of dictionaries that can be processed by the `@dag_rules`
+    ```pycon
+    >>> basic_dag_filter(val={"status": "ok",
+    ...     "data": {
+    ...         "result": "success",
+    ...         "json": {
+    ...             "pipeline": {
+    ...                 "stages": [
+    ...                     {
+    ...                         "name": "Build",
+    ...                         "branches": [
+    ...                             {
+    ...                                 "name": "default",
+    ...                                 "steps": [
+    ...                                     {
+    ...                                         "name": "echo",
+    ...                                         "arguments": [
+    ...                                             {"key": "message", "value": {"isLiteral": True, "value": "Building.."}}
+    ...                                         ],
+    ...                                     },
+    ...                                     {
+    ...                                         "name": "echo",
+    ...                                         "arguments": [
+    ...                                             {"key": "message", "value": {"isLiteral": False, "value": "${PATH}"}}
+    ...                                         ],
+    ...                                     },
+    ...                                 ],
+    ...                             }
+    ...                         ],
+    ...                     },
+    ...                     {
+    ...                         "name": "Test",
+    ...                         "branches": [
+    ...                             {
+    ...                                 "name": "default",
+    ...                                 "steps": [
+    ...                                     {
+    ...                                         "name": "echo",
+    ...                                         "arguments": [
+    ...                                             {"key": "message", "value": {"isLiteral": True, "value": "Testing.."}}
+    ...                                         ],
+    ...                                     }
+    ...                                 ],
+    ...                             }
+    ...                         ],
+    ...                     },
+    ...                     {
+    ...                         "name": "Deploy",
+    ...                         "branches": [
+    ...                             {
+    ...                                 "name": "default",
+    ...                                 "steps": [
+    ...                                     {
+    ...                                         "name": "echo",
+    ...                                         "arguments": [
+    ...                                             {
+    ...                                                 "key": "message",
+    ...                                                 "value": {"isLiteral": True, "value": "Deploying...."},
+    ...                                             }
+    ...                                         ],
+    ...                                     }
+    ...                                 ],
+    ...                             }
+    ...                         ],
+    ...                     },
+    ...                 ],
+    ...                 "agent": {"type": "any"},
+    ...             }
+    ...         },
+    ...     },
+    ... })
+    ... # doctest: +ELLIPSIS
+    [{'stages': [{'name': 'Build', 'branches': [{'name': 'default', 'steps': [{'name': 'echo', 'arguments': [{'key': 'message', 'value': {'isLiteral': True, 'value': 'Building..'}}]}, {'name': 'echo', 'arguments': [{'key': 'message', 'value': {'isLiteral': False, 'value': '${PATH}'}}]}]}]}, {'name': 'Test', 'branches': [{'name': 'default', 'steps': [{'name': 'echo', 'arguments': [{'key': 'message', 'value': {'isLiteral': True, 'value': 'Testing..'}}]}]}]}, {'name': 'Deploy', 'branches': [{'name': 'default', 'steps': [{'name': 'echo', 'arguments': [{'key': 'message', 'value': {'isLiteral': True, 'value': 'Deploying....'}}]}]}]}], 'agent': {'type': 'any'}}]
+
+    ```
+    """  # noqa: E501
     val = json.loads(json.dumps(val, default=str))  # pre-serialize values, for JQ
 
     try:
@@ -43,8 +234,37 @@ def basic_dag_filter(val: dict) -> list | None:
 
 @dag_rule
 def basic_dag_rule(val: dict) -> OrbiterDAG | None:
-    """Translate input into an `OrbiterDAG`"""
-    dag_id = val["__file"].stem
+    """Translate input into an `OrbiterDAG`
+    ```pycon
+    >>> from pathlib import Path
+    >>> basic_dag_rule(val={'pipeline': {'stages': [{'name': 'Build',
+    ...  'branches': [{'name': 'default',
+    ...    'steps': [{'name': 'echo',
+    ...      'arguments': [{'key': 'message',
+    ...        'value': {'isLiteral': True, 'value': 'Building..'}}]},
+    ...     {'name': 'echo',
+    ...      'arguments': [{'key': 'message',
+    ...        'value': {'isLiteral': False, 'value': '${PATH}'}}]}]}]},
+    ... {'name': 'Test',
+    ...  'branches': [{'name': 'default',
+    ...    'steps': [{'name': 'echo',
+    ...      'arguments': [{'key': 'message',
+    ...        'value': {'isLiteral': True, 'value': 'Testing..'}}]}]}]},
+    ... {'name': 'Deploy',
+    ...  'branches': [{'name': 'default',
+    ...    'steps': [{'name': 'echo',
+    ...      'arguments': [{'key': 'message',
+    ...        'value': {'isLiteral': True, 'value': 'Deploying....'}}]}]}]}],
+    ... 'agent': {'type': 'any'}},
+    ... '__file': Path("demo1.json")})
+    ... # doctest: +ELLIPSIS
+    from airflow import DAG
+    from pendulum import DateTime, Timezone
+    with DAG(dag_id='demo1', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+
+    ```
+    """  # noqa: E501
+    dag_id = inflection.underscore(val["__file"].stem)
     return OrbiterDAG(
         dag_id=dag_id,
         file_path=f"{dag_id}.py",
@@ -56,23 +276,117 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
 
 @task_filter_rule
 def basic_task_filter(val: dict) -> list | None:
-    """Filter input down to a list of dictionaries that can be processed by the `@task_rules`"""
+    """
+    The task declaration is in 'stages' inside 'pipeline'
+
+    ```pycon
+    >>> basic_task_filter(val={
+    ...     "stages": [
+    ...         {
+    ...             "name": "Build",
+    ...             "branches": [
+    ...                 {
+    ...                     "name": "default",
+    ...                     "steps": [
+    ...                         {
+    ...                             "name": "echo",
+    ...                             "arguments": [{"key": "message", "value": {"isLiteral": True, "value": "Building.."}}],
+    ...                         },
+    ...                         {
+    ...                             "name": "echo",
+    ...                             "arguments": [{"key": "message", "value": {"isLiteral": False, "value": "${PATH}"}}],
+    ...                         },
+    ...                     ],
+    ...                 }
+    ...             ],
+    ...         },
+    ...         {
+    ...             "name": "Test",
+    ...             "branches": [
+    ...                 {
+    ...                     "name": "default",
+    ...                     "steps": [
+    ...                         {
+    ...                             "name": "echo",
+    ...                             "arguments": [{"key": "message", "value": {"isLiteral": True, "value": "Testing.."}}],
+    ...                         }
+    ...                     ],
+    ...                 }
+    ...             ],
+    ...         },
+    ...         {
+    ...             "name": "Deploy",
+    ...             "branches": [
+    ...                 {
+    ...                     "name": "default",
+    ...                     "steps": [
+    ...                         {
+    ...                             "name": "echo",
+    ...                             "arguments": [
+    ...                                 {"key": "message", "value": {"isLiteral": True, "value": "Deploying...."}}
+    ...                             ],
+    ...                         }
+    ...                     ],
+    ...                 }
+    ...             ],
+    ...         },
+    ...     ],
+    ...     "agent": {"type": "any"},
+    ... })
+    ... # doctest: +ELLIPSIS
+    [{'name': 'Build',
+    'branches': [{'name': 'default',
+    'steps': [{'name': 'echo',
+      'arguments': [{'key': 'message',
+        'value': {'isLiteral': True, 'value': 'Building..'}}]},
+     {'name': 'echo',
+      'arguments': [{'key': 'message',
+        'value': {'isLiteral': False, 'value': '${PATH}'}}]}]}]},
+    {'name': 'Test',
+    'branches': [{'name': 'default',
+    'steps': [{'name': 'echo',
+      'arguments': [{'key': 'message',
+        'value': {'isLiteral': True, 'value': 'Testing..'}}]}]}]},
+    {'name': 'Deploy',
+    'branches': [{'name': 'default',
+    'steps': [{'name': 'echo',
+      'arguments': [{'key': 'message',
+        'value': {'isLiteral': True, 'value': 'Deploying....'}}]}]}]}]
+
+    ```
+    """  # noqa: E501
+
     return val.get("stages", [])
 
 
 @task_rule(priority=2)
-def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
-    """Translate input into an Operator (e.g. `OrbiterBashOperator`). will be applied first, with a higher priority"""
+def basic_task_rule(val: dict) -> OrbiterBashOperator | None:
+    """Translate input into a OrbiterOperator (e.g. `OrbiterBashOperator`)
+    ```pycon
+    >>> basic_task_rule(val={'name': 'Build',
+    ... 'branches': [{'name': 'default',
+    ... 'steps': [{'name': 'echo',
+    ...   'arguments': [{'key': 'message',
+    ...     'value': {'isLiteral': True, 'value': 'Building..'}}]},
+    ...  {'name': 'echo',
+    ...   'arguments': [{'key': 'message',
+    ...     'value': {'isLiteral': False, 'value': '${PATH}'}}]}]}]})
+    ... # doctest: +ELLIPSIS
+    build_task = BashOperator(task_id='build', bash_command="echo 'Building..'; echo ${PATH}")
+
+    ```
+    """
     val = json.loads(json.dumps(val, default=str))  # pre-serialize values, for JQ
     task_id = inflection.underscore(val["name"])
     commands = []
+    steps = None
 
     # Considering only the first branch for each stage in pipeline for now
     # TODO: Add support for multiple branches
     try:
         steps = jq.compile(""".branches[] | .steps""").input_value(val).first()
     except StopIteration:
-        return None
+        pass
 
     for step in steps:
         command = []
@@ -96,7 +410,24 @@ def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
 
 @task_dependency_rule
 def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
-    """Translate input into a list of task dependencies"""
+    """
+    Map all tasks to their predecessors to get the dependency graph
+
+    ```pycon
+    >>> basic_task_dependency_rule(val=OrbiterDAG(
+    ...     dag_id=".", file_path=".",
+    ...     tasks={
+    ...            'build': OrbiterBashOperator(task_id='build', bash_command="echo 'Building..'; echo ${PATH}"),
+    ...            'test': OrbiterBashOperator(task_id='test', bash_command="echo 'Testing..'"),
+    ...            'deploy': OrbiterBashOperator(task_id='deploy', bash_command="echo 'Deploying....'")
+    ...        },
+    ...     orbiter_kwargs={'val': {'stages': [{'name': 'Build', 'branches': [{'name': 'default', 'steps': [{'name': 'echo', 'arguments': [{'key': 'message', 'value': {'isLiteral': True, 'value': 'Building..'}}]}, {'name': 'echo', 'arguments': [{'key': 'message', 'value': {'isLiteral': False, 'value': '${PATH}'}}]}]}]}, {'name': 'Test', 'branches': [{'name': 'default', 'steps': [{'name': 'echo', 'arguments': [{'key': 'message', 'value': {'isLiteral': True, 'value': 'Testing..'}}]}]}]}, {'name': 'Deploy', 'branches': [{'name': 'default', 'steps': [{'name': 'echo', 'arguments': [{'key': 'message', 'value': {'isLiteral': True, 'value': 'Deploying....'}}]}]}]}], 'agent': {'type': 'any'}}}
+    ... ))
+    ... # doctest: +ELLIPSIS
+    [build >> test, test >> deploy]
+
+    ```
+    """  # noqa: E501
     task_dependencies = []
     tasks = list(val.tasks.values())
 
