@@ -394,7 +394,7 @@ def basic_task_rule(val: dict) -> OrbiterBashOperator | None:
         for argument in step["arguments"]:
             argument_defn = argument["value"]
             command.append(
-                f"'{argument_defn["value"]}'"
+                f"""'{argument_defn["value"]}'"""
                 if argument_defn["isLiteral"]
                 else argument_defn["value"]
             )
