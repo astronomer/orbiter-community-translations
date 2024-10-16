@@ -1,0 +1,93 @@
+{
+    "status": "ok",
+    "data": {
+        "result": "success",
+        "json": {
+            "pipeline": {
+                "stages": [
+                    {
+                        "name": "Build",
+                        "branches": [
+                            {
+                                "name": "default",
+                                "steps": [
+                                    {
+                                        "name": "echo",
+                                        "arguments": [
+                                            {
+                                                "key": "message",
+                                                "value": {
+                                                    "isLiteral": true,
+                                                    "value": "Building.."
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "echo",
+                                        "arguments": [
+                                            {
+                                                "key": "message",
+                                                "value": {
+                                                    "isLiteral": false,
+                                                    "value": "${PATH}"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Test",
+                        "branches": [
+                            {
+                                "name": "default",
+                                "steps": [
+                                    {
+                                        "name": "echo",
+                                        "arguments": [
+                                            {
+                                                "key": "message",
+                                                "value": {
+                                                    "isLiteral": true,
+                                                    "value": "Testing.."
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Deploy",
+                        "branches": [
+                            {
+                                "name": "default",
+                                "steps": [
+                                    {
+                                        "name": "echo",
+                                        "arguments": [
+                                            {
+                                                "key": "message",
+                                                "value": {
+                                                    "isLiteral": true,
+                                                    "value": "Deploying...."
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "agent": {
+                    "type": "any"
+                }
+            }
+        }
+    }
+}
