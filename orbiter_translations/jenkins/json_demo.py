@@ -3,6 +3,14 @@
 Jenkins provides a nifty API in the [pipeline-model-definition-plugin](https://github.com/jenkinsci/pipeline-model-definition-plugin/blob/master/EXTENDING.md#conversion-to-json-representation-from-jenkinsfile).
 This API can convert a Jenkins Pipeline script (Groovy) to a JSON schema. Users can leverage this API to convert Jenkins Pipeline to a JSON structure.
 
+Sample cURL:
+```
+curl --location '<jenkins-base-url>/pipeline-model-converter/toJson' \
+    --header 'Content-Type: application/x-www-form-urlencoded' \
+    --header 'Cookie: <authentication-cookie(s)>' \
+    --data-urlencode 'jenkinsfile=<jenkinsfile>'
+```
+
 ```pycon
 >>> dags = translation_ruleset.test(input_value='''
 ... {
