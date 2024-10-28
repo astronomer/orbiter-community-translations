@@ -262,7 +262,6 @@ def task_group_rule(val: dict) -> OrbiterTaskGroup | None:
     if task_group_id := val.pop("__task_group_id", ""):
         _ = val.pop("dependencies", [])
         return OrbiterTaskGroup(
-            tasks=[],
             task_group_id=task_group_id,
             **callback_args(val),
         )
