@@ -90,10 +90,6 @@ Source = "https://github.com/astronomer/orbiter-community-translations"
 exclude_dirs = ["tests"]
 skips = []
 
-[tool.black]
-# https://github.com/psf/black
-color = true
-
 [tool.ruff]
 line-length = 120
 
