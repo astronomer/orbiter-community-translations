@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DSExport>
+   <Header CharacterSet="CP1252" ExportingTool="IBM InfoSphere DataStage Export" ToolVersion="8"
+      ServerName="AZEYUMDATSTG003" ToolInstanceID="PHIDW" Date="2024-11-21" Time="10.40.02"
+      ServerVersion="11.7" />
+   <Job Identifier="PH_Insert_EMPLOYEE_DIM" DateModified="2020-11-27" TimeModified="05.07.33">
+      <Record Identifier="ROOT" Type="JobDefn" Readonly="0">
+         <Property Name="Name">PH_Insert_EMPLOYEE_DIM</Property>
+         <Property Name="Description">Loads the Employee_Dim stage data into Employee_Dim target
+            table in Snowflake.</Property>
+         <Property Name="NextID">254</Property>
+         <Property Name="Container">V0</Property>
+         <Property Name="FullDescription" PreFormatted="1">Job Name : PH_Insert_EMPLOYEE_DIM
+            Created By : VXG8533
+            Date Created : 12/04/2018
+            Purpose : Loads the Employee_Dim stage data into Employee_Dim target table in Snowflake.
+            Modification History:
+            mm/dd/yyyy ---&gt; UserId ---&gt; Change Desc
+            ------------------------------------------------------------------</Property>
+         <Property Name="JobVersion">56.0.0</Property>
+         <Property Name="ControlAfterSubr">0</Property>
+         <Collection Name="Parameters" Type="Parameters">
+            <SubRecord>
+               <Property Name="Name">PH_SnowflakeDB</Property>
+               <Property Name="Prompt">PH_SnowflakeDB parameters</Property>
+               <Property Name="Default">(As pre-defined)</Property>
+               <Property Name="HelpTxt">parameter set for Snowflake database</Property>
+               <Property Name="ParamType">13</Property>
+               <Property Name="ParamLength">0</Property>
+               <Property Name="ParamScale">0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">SnowflakeS3FilePath</Property>
+               <Property Name="Prompt">SnowflakeS3FilePath</Property>
+               <Property Name="Default">Snowflake/</Property>
+               <Property Name="ParamType">0</Property>
+               <Property Name="ParamLength">0</Property>
+               <Property Name="ParamScale">0</Property>
+            </SubRecord>
+         </Collection>
+         <Collection Name="MetaBag" Type="MetaProperty">
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">AdvancedRuntimeOptions</Property>
+               <Property Name="Value">#DSProjectARTOptions#</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">TraceMode</Property>
+               <Property Name="Value">0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">TraceSeq</Property>
+               <Property Name="Value">1</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">TraceRecords</Property>
+               <Property Name="Value">100</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">TraceSkip</Property>
+               <Property Name="Value">0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">TracePeriod</Property>
+               <Property Name="Value">1</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">RecordJobPerformanceData</Property>
+               <Property Name="Value">0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">IdentList</Property>
+               <Property Name="Value">JDBC_SF_Insert_EMPLOYEE_DIM|Peek_SF_Ld</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">ClientCodePage</Property>
+               <Property Name="Value">1252</Property>
+            </SubRecord>
+         </Collection>
+         <Property Name="NULLIndicatorPosition">0</Property>
+         <Property Name="IsTemplate">0</Property>
+         <Property Name="NLSLocale">,,,,</Property>
+         <Property Name="JobType">3</Property>
+         <Property Name="Category">\Jobs\Employee</Property>
+         <Property Name="CenturyBreakYear">30</Property>
+         <Property Name="NextAliasID">2</Property>
+         <Property Name="ParameterFileDDName">DD00001</Property>
+         <Property Name="ReservedWordCheck">1</Property>
+         <Property Name="TransactionSize">0</Property>
+         <Property Name="ValidationStatus">0</Property>
+         <Property Name="Uploadable">0</Property>
+         <Property Name="PgmCustomizationFlag">0</Property>
+         <Property Name="JobReportFlag">0</Property>
+         <Property Name="AllowMultipleInvocations">0</Property>
+         <Property Name="Act2ActOverideDefaults">0</Property>
+         <Property Name="Act2ActEnableRowBuffer">0</Property>
+         <Property Name="Act2ActUseIPC">0</Property>
+         <Property Name="Act2ActBufferSize">0</Property>
+         <Property Name="Act2ActIPCTimeout">0</Property>
+         <Property Name="ExpressionSemanticCheckFlag">0</Property>
+         <Property Name="TraceOption">0</Property>
+         <Property Name="EnableCacheSharing">0</Property>
+         <Property Name="RuntimeColumnPropagation">0</Property>
+         <Property Name="RelStagesInJobStatus">-1</Property>
+         <Property Name="WebServiceEnabled">0</Property>
+         <Property Name="MFProcessMetaData">0</Property>
+         <Property Name="MFProcessMetaDataXMLFileExchangeMethod">0</Property>
+         <Property Name="IMSProgType">0</Property>
+         <Property Name="CopyLibPrefix">ARDT</Property>
+         <Property Name="RecordPerformanceResults">0</Property>
+      </Record>
+      <Record Identifier="V0" Type="ContainerView" Readonly="0">
+         <Property Name="Name">Job</Property>
+         <Property Name="NextID">1</Property>
+         <Property Name="IsTopLevel">0</Property>
+         <Property Name="StageList">V253S0|V253S1|V0A10</Property>
+         <Property Name="StageXPos">288|624|260</Property>
+         <Property Name="StageYPos">312|312|42</Property>
+         <Property Name="StageTypes">CCustomStage.CC_GUI|CCustomStage|ID_PALETTEJOBANNOTATION</Property>
+         <Property Name="NextStageID">11</Property>
+         <Property Name="SnapToGrid">1</Property>
+         <Property Name="GridLines">0</Property>
+         <Property Name="ZoomValue">100</Property>
+         <Property Name="StageXSize">48|48|277</Property>
+         <Property Name="StageYSize">48|48|121</Property>
+         <Property Name="ContainerViewSizing">0000 0000 0438 0401 0000 0001 0000 0000</Property>
+         <Property Name="StageNames">JDBC_SF_Insert_EMPLOYEE_DIM|Peek_SF_Ld|\(20)</Property>
+         <Property Name="StageTypeIDs">JDBCConnectorPX|PxPeek|\(20)</Property>
+         <Property Name="LinkNames">Lnk_SF_Ld| |\(20)</Property>
+         <Property Name="LinkHasMetaDatas">True| |\(20)</Property>
+         <Property Name="LinkTypes">1| |\(20)</Property>
+         <Property Name="LinkNamePositionXs">480| |\(20)</Property>
+         <Property Name="LinkNamePositionYs">336| |\(20)</Property>
+         <Property Name="TargetStageIDs">V253S1| |\(20)</Property>
+         <Property Name="SourceStageEffectiveExecutionModes">2| |\(20)</Property>
+         <Property Name="SourceStageRuntimeExecutionModes">2| |\(20)</Property>
+         <Property Name="TargetStageEffectiveExecutionModes">2| |\(20)</Property>
+         <Property Name="TargetStageRuntimeExecutionModes">2| |\(20)</Property>
+         <Property Name="LinkIsSingleOperatorLookup">False| |\(20)</Property>
+         <Property Name="LinkIsSortSequential">False| |\(20)</Property>
+         <Property Name="LinkSortMode">0| |\(20)</Property>
+         <Property Name="LinkPartColMode">1| |\(20)</Property>
+         <Property Name="LinkSourcePinIDs">V253S0P1| |\(20)</Property>
+      </Record>
+      <Record Identifier="V0A10" Type="Annotation" Readonly="0">
+         <Property Name="Name">V0A10</Property>
+         <Property Name="NextID">0</Property>
+         <Property Name="AnnotationType">2</Property>
+         <Property Name="TextFont">MS Shell Dlg\10\0\0\0\400\0</Property>
+         <Property Name="TextHorizontalJustification">0</Property>
+         <Property Name="TextVerticalJustification">0</Property>
+         <Property Name="TextColor">0</Property>
+         <Property Name="BackgroundColor">12713983</Property>
+         <Property Name="BackgroundTransparent">0</Property>
+         <Property Name="BorderVisible">1</Property>
+      </Record>
+      <Record Identifier="V253S0" Type="CustomStage" Readonly="0">
+         <Property Name="Name">JDBC_SF_Insert_EMPLOYEE_DIM</Property>
+         <Property Name="NextID">2</Property>
+         <Property Name="OutputPins">V253S0P1</Property>
+         <Property Name="StageType">JDBCConnectorPX</Property>
+         <Property Name="AllowColumnMapping">0</Property>
+         <Collection Name="Properties" Type="CustomProperty">
+            <SubRecord>
+               <Property Name="Name">VariantName</Property>
+               <Property Name="Value">1.0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">VariantLibrary</Property>
+               <Property Name="Value">
+                  &quot;java:com/ibm/is/cc/jdbc/CC_JDBCConnectorLibrary,$(DSHOME)/../DSComponents/bin/ccjdbc.jar;$(DSHOME)&quot;</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">VariantVersion</Property>
+               <Property Name="Value">1.0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">SupportedVariants</Property>
+               <Property Name="Value">
+                  V1;1.0::&quot;java:com/ibm/is/cc/jdbc/CC_JDBCConnectorLibrary,$(DSHOME)/../DSComponents/bin/ccjdbc.jar;$(DSHOME)&quot;</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">SupportedVariantsLibraries</Property>
+               <Property Name="Value">
+                  &quot;java:com/ibm/is/cc/jdbc/CC_JDBCConnectorLibrary,$(DSHOME)/../DSComponents/bin/ccjdbc.jar;$(DSHOME)&quot;</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">SupportedVariantsVersions</Property>
+               <Property Name="Value">1.0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">Orientation</Property>
+               <Property Name="Value">link</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">RejectFromLink</Property>
+               <Property Name="Value">-1</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">RejectThreshold</Property>
+               <Property Name="Value">0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">RejectNumber</Property>
+               <Property Name="Value">0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">RejectUsesPercentage</Property>
+               <Property Name="Value">false</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">ConnectorName</Property>
+               <Property Name="Value">JDBCConnector</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">Engine</Property>
+               <Property Name="Value">EE</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">Context</Property>
+               <Property Name="Value">source</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">ConnectionString</Property>
+               <Property Name="Value">/Connection/URL</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">Username</Property>
+               <Property Name="Value">/Connection/Username</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">Password</Property>
+               <Property Name="Value">/Connection/Password</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">Attributes</Property>
+               <Property Name="Value">/Connection/Attributes</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">XMLProperties</Property>
+               <Property Name="Value" PreFormatted="1">&lt;?xml version=&apos;1.0&apos;
+                  encoding=&apos;UTF-16&apos;?&gt;&lt;Properties
+                  version=&apos;1.1&apos;&gt;&lt;Common&gt;&lt;Context
+                  type=&apos;int&apos;&gt;1&lt;/Context&gt;&lt;Variant
+                  type=&apos;string&apos;&gt;1.0&lt;/Variant&gt;&lt;DescriptorVersion
+                  type=&apos;string&apos;&gt;1.0&lt;/DescriptorVersion&gt;&lt;PartitionType
+                  type=&apos;int&apos;&gt;-1&lt;/PartitionType&gt;&lt;RCP
+                  type=&apos;int&apos;&gt;0&lt;/RCP&gt;&lt;/Common&gt;&lt;Connection&gt;&lt;URL
+                  modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[jdbc:snowflake://lj10919.us-east-1.snowflakecomputing.com/?&amp;warehouse=#PH_SnowflakeDB.$jpsnowflake_wh#&amp;db=#PH_SnowflakeDB.$jpsnowflake_db#]]&gt;&lt;/URL&gt;&lt;Username
+                  modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[#PH_SnowflakeDB.$jpsnowflake_userid#]]&gt;&lt;/Username&gt;&lt;Password
+                  modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[#PH_SnowflakeDB.$jpsnowflake_passwd#]]&gt;&lt;/Password&gt;&lt;Attributes
+                  modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[]]&gt;&lt;/Attributes&gt;&lt;/Connection&gt;&lt;Usage&gt;&lt;ReadMode
+                  type=&apos;int&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadMode&gt;&lt;GenerateSQL
+                  modified=&apos;1&apos;
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/GenerateSQL&gt;&lt;EnableQuotedIDs
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/EnableQuotedIDs&gt;&lt;SQL&gt;&lt;SelectStatement
+                  collapsed=&apos;1&apos; modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[Select 1 as Dummy from
+                  #PH_SnowflakeDB.$jpsnowflake_db#.#PH_SnowflakeDB.$jpsnowflake_StgSchema#.I_EMPL_DIM_STAGE
+                  Limit 1;]]&gt;&lt;ReadFromFileSelect
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadFromFileSelect&gt;&lt;/SelectStatement&gt;&lt;EnablePartitionedReads
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/EnablePartitionedReads&gt;&lt;/SQL&gt;&lt;Transaction&gt;&lt;RecordCount
+                  type=&apos;int&apos;&gt;&lt;![CDATA[2000]]&gt;&lt;/RecordCount&gt;&lt;IsolationLevel
+                  type=&apos;int&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/IsolationLevel&gt;&lt;AutocommitMode
+                  modified=&apos;1&apos;
+                  type=&apos;int&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/AutocommitMode&gt;&lt;EndOfWave
+                  type=&apos;int&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/EndOfWave&gt;&lt;BeginEnd
+                  collapsed=&apos;1&apos;
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/BeginEnd&gt;&lt;/Transaction&gt;&lt;Session&gt;&lt;ArraySize
+                  type=&apos;int&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/ArraySize&gt;&lt;FetchSize
+                  type=&apos;int&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/FetchSize&gt;&lt;ReportSchemaMismatch
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReportSchemaMismatch&gt;&lt;DefaultLengthForColumns
+                  type=&apos;int&apos;&gt;&lt;![CDATA[200]]&gt;&lt;/DefaultLengthForColumns&gt;&lt;DefaultLengthForLongColumns
+                  type=&apos;int&apos;&gt;&lt;![CDATA[20000]]&gt;&lt;/DefaultLengthForLongColumns&gt;&lt;CharacterSetForNonUnicodeColumns
+                  collapsed=&apos;1&apos;
+                  type=&apos;int&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/CharacterSetForNonUnicodeColumns&gt;&lt;KeepConductorConnectionAlive
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/KeepConductorConnectionAlive&gt;&lt;/Session&gt;&lt;BeforeAfter
+                  modified=&apos;1&apos; type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;BeforeSQL
+                  collapsed=&apos;1&apos; modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[]]&gt;&lt;ReadFromFileBeforeSQL
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadFromFileBeforeSQL&gt;&lt;FailOnError
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/FailOnError&gt;&lt;/BeforeSQL&gt;&lt;AfterSQL
+                  collapsed=&apos;1&apos; modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[UPDATE
+                  #PH_SnowflakeDB.$jpsnowflake_db#.#PH_SnowflakeDB.$jpsnowflake_EWSchema#.EMPLOYEE_DIM
+                  SET
+                  NATL_ID = md5(to_char(i.NATL_ID)),
+                  EMPL_NM = Coalesce(i.EMPL_NM,&apos;N/A&apos;),
+                  LST_NM = Coalesce(i.LST_NM,&apos;N/A&apos;),
+                  LST_NM_SRCH = Coalesce(i.LST_NM_SRCH,&apos;N/A&apos;),
+                  FST_NM = Coalesce(i.FST_NM,&apos;N/A&apos;),
+                  FST_NM_SRCH = Coalesce(i.FST_NM_SRCH,&apos;N/A&apos;),
+                  MID_NM = i.MID_NM,
+                  HOME_PHONE = i.HOME_PHONE,
+                  SUPV_EMPL_ID = i.SUPV_EMPL_ID,
+                  BUS_UNIT = i.BUSS_UNIT_NM,
+                  DEPT_ID = Coalesce(RTRIM(i.DEPARTAMENTNAME,&apos;C&apos;),&apos;N/A&apos;),
+                  DEPT_NM = Coalesce(IDS.description,&apos;N/A&apos;),
+                  EMPL_STAT_CD =
+                  (Case
+                  When Trim(i.reason_name)=&apos;Active - No Payroll&apos; Then &apos;A&apos;
+                  When Trim(i.reason_name)=&apos;Active - Payroll Eligible&apos; Then &apos;A&apos;
+                  When Trim(i.reason_name)=&apos;Inactive - No Payroll&apos; Then &apos;T&apos;
+                  When Trim(i.reason_name)=&apos;Inactive - Payroll Elig W/Earn&apos; Then
+                  &apos;U&apos;
+                  When Trim(i.reason_name)=&apos;LOA - No Payroll&apos; Then &apos;L&apos;
+                  When Trim(i.reason_name)=&apos;LOA - Payroll Eligible&apos; Then &apos;P&apos;
+                  When Trim(i.reason_name)=&apos;LTD - No Payroll&apos; Then &apos;L&apos;
+                  When Trim(i.reason_name)=&apos;LTD - Payroll Eligible&apos; Then &apos;P&apos;
+                  When Trim(i.reason_name)=&apos;RET - No Payroll&apos; Then &apos;X&apos;
+                  When Trim(i.reason_name)=&apos;RET - Payroll Elig W/Earns&apos; Then &apos;Q&apos;
+                  When Trim(i.reason_name)=&apos;STD - No Payroll&apos; Then &apos;L&apos;
+                  When Trim(i.reason_name)=&apos;STD - Payroll Eligible&apos; Then &apos;P&apos;
+                  Else NULL End) ,
+                  FT_PT_CD = i.FT_PT_CD,
+                  ORIG_HIRE_DT = i.HIRE_DT,
+                  REHIRE_DT = i.REHIRE_DT,
+                  TERM_DT = i.TERM_DT,
+                  JOB_CD = Coalesce(i.JOB_CD,&apos;N/A&apos;),
+                  JOB_DESC = Coalesce(i.JOBNAME,&apos;N/A&apos;),
+                  JOB_FMLY_CD = Coalesce(i.JOB_FMLY_CD,&apos;N/A&apos;),
+                  JOB_FMLY_DESC = Coalesce(i.JOB_FMLY_DESC,&apos;N/A&apos;),
+                  UPDT_ID = &apos;PH_Load_Emp_Dim&apos;,
+                  UPDT_TMSTMP = current_timestamp::timestamp_ntz,
+                  AUD_VER_NBR = EMPLOYEE_DIM.AUD_VER_NBR + 1
+                  FROM
+                  #PH_SnowflakeDB.$jpsnowflake_db#.#PH_SnowflakeDB.$jpsnowflake_StgSchema#.I_EMPL_DIM_Stage
+                  i
+                  Left Join
+                  #PH_SnowflakeDB.$jpsnowflake_db#.#PH_SnowflakeDB.$jpsnowflake_StgSchema#.I_DEPT_STAGE
+                  IDS
+                  On IDS.NAME=RTRIM(i.DEPARTAMENTNAME,&apos;C&apos;)
+                  Where LTRIM(EMPLOYEE_DIM.EMPL_ID,&apos;0&apos;)= LTRIM(i.EMP_ID,&apos;0&apos;)
+                  ;
+
+                  INSERT
+                  INTO
+                  #PH_SnowflakeDB.$jpsnowflake_db#.#PH_SnowflakeDB.$jpsnowflake_EWSchema#.EMPLOYEE_DIM
+                  (
+                  DW_EMPLOYEE,
+                  EMPL_ID,
+                  NATL_ID,
+                  EMPL_NM,
+                  LST_NM,
+                  LST_NM_SRCH,
+                  FST_NM,
+                  FST_NM_SRCH,
+                  MID_NM,
+                  HOME_PHONE,
+                  SUPV_EMPL_ID,
+                  BUS_UNIT,
+                  DEPT_ID,
+                  DEPT_NM,
+                  EMPL_STAT_CD,
+                  FT_PT_CD,
+                  ORIG_HIRE_DT,
+                  REHIRE_DT,
+                  TERM_DT,
+                  JOB_CD,
+                  JOB_DESC,
+                  JOB_FMLY_CD,
+                  JOB_FMLY_DESC,
+                  CREATE_ID,
+                  CREATE_TMSTMP,
+                  UPDT_ID,
+                  UPDT_TMSTMP,
+                  AUD_VER_NBR
+                  )
+                  SELECT
+                  max_dw_employee + row_number() over (order by null) as DW_EMPLOYEE,
+                  Coalesce(EMP_ID,&apos;N/A&apos;) AS EMP_ID,
+                  md5(to_char(NATL_ID)),
+                  Coalesce(EMPL_NM,&apos;N/A&apos;) AS EMPL_NM,
+                  Coalesce(LST_NM,&apos;N/A&apos;) AS LST_NM,
+                  Coalesce(LST_NM_SRCH,&apos;N/A&apos;) AS LST_NM_SRCH,
+                  Coalesce(FST_NM,&apos;N/A&apos;) AS FST_NM,
+                  Coalesce(FST_NM_SRCH,&apos;N/A&apos;) AS FST_NM_SRCH,
+                  MID_NM,
+                  HOME_PHONE,
+                  SUPV_EMPL_ID,
+                  BUSS_UNIT_NM AS BUS_UNIT,
+                  Coalesce(RTRIM(x.DEPARTAMENTNAME,&apos;C&apos;),&apos;N/A&apos;) AS DEPT_ID,
+                  Coalesce(IDS.description,&apos;N/A&apos;) AS DEPT_NM,
+                  Case
+                  When Trim(reason_name)=&apos;Active - No Payroll&apos; Then &apos;A&apos;
+                  When Trim(reason_name)=&apos;Active - Payroll Eligible&apos; Then &apos;A&apos;
+                  When Trim(reason_name)=&apos;Inactive - No Payroll&apos; Then &apos;T&apos;
+                  When Trim(reason_name)=&apos;Inactive - Payroll Elig W/Earn&apos; Then
+                  &apos;U&apos;
+                  When Trim(reason_name)=&apos;LOA - No Payroll&apos; Then &apos;L&apos;
+                  When Trim(reason_name)=&apos;LOA - Payroll Eligible&apos; Then &apos;P&apos;
+                  When Trim(reason_name)=&apos;LTD - No Payroll&apos; Then &apos;L&apos;
+                  When Trim(reason_name)=&apos;LTD - Payroll Eligible&apos; Then &apos;P&apos;
+                  When Trim(reason_name)=&apos;RET - No Payroll&apos; Then &apos;X&apos;
+                  When Trim(reason_name)=&apos;RET - Payroll Elig W/Earns&apos; Then &apos;Q&apos;
+                  When Trim(reason_name)=&apos;STD - No Payroll&apos; Then &apos;L&apos;
+                  When Trim(reason_name)=&apos;STD - Payroll Eligible&apos; Then &apos;P&apos;
+                  Else NULL End As EMPL_STAT_CD,
+                  FT_PT_CD,
+                  HIRE_DT AS ORIG_HIRE_DT,
+                  REHIRE_DT,
+                  TERM_DT,
+                  Coalesce(JOB_CD,&apos;N/A&apos;) AS JOB_CD,
+                  Coalesce(JOBNAME,&apos;N/A&apos;) AS JOB_DESC,
+                  Coalesce(JOB_FMLY_CD,&apos;N/A&apos;) AS JOB_FMLY_CD,
+                  Coalesce(JOB_FMLY_DESC,&apos;N/A&apos;) AS JOB_FMLY_DESC,
+                  &apos;PH_Load_Emp_Dim&apos; as CREATE_ID,
+                  current_timestamp::timestamp_ntz as CREATE_TMSTMP,
+                  &apos;PH_Load_Emp_Dim&apos; as UPDT_ID,
+                  current_timestamp::timestamp_ntz as UPDT_TMSTMP,
+                  1 as AUD_VER_NBR
+                  FROM
+                  #PH_SnowflakeDB.$jpsnowflake_db#.#PH_SnowflakeDB.$jpsnowflake_StgSchema#.I_EMPL_DIM_Stage
+                  x
+                  join (Select nvl(max(DW_EMPLOYEE),0) as max_dw_employee from
+                  #PH_SnowflakeDB.$jpsnowflake_db#.#PH_SnowflakeDB.$jpsnowflake_EWSchema#.EMPLOYEE_DIM)
+                  get_max
+                  on 1=1
+                  Left Join
+                  #PH_SnowflakeDB.$jpsnowflake_db#.#PH_SnowflakeDB.$jpsnowflake_StgSchema#.I_DEPT_STAGE
+                  IDS
+                  On IDS.NAME=RTRIM(x.DEPARTAMENTNAME,&apos;C&apos;)
+                  Where Not exists (Select 1 from
+                  #PH_SnowflakeDB.$jpsnowflake_db#.#PH_SnowflakeDB.$jpsnowflake_EWSchema#.EMPLOYEE_DIM
+                  y
+                  where LTRIM(y.EMPL_ID,&apos;0&apos;) = LTRIM(x.EMP_ID,&apos;0&apos;))
+                  ;]]&gt;&lt;ReadFromFileAfterSQL
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadFromFileAfterSQL&gt;&lt;FailOnError
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/FailOnError&gt;&lt;/AfterSQL&gt;&lt;BeforeSQLNode
+                  type=&apos;string&apos;&gt;&lt;![CDATA[]]&gt;&lt;ReadFromFileBeforeSQLNode
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadFromFileBeforeSQLNode&gt;&lt;FailOnError
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/FailOnError&gt;&lt;/BeforeSQLNode&gt;&lt;AfterSQLNode
+                  type=&apos;string&apos;&gt;&lt;![CDATA[]]&gt;&lt;ReadFromFileAfterSQLNode
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadFromFileAfterSQLNode&gt;&lt;FailOnError
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/FailOnError&gt;&lt;/AfterSQLNode&gt;&lt;/BeforeAfter&gt;&lt;Java&gt;&lt;ConnectorClasspath
+                  type=&apos;string&apos;&gt;&lt;![CDATA[$(DSHOME)/../DSComponents/bin/ccjdbc.jar;$(DSHOME)]]&gt;&lt;/ConnectorClasspath&gt;&lt;HeapSize
+                  modified=&apos;1&apos;
+                  type=&apos;int&apos;&gt;&lt;![CDATA[1024]]&gt;&lt;/HeapSize&gt;&lt;ConnectorOtherOptions
+                  type=&apos;string&apos;&gt;&lt;![CDATA[-Dcom.ibm.is.cc.options=noisfjars]]&gt;&lt;/ConnectorOtherOptions&gt;&lt;/Java&gt;&lt;LimitRows
+                  collapsed=&apos;1&apos;
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/LimitRows&gt;&lt;/Usage&gt;&lt;/Properties
+                  &gt;</Property>
+            </SubRecord>
+         </Collection>
+         <Property Name="NextRecordID">0</Property>
+      </Record>
+      <Record Identifier="V253S0P1" Type="CustomOutput" Readonly="0">
+         <Property Name="Name">Lnk_SF_Ld</Property>
+         <Property Name="Partner">V253S1|V253S1P1</Property>
+         <Collection Name="Properties" Type="CustomProperty">
+            <SubRecord>
+               <Property Name="Name">lookup\type</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">VariantName</Property>
+               <Property Name="Value">1.0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">VariantLibrary</Property>
+               <Property Name="Value">
+                  &quot;java:com/ibm/is/cc/jdbc/CC_JDBCConnectorLibrary,$(DSHOME)/../DSComponents/bin/ccjdbc.jar;$(DSHOME)&quot;</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">VariantVersion</Property>
+               <Property Name="Value">1.0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">RejectFromLink</Property>
+               <Property Name="Value">-1</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">RejectThreshold</Property>
+               <Property Name="Value">0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">RejectNumber</Property>
+               <Property Name="Value">0</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">RejectUsesPercentage</Property>
+               <Property Name="Value">false</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">ConnectorName</Property>
+               <Property Name="Value">JDBCConnector</Property>
+            </SubRecord>
+         </Collection>
+         <Collection Name="Columns" Type="OutputColumn">
+            <SubRecord>
+               <Property Name="Name">dummy</Property>
+               <Property Name="SqlType">12</Property>
+               <Property Name="Precision">2</Property>
+               <Property Name="Scale">0</Property>
+               <Property Name="Nullable">0</Property>
+               <Property Name="KeyPosition">0</Property>
+               <Property Name="DisplaySize">0</Property>
+               <Property Name="Group">0</Property>
+               <Property Name="SortKey">0</Property>
+               <Property Name="SortType">0</Property>
+               <Property Name="AllowCRLF">0</Property>
+               <Property Name="LevelNo">0</Property>
+               <Property Name="Occurs">0</Property>
+               <Property Name="PadNulls">0</Property>
+               <Property Name="SignOption">0</Property>
+               <Property Name="SortingOrder">0</Property>
+               <Property Name="ArrayHandling">0</Property>
+               <Property Name="SyncIndicator">0</Property>
+               <Property Name="PadChar" />
+               <Property Name="ExtendedPrecision">0</Property>
+               <Property Name="TaggedSubrec">0</Property>
+               <Property Name="OccursVarying">0</Property>
+               <Property Name="PKeyIsCaseless">0</Property>
+               <Property Name="SCDPurpose">0</Property>
+            </SubRecord>
+         </Collection>
+         <Collection Name="MetaBag" Type="MetaProperty">
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">DiskWriteInc</Property>
+               <Property Name="Value">1048576</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">BufFreeRun</Property>
+               <Property Name="Value">50</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">MaxMemBufSize</Property>
+               <Property Name="Value">3145728</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">QueueUpperSize</Property>
+               <Property Name="Value">0</Property>
+            </SubRecord>
+         </Collection>
+         <Property Name="LeftTextPos">480</Property>
+         <Property Name="TopTextPos">336</Property>
+         <Property Name="LinkMinimised">0</Property>
+      </Record>
+      <Record Identifier="V253S1" Type="CustomStage" Readonly="0">
+         <Property Name="Name">Peek_SF_Ld</Property>
+         <Property Name="NextID">2</Property>
+         <Property Name="InputPins">V253S1P1</Property>
+         <Property Name="StageType">PxPeek</Property>
+         <Property Name="AllowColumnMapping">0</Property>
+         <Collection Name="Properties" Type="CustomProperty">
+            <SubRecord>
+               <Property Name="Name">all</Property>
+               <Property Name="Value">\(20)</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">nrecs</Property>
+               <Property Name="Value">10</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">dataset</Property>
+               <Property Name="Value">\(20)</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">name</Property>
+               <Property Name="Value">name</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">columns</Property>
+               <Property Name="Value">\(20)</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">selection</Property>
+               <Property Name="Value">\(20)</Property>
+            </SubRecord>
+         </Collection>
+         <Property Name="NextRecordID">0</Property>
+      </Record>
+      <Record Identifier="V253S1P1" Type="CustomInput" Readonly="0">
+         <Property Name="Name">Lnk_SF_Ld</Property>
+         <Property Name="Partner">V253S0|V253S0P1</Property>
+         <Property Name="LinkType">1</Property>
+         <Property Name="ConditionNotMet">fail</Property>
+         <Property Name="LookupFail">fail</Property>
+         <Collection Name="MetaBag" Type="MetaProperty">
+            <SubRecord>
+               <Property Name="Owner">APT</Property>
+               <Property Name="Name">RTColumnProp</Property>
+               <Property Name="Value">0</Property>
+            </SubRecord>
+         </Collection>
+         <Property Name="TransactionSize">0</Property>
+         <Property Name="TXNBehaviour">0</Property>
+         <Property Name="EnableTxGroup">0</Property>
+         <Property Name="LinkMinimised">0</Property>
+      </Record>
+   </Job>
+</DSExport>
