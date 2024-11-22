@@ -51,7 +51,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     # for testing
-    "astronomer-orbiter",
+    "astronomer-orbiter >= 1.3.3",
 
     # package
     "build",
