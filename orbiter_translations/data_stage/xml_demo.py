@@ -1,5 +1,6 @@
 from __future__ import annotations
 from itertools import pairwise
+from lxml import etree
 import inflection
 import json
 import jq
@@ -30,7 +31,6 @@ from orbiter.rules.rulesets import (
     PostProcessingRuleset,
     TranslationRuleset,
 )
-from lxml import etree
 
 
 @dag_filter_rule
