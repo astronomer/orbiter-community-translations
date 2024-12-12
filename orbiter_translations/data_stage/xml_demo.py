@@ -1,6 +1,6 @@
 from __future__ import annotations
 from itertools import pairwise
-from lxml import etree
+from defusedxml import ElementTree
 import inflection
 import json
 import jq
@@ -80,12 +80,10 @@ def task_common_args(val: dict) -> dict:
     Common mappings for all tasks
     """
     task_id: str = (
-            jq.compile(
-                """.Property[] | select(.["@Name"] == "Name") | .["#text"]"""
-            )
-            .input_value(val)
-            .first()
-        )
+        jq.compile(""".Property[] | select(.["@Name"] == "Name") | .["#text"]""")
+        .input_value(val)
+        .first()
+    )
     task_id = inflection.underscore(task_id)
     params = {"task_id": task_id}
     return params
@@ -93,15 +91,16 @@ def task_common_args(val: dict) -> dict:
 
 def extract_sql_statements(root):
     sql_statements = {}
-    sql_tags = ['SelectStatement', 'BeforeSQL', 'AfterSQL']
+    sql_tags = ["SelectStatement", "BeforeSQL", "AfterSQL"]
 
     for tag in sql_tags:
-        elements = root.findall(f'.//{tag}')
+        elements = root.findall(f".//{tag}")
         for elem in elements:
             if elem.text:
                 sql_text = elem.text.strip()
                 sql_statements[tag] = sql_text
     return sql_statements
+
 
 @task_rule(priority=2)
 def sql_command_rule(val) -> OrbiterSQLExecuteQueryOperator | None:
@@ -109,7 +108,7 @@ def sql_command_rule(val) -> OrbiterSQLExecuteQueryOperator | None:
     For SQLQueryOperator.
 
     """  # noqa: E501
-    try:    
+    try:
         sql: str = (
             jq.compile(
                 """.Collection[] | .SubRecord[] | .Property[] | select(.["@PreFormatted"] == "1") | .["#text"] """
@@ -117,10 +116,9 @@ def sql_command_rule(val) -> OrbiterSQLExecuteQueryOperator | None:
             .input_value(val)
             .first()
         )
-        parser = etree.XMLParser(recover=True, encoding='utf-16')
-        root = etree.fromstring(sql.encode('utf-16'), parser=parser)
+        root = ElementTree.fromstring(sql.encode("utf-16"))
         sql_statements = extract_sql_statements(root)
-        sql = ' '.join(sql_statements.values())
+        sql = " ".join(sql_statements.values())
         if sql:
             return OrbiterSQLExecuteQueryOperator(
                 sql=sql,
@@ -131,18 +129,19 @@ def sql_command_rule(val) -> OrbiterSQLExecuteQueryOperator | None:
         pass
     return None
 
+
 @task_dependency_rule
 def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
     """Translate input into a list of task dependencies"""
     task_dependencies = []
-    if len(val.tasks.values())>1:    
+    if len(val.tasks.values()) > 1:
         for pre, post in pairwise(val.tasks.values()):
             task_dependencies.append(
-                    OrbiterTaskDependency(
-                        task_id=pre.task_id,
-                        downstream=post.task_id,
-                    )
+                OrbiterTaskDependency(
+                    task_id=pre.task_id,
+                    downstream=post.task_id,
                 )
+            )
         return task_dependencies
     return []
 
@@ -161,7 +160,9 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[sql_command_rule, basic_task_rule, cannot_map_rule]),
+    task_ruleset=TaskRuleset(
+        ruleset=[sql_command_rule, basic_task_rule, cannot_map_rule]
+    ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[basic_task_dependency_rule]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[basic_post_processing_rule]),
 )
