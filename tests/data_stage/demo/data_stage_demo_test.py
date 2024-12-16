@@ -7,9 +7,9 @@ def test_data_stage_demo(project_root):
     )
     assert list(actual.dags.keys()) == ["data_stage_job"]
     assert sorted(list(list(actual.dags.values())[0].tasks.keys())) == sorted(
-        ["jdbc_sf_insert_table", "unknown"]
+        ["select_table", "unknown"]
     )
 
     assert sorted(
-        list(list(actual.dags.values())[0].tasks["jdbc_sf_insert_table"].downstream)
+        list(list(actual.dags.values())[0].tasks["select_table"].downstream)
     ) == ["unknown"]
