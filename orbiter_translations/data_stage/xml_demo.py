@@ -155,5 +155,5 @@ translation_ruleset = TranslationRuleset(
         ruleset=[sql_command_rule, basic_task_rule, cannot_map_rule]
     ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[basic_task_dependency_rule]),
-    post_processing_ruleset=PostProcessingRuleset(ruleset=[basic_post_processing_rule]),
+    post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
