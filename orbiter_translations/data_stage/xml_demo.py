@@ -9,7 +9,6 @@ from orbiter.objects import conn_id
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.empty import OrbiterEmptyOperator
 from orbiter.objects.operators.sql import OrbiterSQLExecuteQueryOperator
-from orbiter.objects.project import OrbiterProject
 from orbiter.objects.task import OrbiterOperator
 from orbiter.objects.task_group import OrbiterTaskGroup
 from orbiter.objects.task import OrbiterTaskDependency
@@ -19,7 +18,6 @@ from orbiter.rules import (
     task_filter_rule,
     task_rule,
     task_dependency_rule,
-    post_processing_rule,
     cannot_map_rule,
 )
 from orbiter.rules.rulesets import (
