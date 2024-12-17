@@ -146,15 +146,6 @@ def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
     return []
 
 
-@post_processing_rule
-def basic_post_processing_rule(val: OrbiterProject) -> None:
-    """Modify the project in-place, after all other rules have applied"""
-    if ...:
-        for dag_id, dag in val.dags.items():
-            for task_id, task in dag.tasks.items():
-                pass
-
-
 translation_ruleset = TranslationRuleset(
     file_type={FileTypeXML},
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
