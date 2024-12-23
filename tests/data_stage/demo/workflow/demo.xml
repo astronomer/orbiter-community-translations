@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DSExport>
+   <Header CharacterSet="CP1252" ExportingTool="IBM InfoSphere DataStage Export" ToolVersion="8"
+      ServerName="AAAAAA" ToolInstanceID="AAAA" Date="2024-11-21" Time="10.40.02"
+      ServerVersion="11.7" />
+   <Job Identifier="DataStage_Job" DateModified="2020-11-27" TimeModified="05.07.33">
+      <Record Identifier="V253S0" Type="CustomStage" Readonly="0">
+         <Property Name="Name">SELECT_TABLE</Property>
+         <Collection Name="Properties" Type="CustomProperty">
+            <SubRecord>
+               <Property Name="Name">XMLProperties</Property>
+               <Property Name="Value" PreFormatted="1">&lt;?xml version=&apos;1.0&apos;
+                  encoding=&apos;UTF-16&apos;?&gt;&lt;Properties
+                  version=&apos;1.1&apos;&gt;&lt;Common&gt;&lt;Context
+                  type=&apos;int&apos;&gt;1&lt;/Context&gt;&lt;Variant
+                  type=&apos;string&apos;&gt;1.0&lt;/Variant&gt;&lt;DescriptorVersion
+                  type=&apos;string&apos;&gt;1.0&lt;/DescriptorVersion&gt;&lt;PartitionType
+                  type=&apos;int&apos;&gt;-1&lt;/PartitionType&gt;&lt;RCP
+                  type=&apos;int&apos;&gt;0&lt;/RCP&gt;&lt;/Common&gt;&lt;Connection&gt;&lt;URL
+                  modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[jdbc:snowflake://xyz.us-east-1.snowflakecomputing.com/?&amp;warehouse=#XYZ_DB.$snowflake_wh#&amp;db=#DB.$schema#]]&gt;&lt;/URL&gt;&lt;Username
+                  modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[#DB.$snowflake_userid#]]&gt;&lt;/Username&gt;&lt;Password
+                  modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[#DB.$snowflake_passwd#]]&gt;&lt;/Password&gt;&lt;Attributes
+                  modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[]]&gt;&lt;/Attributes&gt;&lt;/Connection&gt;&lt;Usage&gt;&lt;ReadMode
+                  type=&apos;int&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadMode&gt;&lt;GenerateSQL
+                  modified=&apos;1&apos;
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/GenerateSQL&gt;&lt;EnableQuotedIDs
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/EnableQuotedIDs&gt;&lt;SQL&gt;&lt;SelectStatement
+                  collapsed=&apos;1&apos; modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[
+                  Select 1 as Dummy from db.schema.table Limit 1;]]&gt;&lt;ReadFromFileSelect
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadFromFileSelect&gt;&lt;/SelectStatement&gt;&lt;EnablePartitionedReads
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/EnablePartitionedReads&gt;&lt;/SQL&gt;&lt;Transaction&gt;&lt;RecordCount
+                  type=&apos;int&apos;&gt;&lt;![CDATA[2000]]&gt;&lt;/RecordCount&gt;&lt;IsolationLevel
+                  type=&apos;int&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/IsolationLevel&gt;&lt;AutocommitMode
+                  modified=&apos;1&apos;
+                  type=&apos;int&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/AutocommitMode&gt;&lt;EndOfWave
+                  type=&apos;int&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/EndOfWave&gt;&lt;BeginEnd
+                  collapsed=&apos;1&apos;
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/BeginEnd&gt;&lt;/Transaction&gt;&lt;Session&gt;&lt;ArraySize
+                  type=&apos;int&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/ArraySize&gt;&lt;FetchSize
+                  type=&apos;int&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/FetchSize&gt;&lt;ReportSchemaMismatch
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReportSchemaMismatch&gt;&lt;DefaultLengthForColumns
+                  type=&apos;int&apos;&gt;&lt;![CDATA[200]]&gt;&lt;/DefaultLengthForColumns&gt;&lt;DefaultLengthForLongColumns
+                  type=&apos;int&apos;&gt;&lt;![CDATA[20000]]&gt;&lt;/DefaultLengthForLongColumns&gt;&lt;CharacterSetForNonUnicodeColumns
+                  collapsed=&apos;1&apos;
+                  type=&apos;int&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/CharacterSetForNonUnicodeColumns&gt;&lt;KeepConductorConnectionAlive
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/KeepConductorConnectionAlive&gt;&lt;/Session&gt;&lt;BeforeAfter
+                  modified=&apos;1&apos; type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;BeforeSQL
+                  collapsed=&apos;1&apos; modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[]]&gt;&lt;ReadFromFileBeforeSQL
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadFromFileBeforeSQL&gt;&lt;FailOnError
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/FailOnError&gt;&lt;/BeforeSQL&gt;&lt;AfterSQL
+                  collapsed=&apos;1&apos; modified=&apos;1&apos;
+                  type=&apos;string&apos;&gt;&lt;![CDATA[
+                  SELECT * FROM db.schema.table;
+                  ]]&gt;&lt;ReadFromFileAfterSQL
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadFromFileAfterSQL&gt;&lt;FailOnError
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/FailOnError&gt;&lt;/AfterSQL&gt;&lt;BeforeSQLNode
+                  type=&apos;string&apos;&gt;&lt;![CDATA[]]&gt;&lt;ReadFromFileBeforeSQLNode
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadFromFileBeforeSQLNode&gt;&lt;FailOnError
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/FailOnError&gt;&lt;/BeforeSQLNode&gt;&lt;AfterSQLNode
+                  type=&apos;string&apos;&gt;&lt;![CDATA[]]&gt;&lt;ReadFromFileAfterSQLNode
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/ReadFromFileAfterSQLNode&gt;&lt;FailOnError
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[1]]&gt;&lt;/FailOnError&gt;&lt;/AfterSQLNode&gt;&lt;/BeforeAfter&gt;&lt;Java&gt;&lt;ConnectorClasspath
+                  type=&apos;string&apos;&gt;&lt;![CDATA[$(DSHOME)/../DSComponents/bin/ccjdbc.jar;$(DSHOME)]]&gt;&lt;/ConnectorClasspath&gt;&lt;HeapSize
+                  modified=&apos;1&apos;
+                  type=&apos;int&apos;&gt;&lt;![CDATA[1024]]&gt;&lt;/HeapSize&gt;&lt;ConnectorOtherOptions
+                  type=&apos;string&apos;&gt;&lt;![CDATA[-Dcom.ibm.is.cc.options=noisfjars]]&gt;&lt;/ConnectorOtherOptions&gt;&lt;/Java&gt;&lt;LimitRows
+                  collapsed=&apos;1&apos;
+                  type=&apos;bool&apos;&gt;&lt;![CDATA[0]]&gt;&lt;/LimitRows&gt;&lt;/Usage&gt;&lt;/Properties
+                  &gt;</Property>
+            </SubRecord>
+         </Collection>
+         <Property Name="NextRecordID">0</Property>
+      </Record>
+      <Record Identifier="V253S1" Type="CustomStage" Readonly="0">
+         <Property Name="Name">Peek_SF_Ld</Property>
+         <Property Name="NextID">2</Property>
+         <Property Name="InputPins">V253S1P1</Property>
+         <Property Name="StageType">PxPeek</Property>
+         <Property Name="AllowColumnMapping">0</Property>
+         <Collection Name="Properties" Type="CustomProperty">
+            <SubRecord>
+               <Property Name="Name">all</Property>
+               <Property Name="Value">\(20)</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">nrecs</Property>
+               <Property Name="Value">10</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">dataset</Property>
+               <Property Name="Value">\(20)</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">name</Property>
+               <Property Name="Value">name</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">columns</Property>
+               <Property Name="Value">\(20)</Property>
+            </SubRecord>
+            <SubRecord>
+               <Property Name="Name">selection</Property>
+               <Property Name="Value">\(20)</Property>
+            </SubRecord>
+         </Collection>
+         <Property Name="NextRecordID">0</Property>
+      </Record>
+   </Job>
+</DSExport>

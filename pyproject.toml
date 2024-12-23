@@ -35,6 +35,9 @@ dependencies = [
     # for templating within @rules
     "jinja2",
 
+    # for parsing xml
+    "defusedxml",
+
     # for deep-parsing dicts within @rules
     "jq",
 
