@@ -7,13 +7,20 @@ from orbiter.orbiter.file_types import FileType
 
 def pattern_for_attrs(attrs: list[str]) -> re.Pattern:
     """Compiles to a pattern that will match any of the attrs passed in, as a space separated key-value pair
+
+    Allows any number of spaces between key and value, and trims single-quotes.
+    Allows word characters (letters, numbers, underscore) and periods.
+
     e.g. if attrs=["APPL", "JCLID"]
     - "APPL a" -> {"APPL": "a"}
     - "JCLID 'FOO.JCL'" -> {"JCLID": "FOO.JCL"}
     """
     return re.compile(
+        # named capture group "k"
         r"((?P<k>"
+        # match any of the attrs passed in, like ((FOO)|(BAR))
         + "|".join([f"({attr})" for attr in attrs])
+        # 1 or more number of spaces, named capture group "v"
         + ") +'?(?P<v>[.\w]+)'?)",
         re.IGNORECASE,
     )
