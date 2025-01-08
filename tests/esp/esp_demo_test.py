@@ -1,3 +1,5 @@
+from orbiter.objects.operators.ssh import OrbiterSSHOperator
+
 from orbiter_translations.esp.txt_demo import translation_ruleset
 
 
@@ -14,6 +16,7 @@ def test_esp_demo(project_root):
             "d",
         ]
     )
+    assert isinstance(actual.dags["payroll"].tasks["c"], OrbiterSSHOperator)
     assert sorted(list(list(actual.dags.values())[0].tasks["a"].downstream)) == sorted(
         ["b", "c"]
     )

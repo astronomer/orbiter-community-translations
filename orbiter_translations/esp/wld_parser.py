@@ -21,7 +21,7 @@ def pattern_for_attrs(attrs: list[str]) -> re.Pattern:
         # match any of the attrs passed in, like ((FOO)|(BAR))
         + "|".join([f"({attr})" for attr in attrs])
         # 1 or more number of spaces, named capture group "v"
-        + ") +'?(?P<v>[.,\w()]+)'?)",
+        + r") +'?(?P<v>[.:,/\w()\\]+)'?)",
         re.IGNORECASE,
     )
 

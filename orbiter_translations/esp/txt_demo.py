@@ -3,8 +3,10 @@
 
 from __future__ import annotations
 
+from orbiter.objects import conn_id
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.empty import OrbiterEmptyOperator
+from orbiter.objects.operators.ssh import OrbiterSSHOperator
 from orbiter.objects.task import OrbiterOperator, OrbiterTaskDependency
 from orbiter.objects.task_group import OrbiterTaskGroup
 from orbiter.rules import (
@@ -64,9 +66,39 @@ def common_args(val: dict) -> dict:
         return {}
 
 
+@task_rule(priority=10)
+def win_ssh_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
+    """Translate input into an SSHOperator from 'NT_JOB' key"""
+    try:
+        job_key = next(key for key in val.keys() if "job" in key.lower())
+        if job_key == "NT_JOB":
+            return OrbiterSSHOperator(
+                **common_args(val),
+                command=val.get("CMDNAME"),
+                **conn_id(val.get("AGENT"), prefix="ssh", conn_type="ssh"),
+            )
+    except StopIteration:
+        pass
+
+
+@task_rule(priority=10)
+def linux_ssh_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
+    """Translate input into an SSHOperator from 'LINUX_JOB' key"""
+    try:
+        job_key = next(key for key in val.keys() if "job" in key.lower())
+        if job_key == "LINUX_JOB":
+            return OrbiterSSHOperator(
+                **common_args(val),
+                command=val.get("SCRIPTNAME"),
+                **conn_id(val.get("AGENT"), prefix="ssh", conn_type="ssh"),
+            )
+    except StopIteration:
+        pass
+
+
 @task_rule(priority=2)
 def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
-    """Translate input into an Operator (e.g. `OrbiterBashOperator`). will be applied first, with a higher priority"""
+    """Translate input into an EmptyOperator if nothing else has matched, but it still looks right"""
     if val and isinstance(val, dict):
         return OrbiterEmptyOperator(**common_args(val))
 
@@ -94,7 +126,14 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[basic_task_rule, cannot_map_rule]),
+    task_ruleset=TaskRuleset(
+        ruleset=[
+            linux_ssh_task_rule,
+            win_ssh_task_rule,
+            basic_task_rule,
+            cannot_map_rule,
+        ]
+    ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[basic_task_dependency_rule]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
