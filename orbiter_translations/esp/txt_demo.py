@@ -43,7 +43,7 @@ def basic_dag_filter(val: dict) -> list | None:
 def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     """Use 'APPL' key for a DAG ID"""
     if "APPL" in val:
-        dag_id = val["APPL"]
+        dag_id = val["APPL"].lower()
         return OrbiterDAG(dag_id=dag_id, file_path=f"{dag_id}.py")
 
 
