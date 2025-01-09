@@ -51,7 +51,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     # for testing
-    "astronomer-orbiter",
+    "astronomer-orbiter >= 1.3.3",
 
     # package
     "build",
@@ -89,10 +89,6 @@ Source = "https://github.com/astronomer/orbiter-community-translations"
 [tool.bandit]
 exclude_dirs = ["tests"]
 skips = []
-
-[tool.black]
-# https://github.com/psf/black
-color = true
 
 [tool.ruff]
 line-length = 120
