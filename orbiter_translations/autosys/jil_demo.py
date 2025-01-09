@@ -17,10 +17,10 @@ with DAG(dag_id='foo_job', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 
 
 ```
 """
-
 from __future__ import annotations
 
 from orbiter.file_types import FileTypeJIL
+from orbiter.objects import conn_id
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.ssh import OrbiterSSHOperator
 from orbiter.rules import (
@@ -166,7 +166,7 @@ def ssh_command_rule(val) -> OrbiterSSHOperator | None:
     if val.get("job_type") == "CMD":
         return OrbiterSSHOperator(
             command=val["command"],
-            ssh_conn_id=val["machine"],
+            **conn_id(conn_id=val["machine"], prefix="ssh", conn_type="ssh"),
             **task_common_args(val),
         )
 
