@@ -1,4 +1,37 @@
 """
+Demo ruleset for ESP files
+
+```pycon
+>>> translation_ruleset.test('''
+... APPL PAYROLL
+... JCLLIB 'CYBKH01.TEST.JCL'
+...
+... JOB A
+...  RELEASE (B,C)
+...  RUN DAILY
+... ENDJOB
+... JOB B
+...  RELEASE (D)
+...  RUN DAILY
+... ENDJOB
+... LINUX_JOB C
+...  AGENT LNX_AGNT
+...  SCRIPTNAME /export/home/khanna/deduct.sh
+...  RUN DAILY
+... ENDJOB
+... ''').dags['payroll']
+from airflow import DAG
+from airflow.operators.empty import EmptyOperator
+from airflow.providers.ssh.operators.ssh import SSHOperator
+from pendulum import DateTime, Timezone
+with DAG(dag_id='payroll', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+    a_task = EmptyOperator(task_id='a')
+    b_task = EmptyOperator(task_id='b')
+    c_task = SSHOperator(task_id='c', ssh_conn_id='LNX_AGNT', command='/export/home/khanna/deduct.sh')
+    a_task >> [b_task, c_task]
+    b_task >> d_task
+
+```
 """
 
 from __future__ import annotations
@@ -41,7 +74,7 @@ def basic_dag_filter(val: dict) -> list | None:
 
 @dag_rule
 def basic_dag_rule(val: dict) -> OrbiterDAG | None:
-    """Use 'APPL' key for a DAG ID"""
+    """Use `APPL` key for Airflow DAG ID and file path"""
     if "APPL" in val:
         dag_id = val["APPL"].lower()
         return OrbiterDAG(dag_id=dag_id, file_path=f"{dag_id}.py")
@@ -49,7 +82,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
 
 @task_filter_rule
 def basic_task_filter(val: dict) -> list | None:
-    """Filter input to dicts with a key containing the word 'job'"""
+    """Filter input to dicts with a key containing `*job*` (e.g. `JOB` or `NT_JOB`)"""
     return [
         v
         for v in (v for v in val.values() if isinstance(v, dict))
@@ -58,6 +91,9 @@ def basic_task_filter(val: dict) -> list | None:
 
 
 def common_args(val: dict) -> dict:
+    """Common argument extractions for all task rules.
+    Looks for a key like `*job*` (e.g. `JOB` or `NT_JOB`) and returns the value as the task_id.
+    """
     try:
         job_key = next(key for key in val.keys() if "job" in key.lower())
         task_id = val[job_key]
@@ -68,7 +104,7 @@ def common_args(val: dict) -> dict:
 
 @task_rule(priority=10)
 def win_ssh_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
-    """Translate input into an SSHOperator from 'NT_JOB' key"""
+    """Translate input into an `SSHOperator` from `NT_JOB` key"""
     try:
         job_key = next(key for key in val.keys() if "job" in key.lower())
         if job_key == "NT_JOB":
@@ -83,7 +119,7 @@ def win_ssh_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
 
 @task_rule(priority=10)
 def linux_ssh_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
-    """Translate input into an SSHOperator from 'LINUX_JOB' key"""
+    """Translate input into an `SSHOperator` from `LINUX_JOB` key"""
     try:
         job_key = next(key for key in val.keys() if "job" in key.lower())
         if job_key == "LINUX_JOB":
@@ -98,14 +134,14 @@ def linux_ssh_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
 
 @task_rule(priority=2)
 def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
-    """Translate input into an EmptyOperator if nothing else has matched, but it still looks right"""
+    """Translate input into an `EmptyOperator` if nothing else has matched, but it still looks right"""
     if val and isinstance(val, dict):
         return OrbiterEmptyOperator(**common_args(val))
 
 
 @task_dependency_rule
 def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
-    """Translate input into a list of task dependencies"""
+    """Translate input into a list of task dependencies via the `RELEASE` key"""
     task_dependencies = []
     for task in val.tasks.values():
         original_task_kwargs = task.orbiter_kwargs["val"]
