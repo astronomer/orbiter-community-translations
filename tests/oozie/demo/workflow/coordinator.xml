@@ -1,44 +1,12 @@
 <coordinator-app name="hello-coord" frequency="${coord:days(1)}"
-                  start="2009-01-02T08:00Z" end="2009-01-04T08:00Z" timezone="America/Los_Angeles"
+                 start="2009-01-02T08:00Z" end="2009-01-04T08:00Z" timezone="UTC"
                  xmlns="uri:oozie:coordinator:0.1">
-      <controls>
+    <controls>
         <timeout>10</timeout>
-        <concurrency>${concurrency_level}</concurrency>
-        <execution>${execution_order}</execution>
-        <throttle>${materialization_throttle}</throttle>
-      </controls>      <datasets>
-       <dataset name="din" frequency="${coord:endOfDays(1)}"
-                initial-instance="2009-01-02T08:00Z" timezone="America/Los_Angeles">
-         <uri-template>${baseFsURI}/${YEAR}/${MONTH}/${DAY}/${HOUR}/${MINUTE}</uri-template>
-        </dataset>
-       <dataset name="dout" frequency="${coord:minutes(30)}"
-                initial-instance="2009-01-02T08:00Z" timezone="UTC">
-         <uri-template>${baseFsURI}/${YEAR}/${MONTH}/${DAY}/${HOUR}/${MINUTE}</uri-template>
-        </dataset>
-      </datasets>
-      <input-events>
-         <data-in name="input" dataset="din">
-				<instance>${coord:current(0)}</instance>
-         </data-in>
-      </input-events>
-      <output-events>
-         <data-out name="output" dataset="dout">
-				<instance>${coord:current(1)}</instance>
-         </data-out>
-      </output-events>
-      <action>
+    </controls>
+    <action>
         <workflow>
-          <app-path>${wf_app_path}</app-path>
-          <configuration>
-              <property>
-              <name>wfInput</name>
-              <value>${coord:dataIn('input')}</value>
-            </property>
-            <property>
-              <name>wfOutput</name>
-              <value>${coord:dataOut('output')}</value>
-            </property>
-         </configuration>
-       </workflow>
-      </action>
- </coordinator-app>
+            <app-path>workflow.xml</app-path>
+        </workflow>
+    </action>
+</coordinator-app>
