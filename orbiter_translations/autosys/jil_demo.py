@@ -1,4 +1,7 @@
 r"""Demonstration of translating AutoSys JIL files into Airflow DAGs.
+
+Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
+
 ```pycon
 >>> translation_ruleset.test('''
 ... insert_job: foo.job
@@ -137,6 +140,9 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
         return OrbiterDAG(
             dag_id=dag_id,
             file_path=dag_id + ".py",
+            doc_md="**Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\n"
+                   "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
+                   "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
             **default_args,
         )
 

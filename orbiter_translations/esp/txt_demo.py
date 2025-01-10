@@ -1,5 +1,6 @@
-"""
-Demo ruleset for ESP files
+"""Demo ruleset converting ESP applications to Airflow DAGs
+
+Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
 
 ```pycon
 >>> translation_ruleset.test('''
@@ -19,12 +20,12 @@ Demo ruleset for ESP files
 ...  SCRIPTNAME /export/home/khanna/deduct.sh
 ...  RUN DAILY
 ... ENDJOB
-... ''').dags['payroll']
+... ''').dags['payroll'] # doctest: +ELLIPSIS
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.ssh.operators.ssh import SSHOperator
 from pendulum import DateTime, Timezone
-with DAG(dag_id='payroll', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+with DAG(dag_id='payroll', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
     a_task = EmptyOperator(task_id='a')
     b_task = EmptyOperator(task_id='b')
     c_task = SSHOperator(task_id='c', ssh_conn_id='LNX_AGNT', command='/export/home/khanna/deduct.sh')
@@ -77,7 +78,13 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     """Use `APPL` key for Airflow DAG ID and file path"""
     if "APPL" in val:
         dag_id = val["APPL"].lower()
-        return OrbiterDAG(dag_id=dag_id, file_path=f"{dag_id}.py")
+        return OrbiterDAG(
+            dag_id=dag_id,
+            file_path=f"{dag_id}.py",
+            doc_md="**Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\n"
+                   "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
+                   "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
+        )
 
 
 @task_filter_rule

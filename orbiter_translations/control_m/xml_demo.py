@@ -1,5 +1,8 @@
 """
-## Demo `translation_ruleset` Example
+Demo Control-M XML Translation Ruleset
+
+Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
+
 ```pycon
 >>> translation_ruleset.test({
 ...     "DEFTABLE": {
@@ -25,7 +28,6 @@ with DAG(dag_id='demo', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0),
 
 ```
 """  # noqa: E501
-
 from __future__ import annotations
 
 from pathlib import Path
