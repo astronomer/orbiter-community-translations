@@ -35,9 +35,6 @@ dependencies = [
     # for templating within @rules
     "jinja2",
 
-    # for parsing xml
-    "defusedxml",
-
     # for deep-parsing dicts within @rules
     "jq",
 
@@ -46,6 +43,12 @@ dependencies = [
 
     # backport
     "eval_type_backport; python_version < '3.10'",
+
+    # for oozie - o2a el_functions translation
+    # fork @ https://github.com/astronomer/oozie-to-airflow
+    "o2a",
+    "o2a-lib",
+    "lark",
 ]
 
 [project.optional-dependencies]
