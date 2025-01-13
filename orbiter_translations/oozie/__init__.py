@@ -17,6 +17,7 @@ def translate_el(val):
     '--conf x={{bar}}'
     >>> translate_el("foo ${scriptPath}#${scriptName}")
     'foo {{scriptPath}}#{{scriptName}}'
+
     ```
     """
     from o2a_lib.el_parser import translate
