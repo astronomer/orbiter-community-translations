@@ -49,6 +49,7 @@ dependencies = [
     "o2a",
     "o2a-lib",
     "lark",
+    "apache-airflow > 2.10"
 ]
 
 [project.optional-dependencies]
