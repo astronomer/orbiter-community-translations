@@ -3,7 +3,7 @@
 
     <action name="cleanup-node">
         <fs>
-            <delete path="${nameNode}/user/${wf:user()}/${examplesRoot}/output-data/demo"/>
+            <delete path="${nameNode}/user/${wf:user()}/output-data/demo"/>
         </fs>
         <ok to="hdfs-node"/>
         <error to="fail"/>

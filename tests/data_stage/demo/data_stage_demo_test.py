@@ -7,9 +7,9 @@ def test_data_stage_demo(project_root):
     )
     assert list(actual.dags.keys()) == ["data_stage_job"]
     assert sorted(list(list(actual.dags.values())[0].tasks.keys())) == sorted(
-        ["select_table", "unknown"]
+        ["peek_sf_ld", "select_table"]
     )
 
     assert sorted(
         list(list(actual.dags.values())[0].tasks["select_table"].downstream)
-    ) == ["unknown"]
+    ) == ["peek_sf_ld"]

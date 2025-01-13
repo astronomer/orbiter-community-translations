@@ -249,7 +249,7 @@ def sql_command_rule(val) -> OrbiterSQLExecuteQueryOperator | None:
     ...     }]}
     ...   }]}]}]
     ... }) # doctest: +ELLIPSIS
-    select_table_task = SQLExecuteQueryOperator(task_id='select_table', conn_id='DB', sql=['SELECT 1;'])
+    select_table_task = SQLExecuteQueryOperator(task_id='select_table', conn_id='DB', sql='SELECT 1;')
 
     ```
     """  # noqa: E501
@@ -259,7 +259,7 @@ def sql_command_rule(val) -> OrbiterSQLExecuteQueryOperator | None:
             val
         ):
             return OrbiterSQLExecuteQueryOperator(
-                sql=extract_sql_statements(sql),
+                sql=stmt[0] if len(stmt := extract_sql_statements(sql)) == 1 else stmt,
                 **conn_id(conn_id="DB"),
                 **task_common_args(val),
             )
