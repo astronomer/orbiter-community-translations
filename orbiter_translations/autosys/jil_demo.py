@@ -15,7 +15,7 @@ Contact Astronomer @ https://astronomer.io/contact for access to our full transl
 from airflow import DAG
 from airflow.providers.ssh.operators.ssh import SSHOperator
 from pendulum import DateTime, Timezone
-with DAG(dag_id='foo_job', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, default_args={'owner': 'foo@bar.com'}):
+with DAG(dag_id='foo_job', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, default_args={'owner': 'foo@bar.com'}, doc_md=...):
     foo_job_task = SSHOperator(task_id='foo_job', ssh_conn_id='bar', command='"C:\\ldhe\\cxl\\TidalDB\\startApp.cmd" "arg1" "arg2" "arg3"', doc='Foo Job')
 
 ```
@@ -124,7 +124,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ... # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     from airflow import DAG
     from pendulum import DateTime, Timezone
-    with DAG(dag_id='foo_job', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, default_args={'owner': 'foo@bar.net'}):
+    with DAG(dag_id='foo_job', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, default_args={'owner': 'foo@bar.net'}, doc_md=...):
 
     ```
     """
