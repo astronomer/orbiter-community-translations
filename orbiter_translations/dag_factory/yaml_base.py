@@ -1,3 +1,6 @@
+"""Full DAG Factory YAML Translation Ruleset.
+
+Convert DAG Factory YAML into full Airflow DAGs"""
 from __future__ import annotations
 
 import inspect

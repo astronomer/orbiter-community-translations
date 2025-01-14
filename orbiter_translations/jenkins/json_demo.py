@@ -1,5 +1,7 @@
-"""
-## Demo `translation_ruleset` Example for Jenkins pipeline.
+"""Demo Jenkins pipeline translation to Airflow DAGs
+
+Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
+
 Jenkins provides a nifty API in the [pipeline-model-definition-plugin](https://github.com/jenkinsci/pipeline-model-definition-plugin/blob/master/EXTENDING.md#conversion-to-json-representation-from-jenkinsfile).
 This API can convert a Jenkins Pipeline script (Groovy) to a JSON schema. Users can leverage this API to convert Jenkins Pipeline to a JSON structure.
 
@@ -121,7 +123,6 @@ with DAG(dag_id=..., schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), ca
 
 ```
 """  # noqa: E501
-
 from __future__ import annotations
 
 import inflection
@@ -341,7 +342,7 @@ def basic_task_filter(val: dict) -> list | None:
     ...     ],
     ...     "agent": {"type": "any"},
     ... })
-    ... # doctest: +ELLIPSIS
+    ... # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     [{'name': 'Build',
     'branches': [{'name': 'default',
     'steps': [{'name': 'echo',
