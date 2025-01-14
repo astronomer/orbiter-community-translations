@@ -92,6 +92,8 @@ from __future__ import annotations
 import json
 from itertools import pairwise
 
+from loguru import logger
+
 import jq
 from orbiter.file_types import FileTypeXML
 from orbiter.objects import conn_id
@@ -218,19 +220,18 @@ def extract_sql_statements(root: dict) -> list[str]:
 
     ```
     """
-    return [
-        _sql
-        for tag in [
-            "BeforeSQL",
-            "SelectStatement",
-            "AfterSQL"
-        ]
-        for sql in jq.all(
-            f"""recurse | select(.{tag}?) | .{tag}[]["#text"] """, root
-        )
-        if sql and (_sql := sql.strip())
-    ]
-
+    if root:
+        return [
+            sql.strip()
+            for tag in [
+                "BeforeSQL",
+                "SelectStatement",
+                "AfterSQL"
+            ]
+            for sql in jq.all(f"""recurse | select(.{tag}?) | .{tag}[]["#text"]""", root)
+            if sql and sql.strip()
+        ] or None
+    raise ValueError("No SQL Statements found")
 
 @task_rule(priority=2)
 def sql_command_rule(val) -> OrbiterSQLExecuteQueryOperator | None:
@@ -263,8 +264,8 @@ def sql_command_rule(val) -> OrbiterSQLExecuteQueryOperator | None:
                 **conn_id(conn_id="DB"),
                 **task_common_args(val),
             )
-    except StopIteration:
-        pass
+    except (StopIteration, ValueError) as e:
+        logger.debug(f"[WARNING] No SQL found in {val}, {e}")
     return None
 
 
