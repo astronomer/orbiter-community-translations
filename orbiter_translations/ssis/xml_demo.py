@@ -1,5 +1,7 @@
 """
-## Demo `translation_ruleset` Example
+Demo SSIS XML to Airflow DAG translation ruleset
+
+Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
 
 ```pycon
 >>> translation_ruleset.test(input_value='''<?xml version="1.0"?>

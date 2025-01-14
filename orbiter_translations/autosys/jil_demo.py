@@ -1,4 +1,7 @@
 r"""Demonstration of translating AutoSys JIL files into Airflow DAGs.
+
+Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
+
 ```pycon
 >>> translation_ruleset.test('''
 ... insert_job: foo.job
@@ -12,7 +15,7 @@ r"""Demonstration of translating AutoSys JIL files into Airflow DAGs.
 from airflow import DAG
 from airflow.providers.ssh.operators.ssh import SSHOperator
 from pendulum import DateTime, Timezone
-with DAG(dag_id='foo_job', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, default_args={'owner': 'foo@bar.com'}):
+with DAG(dag_id='foo_job', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, default_args={'owner': 'foo@bar.com'}, doc_md=...):
     foo_job_task = SSHOperator(task_id='foo_job', ssh_conn_id='bar', command='"C:\\ldhe\\cxl\\TidalDB\\startApp.cmd" "arg1" "arg2" "arg3"', doc='Foo Job')
 
 ```
@@ -121,7 +124,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ... # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     from airflow import DAG
     from pendulum import DateTime, Timezone
-    with DAG(dag_id='foo_job', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, default_args={'owner': 'foo@bar.net'}):
+    with DAG(dag_id='foo_job', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, default_args={'owner': 'foo@bar.net'}, doc_md=...):
 
     ```
     """
@@ -137,6 +140,9 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
         return OrbiterDAG(
             dag_id=dag_id,
             file_path=dag_id + ".py",
+            doc_md="**Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\n"
+                   "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
+                   "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
             **default_args,
         )
 
