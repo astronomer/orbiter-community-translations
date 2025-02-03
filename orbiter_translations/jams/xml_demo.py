@@ -1,5 +1,8 @@
-r"""
+r"""Demo ruleset converting JAMS Jobs to Airflow DAGs
 
+Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
+
+```pycon
 >>> list(translation_ruleset.test(r'''<?xml version="1.0" encoding="utf-8"?>
 ... <Jobs xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://jams.mvpsi.com/v1">
 ...   <Job name="Foo">
@@ -65,7 +68,6 @@ with DAG(dag_id='...', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), 
     bar_task = SSHOperator(task_id='bar', ssh_conn_id='foo.agent.com_BarUser', command='"C:\\User\\baz_job.exe" bop', doc_md='Bar Job')
     email_notification_task = SSHOperator(task_id='email_notification', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\email.exe" "hello, world"', doc_md='Send an email')
 
-
 >>> list(translation_ruleset.test(r'''<?xml version="1.0" encoding="utf-8"?>
 ...  <JAMSObjects xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://jams.mvpsi.com/v1">
 ...   <anyType xsi:type="Job" name="Baz">
@@ -88,7 +90,7 @@ from airflow import DAG
 from airflow.providers.ssh.operators.ssh import SSHOperator
 from pendulum import DateTime, Timezone
 with DAG(dag_id='...', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
-    baz_task = SSHOperator(task_id='baz', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\baz.bat"', description='Baz Job')
+    baz_task = SSHOperator(task_id='baz', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\baz.bat"', doc_md='Baz Job')
 
 ```
 """
@@ -207,12 +209,6 @@ def ssh_rule(val: dict) -> OrbiterSSHOperator | None:
 def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
     """Translate input into a list of task dependencies"""
     return None
-
-
-def post_process():
-    # time = val.get('ScheduledTime')
-    # date = val.get('ScheduledDate')
-    pass
 
 translation_ruleset = TranslationRuleset(
     file_type={FileTypeXML},
