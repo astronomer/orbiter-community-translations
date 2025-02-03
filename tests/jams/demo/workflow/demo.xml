@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Jobs xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://jams.mvpsi.com/v1">
+    <Job name="Foo">
+        <Description>Foo Job</Description>
+        <HomeDirectory>C:\FooUser</HomeDirectory>
+        <AgentNode>foo.agent.com</AgentNode>
+        <UserName>FooUser</UserName>
+        <ScheduledDate>Weekdays</ScheduledDate>
+        <AutoSubmit>true</AutoSubmit>
+        <ScheduledTime>21:00:00</ScheduledTime>
+        <ResubmitDelay>00:15</ResubmitDelay>
+        <RetryInterval>00:05</RetryInterval>
+        <RetryCount>99</RetryCount>
+        <Source>"C:\FooUser\foo_job.exe" abc</Source>
+    </Job>
+    <Job name="Bar">
+        <Description>Bar Job</Description>
+        <AgentNode>foo.agent.com</AgentNode>
+        <UserName>BarUser</UserName>
+        <ScheduledDateStart>2022-01-04T00:00:00</ScheduledDateStart>
+        <ScheduledDate>Weekdays</ScheduledDate>
+        <ExceptForDate>Holidays</ExceptForDate>
+        <AutoSubmit>true</AutoSubmit>
+        <ScheduledTime>13:30:00</ScheduledTime>
+        <Source>"C:\User\baz_job.exe" bop</Source>
+    </Job>
+    <Job name="Email Notification">
+        <Description>Send an email</Description>
+        <AgentNode>foo.agent.com</AgentNode>
+        <UserName>FooUser</UserName>
+        <ScheduledDate>Weekdays</ScheduledDate>
+        <ScheduledDateStart>2020-10-07T00:00:00</ScheduledDateStart>
+        <AutoSubmit>true</AutoSubmit>
+        <ScheduledTime>18:00:00</ScheduledTime>
+        <SubmitMethodName>Command</SubmitMethodName>
+        <Dependencies>
+            <Dependency xsi:type="DependencyJob" job="\Batch_Jobs\Foo">
+                <WithinTime>01:00</WithinTime>
+                <SinceType>Job</SinceType>
+                <SinceSeverity>Success</SinceSeverity>
+                <CompletionSeverity>Success</CompletionSeverity>
+                <WaitIfQueued>true</WaitIfQueued>
+                <SinceJobName>\Batch_Jobs\Foo</SinceJobName>
+            </Dependency>
+            <Dependency xsi:type="DependencyJob" job="\Batch_Jobs\Bar">
+                <WithinTime>01:00</WithinTime>
+                <SinceType>Job</SinceType>
+                <SinceSeverity>Success</SinceSeverity>
+                <CompletionSeverity>Success</CompletionSeverity>
+                <WaitIfQueued>true</WaitIfQueued>
+                <SinceJobName>\Batch_Jobs\Bar</SinceJobName>
+            </Dependency>
+        </Dependencies>
+        <Source>"C:\FooUser\email.exe" "hello, world"</Source>
+    </Job>
+</Jobs>
