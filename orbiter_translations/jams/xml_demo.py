@@ -61,8 +61,8 @@ from airflow import DAG
 from airflow.providers.ssh.operators.ssh import SSHOperator
 from pendulum import DateTime, Timezone
 with DAG(dag_id='...', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
-    foo_task = SSHOperator(task_id='foo', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\foo_job.exe" abc', description='Foo Job')
-    bar_task = SSHOperator(task_id='bar', ssh_conn_id='foo.agent.com_BarUser', command='"C:\\User\\baz_job.exe" bop', description='Bar Job')
+    foo_task = SSHOperator(task_id='foo', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\foo_job.exe" abc', doc_md='Foo Job')
+    bar_task = SSHOperator(task_id='bar', ssh_conn_id='foo.agent.com_BarUser', command='"C:\\User\\baz_job.exe" bop', doc_md='Bar Job')
     email_notification_task = SSHOperator(task_id='email_notification', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\email.exe" "hello, world"', doc_md='Send an email')
 
 
