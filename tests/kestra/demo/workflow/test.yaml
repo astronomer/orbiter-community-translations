@@ -1,0 +1,45 @@
+id: getting_started
+namespace: company.team
+
+description: |
+  # Getting Started
+  Let's `write` some **markdown** - [first flow](https://t.ly/Vemr0) 🚀
+
+labels:
+  owner: rick.astley
+  project: never-gonna-give-you-up
+
+triggers:
+  - id: schedule_trigger
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: 0 10 * * *
+
+tasks:
+  - id: hello_world
+    type: io.kestra.plugin.core.log.Log
+    message: Hello World!
+    description: |
+      ## About this task
+      This task will print "Hello World!" to the logs.
+  - id: dag
+    description: "my task"
+    type: io.kestra.plugin.core.flow.Dag
+    tasks:
+      - task:
+          id: task1
+          type: io.kestra.plugin.core.log.Log
+          message: I'm the task 1
+      - task:
+          id: task2
+          type: io.kestra.plugin.core.log.Log
+          message: I'm the task 2
+        dependsOn:
+          - task1
+      - task:
+          id: python
+          type: io.kestra.plugin.scripts.python.Script
+          containerImage: python:slim
+          script: |
+            print("Hello World!")
+        dependsOn:
+          - task1
