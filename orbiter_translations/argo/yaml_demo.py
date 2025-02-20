@@ -14,7 +14,12 @@
 ...      image: docker/whalesay:latest
 ...      command: [cowsay]
 ...      args: ["hello world"]
-... ''')
+... ''').dags['hello_world']
+from airflow import DAG
+from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+from pendulum import DateTime, Timezone
+with DAG(dag_id='hello_world', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+    whalesay_task = KubernetesPodOperator(task_id='whalesay', kubernetes_conn_id='KUBERNETES', image='docker/whalesay:latest', cmds=['cowsay'], arguments=['hello world'])
 
 ```
 """
