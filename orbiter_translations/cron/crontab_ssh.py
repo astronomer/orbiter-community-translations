@@ -21,7 +21,7 @@ with DAG(dag_id='cron_1', schedule='0-30/5 30 9 ? MON-FRI', start_date=DateTime(
 """
 from __future__ import annotations
 
-from copy import copy
+from copy import copy, deepcopy
 
 from orbiter.objects import conn_id
 from orbiter.objects.operators.ssh import OrbiterSSHOperator
@@ -29,6 +29,7 @@ from orbiter.rules import task_rule
 
 from orbiter_translations.cron.crontab_base import translation_ruleset, task_common_args
 
+translation_ruleset = deepcopy(translation_ruleset)
 
 @task_rule(priority=99)
 def ssh_agent_rule(val: dict) -> OrbiterSSHOperator | None:
