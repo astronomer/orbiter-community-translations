@@ -53,7 +53,6 @@ dependencies = [
 
     # for luigi / python conversions
     "json2ast",
-    "ast2json"
 ]
 
 [project.optional-dependencies]
