@@ -19,7 +19,7 @@ repos:
       - id: debug-statements
       - id: detect-private-key
       - id: name-tests-test
-        exclude: ^tests/dag_factory/workflow/dags
+        exclude: ^(tests/dag_factory/workflow/dags)|(tests/luigi/demo/workflow)
       - id: trailing-whitespace
       - id: detect-aws-credentials
         args: [ "--allow-missing-credentials" ]
