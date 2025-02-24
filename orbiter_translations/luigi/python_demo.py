@@ -46,8 +46,9 @@ from orbiter.rules.rulesets import (
     TranslationRuleset,
 )
 
-from orbiter_translations.luigi import FileTypePython
-
+from orbiter.file_types import FileTypePython
+from json2ast import json2ast
+import ast
 
 @dag_filter_rule
 def basic_dag_filter(val: dict) -> list | None:
@@ -106,9 +107,6 @@ def decorated_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
     ```
     """
     if name := val.get('name'):
-        from json2ast import json2ast
-        import ast
-
         args = val.get('args', {})
         args['args'] = [arg for arg in args.get('args', []) if arg.get('arg') != 'self']
 
