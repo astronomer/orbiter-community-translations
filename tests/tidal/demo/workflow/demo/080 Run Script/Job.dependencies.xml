@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dependencies>
+  <tes:filedependency xmlns:tes="http://www.tidalsoftware.com/client/tesservlet">
+    <tes:jobname>080 Run Script</tes:jobname>
+    <tes:fileextent>0</tes:fileextent>
+    <tes:inheritedagentname>Integration Agents</tes:inheritedagentname>
+    <tes:filetype>200</tes:filetype>
+    <tes:filename>some-example-file.json</tes:filename>
+    <tes:jobid />
+    <tes:id />
+  </tes:filedependency>
+  <tes:jobdependency xmlns:tes="http://www.tidalsoftware.com/client/tesservlet">
+    <tes:depjobtype>6</tes:depjobtype>
+    <tes:depjobparent>\demo</tes:depjobparent>
+    <tes:depjobname>010 Get Data</tes:depjobname>
+    <tes:jobname>080 Run Script</tes:jobname>
+    <tes:dateoffset>0</tes:dateoffset>
+    <tes:operator>1</tes:operator>
+    <tes:depjobid />
+    <tes:logic>3</tes:logic>
+    <tes:status>101</tes:status>
+    <tes:ingroup>Y</tes:ingroup>
+    <tes:instanceoffset>0</tes:instanceoffset>
+    <tes:jobid />
+    <tes:id />
+    <tes:ignoredep>N</tes:ignoredep>
+  </tes:jobdependency>
+</Dependencies>

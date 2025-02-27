@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tes:job xmlns:tes="http://www.tidalsoftware.com/client/tesservlet">
+  <tes:ownername>Demo</tes:ownername>
+  <tes:jobclassname>Alerting - ON</tes:jobclassname>
+  <tes:agentlistname>Integration Agents</tes:agentlistname>
+  <tes:runtimeusername>##ZSSIS_RUNTIME_USER##</tes:runtimeusername>
+  <tes:domain />
+  <tes:parentname>\demo</tes:parentname>
+  <tes:dependencylogic>1</tes:dependencylogic>
+  <tes:parameters />
+  <tes:rerundependency>N</tes:rerundependency>
+  <tes:durationminimum>60</tes:durationminimum>
+  <tes:unixprofile>0</tes:unixprofile>
+  <tes:type>2</tes:type>
+  <tes:normalexittorange>0</tes:normalexittorange>
+  <tes:historyretention>365</tes:historyretention>
+  <tes:durationestimated>352</tes:durationestimated>
+  <tes:notes />
+  <tes:trackingmethod>4</tes:trackingmethod>
+  <tes:active>Y</tes:active>
+  <tes:durationmaximum>60</tes:durationmaximum>
+  <tes:jobclassid />
+  <tes:fullpath>\demo\010 Get Data</tes:fullpath>
+  <tes:ownerid />
+  <tes:id />
+  <tes:repeat />
+  <tes:concurrency>1</tes:concurrency>
+  <tes:command>wget https://baseurl/some-example-file.json</tes:command>
+  <tes:disablecarryover>0</tes:disablecarryover>
+  <tes:agentlistid />
+  <tes:runuserid />
+  <tes:normalexitfromrange>0</tes:normalexitfromrange>
+  <tes:inherittimewindow>Y</tes:inherittimewindow>
+  <tes:allowrerun>Y</tes:allowrerun>
+  <tes:parentid />
+  <tes:priority>50</tes:priority>
+  <tes:inheritagent>N</tes:inheritagent>
+  <tes:name>010 Get Data</tes:name>
+  <tes:nearoutage>3</tes:nearoutage>
+  <tes:saveoutputoption>Y</tes:saveoutputoption>
+  <tes:allowunscheduled>Y</tes:allowunscheduled>
+  <tes:inheritcalendar>Y</tes:inheritcalendar>
+  <tes:waitOperator>N</tes:waitOperator>
+  <tes:trackingcommand>DTSER_SUCCESS</tes:trackingcommand>
+  <tes:exitcodenormaloperator>1</tes:exitcodenormaloperator>
+</tes:job>
