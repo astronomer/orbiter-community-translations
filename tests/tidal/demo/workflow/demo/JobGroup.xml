@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tes:jobgroup xmlns:tes="http://www.tidalsoftware.com/client/tesservlet">
+  <tes:ownername>demo</tes:ownername>
+  <tes:calendarname>Monday to Friday</tes:calendarname>
+  <tes:parentname>\demo</tes:parentname>
+  <tes:dependencylogic>1</tes:dependencylogic>
+  <tes:rerundependency>N</tes:rerundependency>
+  <tes:durationminimum>60</tes:durationminimum>
+  <tes:unixprofile>0</tes:unixprofile>
+  <tes:type>1</tes:type>
+  <tes:normalexittorange>0</tes:normalexittorange>
+  <tes:timewindowoption>0</tes:timewindowoption>
+  <tes:historyretention>365</tes:historyretention>
+  <tes:durationestimated>503</tes:durationestimated>
+  <tes:timewindowfromtimeasstring>18991230193000</tes:timewindowfromtimeasstring>
+  <tes:notes />
+  <tes:trackingmethod>1</tes:trackingmethod>
+  <tes:active>Y</tes:active>
+  <tes:durationmaximum>60</tes:durationmaximum>
+  <tes:timewindowfromtime>1899-12-30T19:30:00-0500</tes:timewindowfromtime>
+  <tes:fullpath>\demo</tes:fullpath>
+  <tes:ownerid />
+  <tes:id />
+  <tes:repeat />
+  <tes:concurrency>1</tes:concurrency>
+  <tes:variables />
+  <tes:calendarid />
+  <tes:disablecarryover>0</tes:disablecarryover>
+  <tes:normalexitfromrange>0</tes:normalexitfromrange>
+  <tes:inherittimewindow>N</tes:inherittimewindow>
+  <tes:allowrerun>Y</tes:allowrerun>
+  <tes:parentid />
+  <tes:priority>50</tes:priority>
+  <tes:inheritagent>Y</tes:inheritagent>
+  <tes:name>demo</tes:name>
+  <tes:nearoutage>3</tes:nearoutage>
+  <tes:saveoutputoption>Y</tes:saveoutputoption>
+  <tes:allowunscheduled>Y</tes:allowunscheduled>
+  <tes:inheritcalendar>N</tes:inheritcalendar>
+  <tes:waitOperator>N</tes:waitOperator>
+  <tes:exitcodenormaloperator>1</tes:exitcodenormaloperator>
+</tes:jobgroup>
