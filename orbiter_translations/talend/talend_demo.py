@@ -1,9 +1,7 @@
 from __future__ import annotations
-from copy import deepcopy
 from pathlib import Path
 
 import inflection
-import jq
 
 from orbiter.file_types import FileTypeJSON
 from orbiter.objects.include import OrbiterInclude
@@ -36,7 +34,7 @@ from orbiter.rules.rulesets import (
 def dag_filter_rule(val) -> list[dict] | None:
 
     if isinstance(val, dict) and "userFlow" in val:
-        return [val["userFlow"]] 
+        return [val["userFlow"]]
     return None
 
 
@@ -61,7 +59,7 @@ def task_common_args(val: dict) -> dict:
                .get("properties", {})
                .get("$componentMetadata", {})
                .get("name", "UNKNOWN"))
-    
+
     params = {
         "task_id": task_id.replace(" ", "_"),
     }
@@ -71,7 +69,7 @@ def task_common_args(val: dict) -> dict:
 # noinspection t
 @task_filter_rule
 def task_filter_rule(val: dict) -> list[dict] | None:
-    
+
     if isinstance(val, dict) and "pipelines" in val:
         components = []
         for pipeline in val["pipelines"]:
@@ -82,7 +80,7 @@ def task_filter_rule(val: dict) -> list[dict] | None:
 
 @task_rule(priority=2)
 def python_task_rule(val: dict) -> OrbiterPythonOperator | None:
-    
+
     if "python3" in val.get("data", {}).get("properties", {}).get("$componentMetadata", {}).get("technicalType", "").lower():
         code = val.get("data", {}).get("properties", {}).get("configuration", {}).get("pythonCode", "")
         name = val.get("data", {}).get("properties", {}).get("$componentMetadata", {}).get("name", "").lower().replace(" ", "_")
@@ -123,7 +121,7 @@ def simple_task_dependencies(
     """Extract task dependencies from Talend pipeline steps."""
     dependencies = []
     pipeline = val.orbiter_kwargs.get("val", {}).get("pipelines", [{}])[0]
-    
+
     component_to_task_name = {}
     for component in pipeline.get("components", []):
         name = (component.get("data", {})
@@ -139,27 +137,27 @@ def simple_task_dependencies(
                     .get("properties", {})
                     .get("type"))
         port_to_component[port["id"]] = (port["nodeId"], port_type)
-    
+
     for step in pipeline.get("steps", []):
         source_port = step["sourceId"]
         target_port = step["targetId"]
-        
+
         if source_port in port_to_component and target_port in port_to_component:
             source_component_id, source_type = port_to_component[source_port]
             target_component_id, target_type = port_to_component[target_port]
-            
+
             if source_type != "OUTGOING" or target_type != "INCOMING":
                 continue
-                
+
             source_task_name = component_to_task_name.get(source_component_id)
             target_task_name = component_to_task_name.get(target_component_id)
-            
+
             if source_task_name and target_task_name:
                 dependencies.append(OrbiterTaskDependency(
                     task_id=source_task_name,
                     downstream=target_task_name
                 ))
-    
+
     return dependencies if dependencies else None
 
 
