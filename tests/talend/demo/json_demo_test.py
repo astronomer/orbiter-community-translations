@@ -1,4 +1,4 @@
-from orbiter_translations.talend.talend_demo import translation_ruleset
+from orbiter_translations.talend.json_demo import translation_ruleset
 
 
 def test_talend_demo(project_root):
