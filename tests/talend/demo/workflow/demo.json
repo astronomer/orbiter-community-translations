@@ -1,0 +1,283 @@
+{
+  "dependencies": [
+    {
+      "componentId": "1ce2ee7d-1b55-4fb9-823e-8c110d4099db",
+      "datasetReferences": [
+        {
+          "initialDatasetId": "d139d2f9-4e34-438a-a08c-9ad795e3ba36",
+          "datasetName": "Foo",
+          "datasetType": "ZGF0YS1nZW5lcmF0b3IjRGF0YUdlbmVyYXRvciNkYXRhc2V0I0RhdGFHZW5lcmF0b3JEYXRhc2V0"
+        }
+      ],
+      "datastoreReferences": [
+        {
+          "initialDatastoreId": "8dbaf76a-3467-4fd8-8b0c-5507b157d1ac",
+          "datastoreName": "Test Conn",
+          "datastoreType": "ZGF0YS1nZW5lcmF0b3IjRGF0YUdlbmVyYXRvciNkYXRhc3RvcmUjRGF0YUdlbmVyYXRvckRhdGFzdG9yZQ"
+        }
+      ]
+    },
+    {
+      "componentId": "0b03e3f7-ddbc-4f93-9993-b9a919fa80ce",
+      "datasetReferences": [
+        {
+          "initialDatasetId": "6da1f702-cef2-43d3-91ab-28b50513be2a",
+          "datasetName": "Airlines",
+          "datasetType": "bG9jYWxpbyNMb2NhbElPI2RhdGFzZXQjRml4ZWREYXRhU2V0Q29uZmlndXJhdGlvbg"
+        }
+      ],
+      "datastoreReferences": [
+        {
+          "initialDatastoreId": "427b780d-0eff-4066-8e71-ddc7c08627b3",
+          "datastoreName": "Demo connection",
+          "datastoreType": "bG9jYWxpbyNMb2NhbElPI2RhdGFzdG9yZSNGaXhlZERhdGFTdG9yZUNvbmZpZ3VyYXRpb24"
+        }
+      ]
+    }
+  ],
+  "userFlow": {
+    "id": "fe064843-93fa-4430-867d-1322f47136a6",
+    "created": 1724901335566,
+    "updated": 1724901616202,
+    "enabled": true,
+    "type": "batch",
+    "step": "design",
+    "label": "Pipeline 2",
+    "description": "This is a newly created pipeline",
+    "version": 6,
+    "datasetIds": [
+      "d139d2f9-4e34-438a-a08c-9ad795e3ba36",
+      "6da1f702-cef2-43d3-91ab-28b50513be2a"
+    ],
+    "datastoreIds": [
+      "8dbaf76a-3467-4fd8-8b0c-5507b157d1ac",
+      "427b780d-0eff-4066-8e71-ddc7c08627b3"
+    ],
+    "pipelines": [
+      {
+        "components": [
+          {
+            "id": "18b971cb-5360-43dc-b036-0d24ad9d05f7",
+            "type": "cHJvY2Vzc2luZy1weXRob24zI1Byb2Nlc3NpbmdQeXRob24zI1B5dGhvbjM",
+            "graphicalAttributes": {
+              "position": {
+                "x": 400,
+                "y": 160
+              },
+              "nodeSize": {
+                "width": 160,
+                "height": 80
+              },
+              "nodeType": "processor",
+              "label": "",
+              "description": "",
+              "properties": {
+                "icon": "python-connector"
+              }
+            },
+            "data": {
+              "properties": {
+                "configuration": {
+                  "message": "The Python3 processor allows you to install third-party libraries.",
+                  "pythonCode": "# The incoming record is available as the \"input\" variable.\n# By default json and collections are automatically imported and output = input\ninput[\"Hello\"] = \"World\""
+                },
+                "$componentMetadata": {
+                  "name": "Python 3 1",
+                  "type": "Python 3",
+                  "version": 2,
+                  "description": "",
+                  "technicalType": "processing-python3#ProcessingPython3#Python3"
+                }
+              }
+            }
+          },
+          {
+            "id": "1ce2ee7d-1b55-4fb9-823e-8c110d4099db",
+            "type": "ZGF0YS1nZW5lcmF0b3IjRGF0YUdlbmVyYXRvciNEYXRhR2VuZXJhdG9ySW5wdXQ",
+            "graphicalAttributes": {
+              "position": {
+                "x": 80,
+                "y": 160
+              },
+              "nodeSize": {
+                "width": 160,
+                "height": 80
+              },
+              "nodeType": "source",
+              "label": "",
+              "properties": {
+                "icon": "generator-connector"
+              }
+            },
+            "data": {
+              "properties": {
+                "configuration": {
+                  "randomRows": false,
+                  "maximumRows": 10000,
+                  "minimumRows": 1000
+                },
+                "$componentMetadata": {
+                  "name": "Foo",
+                  "type": "Data generator input",
+                  "version": 1,
+                  "description": ""
+                },
+                "$datasetDefinition": {
+                  "datasetId": "d139d2f9-4e34-438a-a08c-9ad795e3ba36",
+                  "datasetPath": "configuration.dataset",
+                  "datastorePath": "configuration.dataset.datastore"
+                }
+              }
+            }
+          },
+          {
+            "id": "0b03e3f7-ddbc-4f93-9993-b9a919fa80ce",
+            "type": "bG9jYWxpbyNMb2NhbElPI0Rldk51bGxPdXRwdXRSdW50aW1l",
+            "graphicalAttributes": {
+              "position": {
+                "x": 720,
+                "y": 160
+              },
+              "nodeSize": {
+                "width": 160,
+                "height": 80
+              },
+              "nodeType": "sink",
+              "label": "",
+              "description": "",
+              "properties": {
+                "icon": "flow-target-o-output"
+              }
+            },
+            "data": {
+              "properties": {
+                "configuration": {
+                  "shouldPrint": false
+                },
+                "$componentMetadata": {
+                  "name": "Airlines",
+                  "type": "Test output",
+                  "version": 1,
+                  "description": ""
+                },
+                "$datasetDefinition": {
+                  "datasetId": "6da1f702-cef2-43d3-91ab-28b50513be2a",
+                  "datasetPath": "configuration.dataset",
+                  "datastorePath": "configuration.dataset.datastore"
+                }
+              }
+            }
+          }
+        ],
+        "ports": [
+          {
+            "id": "bd01d665-07e4-4125-8734-4188a3046e43",
+            "nodeId": "1ce2ee7d-1b55-4fb9-823e-8c110d4099db",
+            "graphicalAttributes": {
+              "portType": "port-basic",
+              "position": {
+                "x": 240,
+                "y": 200
+              },
+              "properties": {
+                "type": "OUTGOING",
+                "index": 0
+              }
+            },
+            "data": {
+              "flowType": "__default__"
+            }
+          },
+          {
+            "id": "9371efc7-3ab1-44b3-9d64-415fc087e3f4",
+            "nodeId": "0b03e3f7-ddbc-4f93-9993-b9a919fa80ce",
+            "graphicalAttributes": {
+              "portType": "port-basic",
+              "position": {
+                "x": 720,
+                "y": 200
+              },
+              "properties": {
+                "type": "INCOMING",
+                "index": 0
+              }
+            },
+            "data": {
+              "flowType": "__default__"
+            }
+          },
+          {
+            "id": "e3735fa6-0bf9-4ffd-8ee4-aa404d34f4d3",
+            "nodeId": "18b971cb-5360-43dc-b036-0d24ad9d05f7",
+            "graphicalAttributes": {
+              "portType": "port-basic",
+              "position": {
+                "x": 400,
+                "y": 200
+              },
+              "properties": {
+                "type": "INCOMING",
+                "index": 0
+              }
+            },
+            "data": {
+              "flowType": "__default__"
+            }
+          },
+          {
+            "id": "520d299a-5fcd-4998-87a9-b3e0ecf09c88",
+            "nodeId": "18b971cb-5360-43dc-b036-0d24ad9d05f7",
+            "graphicalAttributes": {
+              "portType": "port-basic",
+              "position": {
+                "x": 560,
+                "y": 200
+              },
+              "properties": {
+                "type": "OUTGOING",
+                "index": 0
+              }
+            },
+            "data": {
+              "flowType": "__default__"
+            }
+          }
+        ],
+        "steps": [
+          {
+            "data": {
+              "properties": {}
+            },
+            "id": "27a2f265-8fe3-44e5-9945-1d73180d6711",
+            "sourceId": "520d299a-5fcd-4998-87a9-b3e0ecf09c88",
+            "targetId": "9371efc7-3ab1-44b3-9d64-415fc087e3f4",
+            "graphicalAttributes": {
+              "linkType": "datastream-link",
+              "properties": {}
+            }
+          },
+          {
+            "data": {
+              "properties": {}
+            },
+            "id": "6b02d171-6938-40e4-b937-95e346be815c",
+            "sourceId": "bd01d665-07e4-4125-8734-4188a3046e43",
+            "targetId": "e3735fa6-0bf9-4ffd-8ee4-aa404d34f4d3",
+            "graphicalAttributes": {
+              "linkType": "datastream-link",
+              "properties": {}
+            }
+          }
+        ],
+        "id": "8f491b06-97b2-48b3-9ce2-695c56cbfb54",
+        "runner": "run_spark"
+      }
+    ],
+    "execProfileId": "",
+    "owner": "3c7953b8-13fa-4caa-92f9-53692b563ae3",
+    "schemaVersion": 0,
+    "contextVariables": []
+  },
+  "schemaVersion": 1,
+  "schemaType": "FREE"
+}
