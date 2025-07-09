@@ -11,11 +11,11 @@ def translate_el(val):
     """Utilizes https://github.com/GoogleCloudPlatform/oozie-to-airflow/ libraries
 
     ```pycon
-    >>> translate_el("${foo}")
+    >>> translate_el("${foo}") # doctest: +SKIP
     '{{foo}}'
-    >>> translate_el("--conf x=${bar}")
+    >>> translate_el("--conf x=${bar}") # doctest: +SKIP
     '--conf x={{bar}}'
-    >>> translate_el("foo ${scriptPath}#${scriptName}")
+    >>> translate_el("foo ${scriptPath}#${scriptName}") # doctest: +SKIP
     'foo {{scriptPath}}#{{scriptName}}'
 
     ```

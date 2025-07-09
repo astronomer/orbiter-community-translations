@@ -1,6 +1,9 @@
+import pytest
+
 from orbiter_translations.oozie.xml_demo import translation_ruleset
 
 
+@pytest.importorskip("o2a_lib")
 def test_oozie_demo(project_root):
     actual = translation_ruleset.translate_fn(
         translation_ruleset, (project_root / "tests/oozie/demo/workflow/")
