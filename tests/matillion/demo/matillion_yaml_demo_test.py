@@ -1,4 +1,4 @@
-from orbiter_translations.matillion.matillion_demo import translation_ruleset
+from orbiter_translations.matillion.yaml_demo import translation_ruleset
 
 def test_matillion_demo(project_root):
     # Point to the folder containing the input YAML workflow
