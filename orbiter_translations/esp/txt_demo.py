@@ -24,8 +24,7 @@ Contact Astronomer @ https://astronomer.io/contact for access to our full transl
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.ssh.operators.ssh import SSHOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='payroll', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+with DAG(dag_id='payroll', doc_md=...):
     a_task = EmptyOperator(task_id='a')
     b_task = EmptyOperator(task_id='b')
     c_task = SSHOperator(task_id='c', ssh_conn_id='LNX_AGNT', command='/export/home/khanna/deduct.sh')
@@ -86,8 +85,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ```pycon
     >>> basic_dag_rule({'APPL': 'PAYROLL'}) # doctest: +ELLIPSIS
     from airflow import DAG
-    from pendulum import DateTime, Timezone
-    with DAG(dag_id='payroll', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+    with DAG(dag_id='payroll', doc_md=...):
 
     ```
     """

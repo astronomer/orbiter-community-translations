@@ -20,8 +20,7 @@ Contact Astronomer @ https://astronomer.io/contact for access to our full transl
 ... # doctest: +ELLIPSIS
 from airflow import DAG
 from airflow.operators.bash import BashOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='demo', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+with DAG(dag_id='demo', doc_md=...):
     task_a_task = BashOperator(task_id='task_a', bash_command='echo job a')
     task_b_task = BashOperator(task_id='task_b', bash_command='/x/y/z/job_b.sh')
     task_a_task >> task_b_task

@@ -82,8 +82,7 @@ Contact Astronomer @ https://astronomer.io/contact for access to our full transl
 ... </DSExport>''').dags['data_stage_job'] # doctest: +ELLIPSIS
 from airflow import DAG
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='data_stage_job', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+with DAG(dag_id='data_stage_job', doc_md=...):
     select_table_task = SQLExecuteQueryOperator(task_id='select_table', conn_id='DB', sql=['Select 1 as Dummy from db.schema.table Limit 1;', 'SELECT * FROM db.schema.table;'])
 
 """
@@ -143,8 +142,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ```pycon
     >>> basic_dag_rule({"@Identifier": "demo.extract_sample_currency_data"}) # doctest: +ELLIPSIS
     from airflow import DAG
-    from pendulum import DateTime, Timezone
-    with DAG(dag_id='demo.extract_sample_currency_data', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+    with DAG(dag_id='demo.extract_sample_currency_data', doc_md=...):
 
     ```
     """

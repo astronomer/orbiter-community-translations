@@ -113,8 +113,7 @@ curl --location '<jenkins-base-url>/pipeline-model-converter/toJson' \
 ... # doctest: +ELLIPSIS
 from airflow import DAG
 from airflow.operators.bash import BashOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id=..., schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+with DAG(dag_id=..., doc_md=...):
     build_task = BashOperator(task_id='build', bash_command="echo 'Building..'; echo ${PATH}")
     test_task = BashOperator(task_id='test', bash_command="echo 'Testing..'")
     deploy_task = BashOperator(task_id='deploy', bash_command="echo 'Deploying....'")
@@ -268,8 +267,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ... '__file': Path("demo1.json")})
     ... # doctest: +ELLIPSIS
     from airflow import DAG
-    from pendulum import DateTime, Timezone
-    with DAG(dag_id='demo1', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+    with DAG(dag_id='demo1', doc_md=...):
 
     ```
     """  # noqa: E501

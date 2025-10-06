@@ -14,8 +14,7 @@ Contact Astronomer @ https://astronomer.io/contact for access to our full transl
 ... ''').dags['hello_world']
 from airflow import DAG
 from airflow.decorators import task
-from pendulum import DateTime, Timezone
-with DAG(dag_id='hello_world', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+with DAG(dag_id='hello_world'):
 <BLANKLINE>
     @task()
     def run():
@@ -71,8 +70,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ```pycon
     >>> basic_dag_rule(val={'_type': 'ClassDef', 'name': 'HelloWorld'})
     from airflow import DAG
-    from pendulum import DateTime, Timezone
-    with DAG(dag_id='hello_world', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+    with DAG(dag_id='hello_world'):
 
     ```
     """

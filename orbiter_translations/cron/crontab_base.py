@@ -9,14 +9,12 @@ Export CRON definitions via `crontab -l`, or by exporting from `/etc/cron.d` and
 ... '''); _.dags['cron_0']; print('---'); _.dags['cron_1']
 from airflow import DAG
 from airflow.operators.bash import BashOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='cron_0', schedule='* * * * *', start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+with DAG(dag_id='cron_0', schedule='* * * * *'):
     cron_task = BashOperator(task_id='cron_task', bash_command='touch /tmp/file', email='root@foo.com', email_on_failure=True)
 ---
 from airflow import DAG
 from airflow.operators.bash import BashOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='cron_1', schedule='0-30/5 30 9 ? MON-FRI', start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+with DAG(dag_id='cron_1', schedule='0-30/5 30 9 ? MON-FRI'):
     cron_task = BashOperator(task_id='cron_task', bash_command="curl https://google.com/-/_/d) 'e f g'", email='root@foo.com', email_on_failure=True)
 
 ```
@@ -68,8 +66,7 @@ def cron_dag_rule(val: dict) -> OrbiterDAG | None:
     ```pycon
     >>> cron_dag_rule(val={"i": 0, "schedule": "* * * * *", "command": "/bin/bash"})
     from airflow import DAG
-    from pendulum import DateTime, Timezone
-    with DAG(dag_id='cron_0', schedule='* * * * *', start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+    with DAG(dag_id='cron_0', schedule='* * * * *'):
 
     ```
     """

@@ -163,8 +163,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ... }
     >>> basic_dag_rule(input_dict)
     from airflow import DAG
-    from pendulum import DateTime, Timezone
-    with DAG(dag_id='test_expand', schedule='0 3 * * *', start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, default_args={'owner': 'custom_owner'}, doc_md='foo', description='test expand', default_view='graph'):
+    with DAG(dag_id='test_expand', schedule='0 3 * * *', default_args={'owner': 'custom_owner'}, doc_md='foo', description='test expand', default_view='graph'):
 
     ```
     """  # noqa: E501

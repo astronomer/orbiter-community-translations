@@ -31,7 +31,6 @@ Contact Astronomer @ https://astronomer.io/contact for access to our full transl
 from airflow import DAG
 from airflow.decorators import task
 from airflow.operators.empty import EmptyOperator
-from pendulum import DateTime, Timezone
 with DAG(dag_id='matillion_pipeline', ...):
     start_task = EmptyOperator(task_id='start')
 <BLANKLINE>
@@ -99,7 +98,6 @@ def matillion_dag_rule(val: dict) -> OrbiterDAG:
     ```pycon
     >>> matillion_dag_rule(val={"name": "matillion_pipeline"})  # doctest: +ELLIPSIS
     from airflow import DAG
-    from pendulum import DateTime, Timezone
     with DAG(dag_id='matillion_pipeline', ...):
 
     ```

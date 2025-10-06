@@ -194,7 +194,7 @@ def dag_common_args(val):
     - `controls.timeout` -> `DAG.dagrun_timeout`
     - `@frequency` -> `DAG.schedule`
     """
-    dag_kwargs = dict(catchup=False)
+    dag_kwargs = dict()
 
     if controls := val.get("controls", [{}])[0]:
         # Oozie Concurrency is the number of jobs that can be in the 'RUNNING' state
@@ -239,8 +239,7 @@ def coordinator_dag_rule(val: dict) -> OrbiterDAG | None:
     ... })
     ... # doctest: +ELLIPSIS
     from airflow import DAG
-    from pendulum import DateTime, Timezone
-    with DAG(dag_id='demo_wf', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=..., description=..., max_active_runs=1):
+    with DAG(dag_id='demo_wf', doc_md=..., description=..., max_active_runs=1):
 
     ```
     """  # noqa: E501

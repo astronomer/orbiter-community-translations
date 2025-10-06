@@ -17,8 +17,7 @@
 ... ''').dags['hello_world']
 from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='hello_world', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+with DAG(dag_id='hello_world'):
     whalesay_task = KubernetesPodOperator(task_id='whalesay', kubernetes_conn_id='KUBERNETES', image='docker/whalesay:latest', cmds=['cowsay'], arguments=['hello world'])
 
 ```
@@ -63,8 +62,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ```pycon
     >>> basic_dag_rule({'kind': 'Workflow', 'metadata': {'name': 'hello-world'}, 'spec': {'schedule': '0 0 * * *'}})
     from airflow import DAG
-    from pendulum import DateTime, Timezone
-    with DAG(dag_id='hello_world', schedule='0 0 * * *', start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+    with DAG(dag_id='hello_world', schedule='0 0 * * *'):
 
     ```
     """
