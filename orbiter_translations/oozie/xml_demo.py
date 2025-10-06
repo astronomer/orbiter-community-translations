@@ -194,7 +194,7 @@ def dag_common_args(val):
     - `controls.timeout` -> `DAG.dagrun_timeout`
     - `@frequency` -> `DAG.schedule`
     """
-    dag_kwargs = dict(catchup=False)
+    dag_kwargs = dict()
 
     if controls := val.get("controls", [{}])[0]:
         # Oozie Concurrency is the number of jobs that can be in the 'RUNNING' state
