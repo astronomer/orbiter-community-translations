@@ -160,7 +160,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ... })
     ... # doctest: +ELLIPSIS
     from airflow import DAG
-    with DAG(dag_id='jobp.dummy.workflow', doc_md=...:
+    with DAG(dag_id='jobp.dummy.workflow', doc_md=...):
 
     ```
     """  # noqa: E501
