@@ -62,8 +62,7 @@ Contact Astronomer @ https://astronomer.io/contact for access to our full transl
 ... ''').dags.values())[0] # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
 from airflow import DAG
 from airflow.providers.ssh.operators.ssh import SSHOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='...', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+with DAG(dag_id='...'):
     foo_task = SSHOperator(task_id='foo', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\foo_job.exe" abc', doc_md='Foo Job')
     bar_task = SSHOperator(task_id='bar', ssh_conn_id='foo.agent.com_BarUser', command='"C:\\User\\baz_job.exe" bop', doc_md='Bar Job')
     email_notification_task = SSHOperator(task_id='email_notification', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\email.exe" "hello, world"', doc_md='Send an email')
@@ -88,8 +87,7 @@ with DAG(dag_id='...', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), 
 ... ''').dags.values())[0]  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
 from airflow import DAG
 from airflow.providers.ssh.operators.ssh import SSHOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='...', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+with DAG(dag_id='...'):
     baz_task = SSHOperator(task_id='baz', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\baz.bat"', doc_md='Baz Job')
 
 ```
@@ -143,8 +141,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ```pycon
     >>> from pathlib import Path; basic_dag_rule({'__file': Path('foo.xml')})
     from airflow import DAG
-    from pendulum import DateTime, Timezone
-    with DAG(dag_id='foo', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+    with DAG(dag_id='foo'):
 
     ```
     """

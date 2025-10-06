@@ -42,8 +42,7 @@ Contact Astronomer @ https://astronomer.io/contact for access to our full transl
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='demo.extract_sample_currency_data', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+with DAG(dag_id='demo.extract_sample_currency_data', doc_md=...):
     extract_sample_currency_data_task = EmptyOperator(task_id='extract_sample_currency_data', doc_md=...)
     lookup_currency_key_task = SQLExecuteQueryOperator(task_id='lookup_currency_key', conn_id='mssql_default', sql="select * from (select * from [dbo].[DimCurrency]) as refTable where [refTable].[CurrencyAlternateKey] = 'ARS' OR [refTable].[CurrencyAlternateKey] = 'VEB'")
     lookup_date_key_task = SQLExecuteQueryOperator(task_id='lookup_date_key', conn_id='mssql_default', sql='select * from [dbo].[DimTime]')
@@ -173,8 +172,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
      ... })
      ... # doctest: +ELLIPSIS
      from airflow import DAG
-     from pendulum import DateTime, Timezone
-     with DAG(dag_id='demo.extract_sample_currency_data', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+     with DAG(dag_id='demo.extract_sample_currency_data', doc_md=...):
 
      ```
     """  # noqa: E501

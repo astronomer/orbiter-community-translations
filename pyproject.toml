@@ -59,7 +59,7 @@ oozie = [
 ]
 dev = [
     # for testing
-    "astronomer-orbiter >= 1.3.3",
+    "astronomer-orbiter >= 1.7.0",
 
     # package
     "build",

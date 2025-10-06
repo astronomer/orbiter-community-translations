@@ -49,8 +49,7 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='jobp.dummy.workflow', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...):
+with DAG(dag_id='jobp.dummy.workflow', doc_md=...):
     start_task = EmptyOperator(task_id='start')
     generate_file_task = BashOperator(task_id='generate_file', bash_command='echo "I am a Script"')
     process_and_upload_file_task = BashOperator(task_id='process_and_upload_file', bash_command='echo "Runs a Python Script"')
@@ -161,8 +160,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ... })
     ... # doctest: +ELLIPSIS
     from airflow import DAG
-    from pendulum import DateTime, Timezone
-    with DAG(dag_id='jobp.dummy.workflow', schedule=None, start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False, doc_md=...:
+    with DAG(dag_id='jobp.dummy.workflow', doc_md=...:
 
     ```
     """  # noqa: E501

@@ -7,14 +7,12 @@
 ... '''); _.dags['cron_0']; print('---'); _.dags['cron_1']
 from airflow import DAG
 from airflow.providers.ssh.operators.ssh import SSHOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='cron_0', schedule='* * * * *', start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+with DAG(dag_id='cron_0', schedule='* * * * *'):
     cron_task = SSHOperator(task_id='cron_task', ssh_conn_id='user_a', command='touch /tmp/file', email='root@foo.com', email_on_failure=True)
 ---
 from airflow import DAG
 from airflow.providers.ssh.operators.ssh import SSHOperator
-from pendulum import DateTime, Timezone
-with DAG(dag_id='cron_1', schedule='0-30/5 30 9 ? MON-FRI', start_date=DateTime(1970, 1, 1, 0, 0, 0), catchup=False):
+with DAG(dag_id='cron_1', schedule='0-30/5 30 9 ? MON-FRI'):
     cron_task = SSHOperator(task_id='cron_task', ssh_conn_id='root', command="curl https://google.com/-/_/d) 'e f g'", email='root@foo.com', email_on_failure=True)
 
 ```
