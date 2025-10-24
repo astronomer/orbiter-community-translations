@@ -37,7 +37,7 @@ with DAG(dag_id='matillion_pipeline', ...):
     @task()
     def print_hello_world():
         print('Hello, World!')
-    print_pipeline_finished_task = EmptyOperator(task_id='print_pipeline_finished', doc_md="[task_type=UNKNOWN] Input did not translate: `{'type': 'end', 'parameters': {'componentName': 'Print Pipeline Finished'}, 'transitions': {}}`")
+    print_pipeline_finished_task = EmptyOperator(task_id='print_pipeline_finished')
     print_hello_world_task >> print_pipeline_finished_task
     start_task >> print_hello_world_task
 
@@ -178,6 +178,25 @@ def python_pushdown_rule(val: dict) -> OrbiterPythonOperator | None:
                 {val.get("parameters", {}).get("pythonScript", "# no script")}
             """),
         )
+    return None
+
+
+@task_rule(priority=10)
+def end_pipeline_rule(val: dict) -> OrbiterEmptyOperator | None:
+    """Map `end` to `EmptyOperator`
+    ```pycon
+    >>> end_pipeline_rule(val={
+    ...     "type": "end",
+    ...     "parameters": {
+    ...         "componentName": "Print Pipeline Finished",
+    ...     }
+    ... })
+    print_pipeline_finished_task = EmptyOperator(task_id='print_pipeline_finished')
+
+    ```
+    """
+    if val.get("type") == "end":
+        return OrbiterEmptyOperator(**task_common_args(val))
     return None
 
 ### Dependency Rule
