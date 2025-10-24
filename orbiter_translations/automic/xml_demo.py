@@ -235,7 +235,7 @@ def task_common_args(val: dict) -> dict:
     """Common arguments for all tasks.
     - OH_TITLE -> task_id
     """
-    return {"task_id": val.get("@OH_TITLE", "UNKNOWN"),}
+    return {"task_id": val.get("@OH_TITLE", "UNKNOWN")}
 
 
 @task_rule(priority=2)
