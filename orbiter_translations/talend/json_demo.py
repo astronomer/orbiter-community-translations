@@ -1,3 +1,8 @@
+"""Demonstration of translating Kestra YAML files into Airflow DAGs.
+
+Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
+
+"""
 from __future__ import annotations
 from pathlib import Path
 

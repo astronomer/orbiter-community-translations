@@ -1,5 +1,7 @@
 """Demo translation ruleset for Argo YAML files to Airflow DAGs
 
+Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
+
 ```pycon
 >>> translation_ruleset.test('''
 ... apiVersion: argoproj.io/v1alpha1
