@@ -137,7 +137,7 @@ from orbiter.rules import (
     task_filter_rule,
     task_rule,
     task_dependency_rule,
-    cannot_map_rule,
+    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
@@ -366,6 +366,13 @@ def basic_task_filter(val: dict) -> list | None:
     return val.get("stages", [])
 
 
+def task_common_args(val: dict) -> dict:
+    """Common arguments for all tasks
+    - name -> task_id
+    """
+    return {"task_id": val.get("name", "UNKNOWN")}
+
+
 @task_rule(priority=2)
 def basic_task_rule(val: dict) -> OrbiterBashOperator | None:
     """Translate input into a OrbiterOperator (e.g. `OrbiterBashOperator`)
@@ -384,7 +391,6 @@ def basic_task_rule(val: dict) -> OrbiterBashOperator | None:
     ```
     """
     val = json.loads(json.dumps(val, default=str))  # pre-serialize values, for JQ
-    task_id = inflection.underscore(val["name"])
     commands = []
     steps = None
 
@@ -410,8 +416,8 @@ def basic_task_rule(val: dict) -> OrbiterBashOperator | None:
     bash_command = "; ".join(commands)
 
     return OrbiterBashOperator(
-        task_id=task_id,
         bash_command=bash_command,
+        **task_common_args(val)
     )
 
 
@@ -453,7 +459,7 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[basic_task_rule, cannot_map_rule]),
+    task_ruleset=TaskRuleset(ruleset=[basic_task_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[basic_task_dependency_rule]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )

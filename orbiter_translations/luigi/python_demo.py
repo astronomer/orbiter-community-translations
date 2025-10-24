@@ -24,6 +24,8 @@ with DAG(dag_id='hello_world'):
 """
 from __future__ import annotations
 
+import logging
+
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.python import OrbiterDecoratedPythonOperator
 from orbiter.objects.task import OrbiterOperator
@@ -33,7 +35,7 @@ from orbiter.rules import (
     dag_rule,
     task_filter_rule,
     task_rule,
-    cannot_map_rule,
+    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
@@ -91,6 +93,12 @@ def basic_task_filter(val: dict) -> list | None:
     if body := val.get('body'):
         return [item for item in body if item.get('_type') == 'FunctionDef' and item.get('name') == 'run']
 
+def task_common_args(val: dict) -> dict:
+    """Common mappings for all tasks
+    - name -> task_id
+    """
+    return {"task_id": val.get("name", "UNKNOWN")}
+
 
 @task_rule(priority=2)
 def decorated_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
@@ -104,12 +112,15 @@ def decorated_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
 
     ```
     """
-    if name := val.get('name'):
+    try:
         args = val.get('args', {})
         args['args'] = [arg for arg in args.get('args', []) if arg.get('arg') != 'self']
 
         py_fn: str = ast.unparse(json2ast(val))
-        return OrbiterDecoratedPythonOperator(task_id=name, python_callable=py_fn)
+        return OrbiterDecoratedPythonOperator(**task_common_args(val), python_callable=py_fn)
+    except Exception as e:
+        logging.exception(e)
+        return None
 
 
 translation_ruleset = TranslationRuleset(
@@ -117,7 +128,7 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[decorated_task_rule, cannot_map_rule]),
+    task_ruleset=TaskRuleset(ruleset=[decorated_task_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )

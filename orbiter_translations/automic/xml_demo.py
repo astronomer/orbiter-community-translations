@@ -82,7 +82,7 @@ from orbiter.rules import (
     task_filter_rule,
     task_rule,
     task_dependency_rule,
-    cannot_map_rule,
+    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
@@ -180,6 +180,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     return None
 
 
+# noinspection D
 @task_filter_rule
 def task_filter_rule(val: dict) -> list | None:
     """
@@ -230,6 +231,13 @@ def task_filter_rule(val: dict) -> list | None:
     return tasks
 
 
+def task_common_args(val: dict) -> dict:
+    """Common arguments for all tasks.
+    - OH_TITLE -> task_id
+    """
+    return {"task_id": val.get("@OH_TITLE", "UNKNOWN")}
+
+
 @task_rule(priority=2)
 def sql_command_rule(
     val: dict,
@@ -252,16 +260,13 @@ def sql_command_rule(
 
     ```
     """  # noqa: E501
-    try:
-        if val["@OType"] == "JOBS":
-            if "SQL" in val["script"]["SCRIPT"]:
-                return OrbiterSQLExecuteQueryOperator(
-                    task_id=val["@OH_TITLE"],
-                    sql=val["script"]["SCRIPT"].split(":SQL")[-1].strip(),
-                    **conn_id(conn_id="mssql_default", conn_type="mssql"),
-                )
-    except StopIteration:
-        pass
+    if val["@OType"] == "JOBS":
+        if "SQL" in val["script"]["SCRIPT"]:
+            return OrbiterSQLExecuteQueryOperator(
+                sql=val["script"]["SCRIPT"].split(":SQL")[-1].strip(),
+                **conn_id(conn_id="mssql_default", conn_type="mssql"),
+                **task_common_args(val)
+            )
     return None
 
 
@@ -290,14 +295,11 @@ def bash_command_rule(
 
     ```
     """  # noqa: E501
-    try:
-        if val["@OType"] == "SCRI":
-            return OrbiterBashOperator(
-                task_id=val["@OH_TITLE"],
-                bash_command=val["script"]["SCRIPT"][0]["#text"],
-            )
-    except StopIteration:
-        pass
+    if val["@OType"] == "SCRI":
+        return OrbiterBashOperator(
+            bash_command=val["script"]["SCRIPT"][0]["#text"],
+            **task_common_args(val)
+        )
     return None
 
 
@@ -316,9 +318,9 @@ def start_or_end_rule(
 
     ```
     """  # noqa: E501
-    task_id = val["@OH_TITLE"]
     if val["@Object"].lower() in ["start", "end"]:
-        return OrbiterEmptyOperator(task_id=task_id)
+        return OrbiterEmptyOperator(**task_common_args(val))
+    return None
 
 
 @task_dependency_rule
@@ -397,7 +399,7 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
             sql_command_rule,
             bash_command_rule,
             start_or_end_rule,
-            cannot_map_rule,
+            create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"]),
         ]
     ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[simple_task_dependencies]),

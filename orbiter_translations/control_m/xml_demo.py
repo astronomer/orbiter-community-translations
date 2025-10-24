@@ -33,7 +33,6 @@ from pathlib import Path
 
 import inflection
 from loguru import logger
-from orbiter import clean_value
 from orbiter.file_types import FileTypeXML
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.bash import OrbiterBashOperator
@@ -44,7 +43,7 @@ from orbiter.rules import (
     task_rule,
     task_filter_rule,
     task_dependency_rule,
-    cannot_map_rule,
+    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
@@ -157,15 +156,6 @@ def bash_command_rule(val) -> OrbiterBashOperator | None:
             bash_command=val["@CMDLINE"], **task_common_args(val)
         )
     return None
-
-
-@task_rule(priority=1)
-def _cannot_map_rule(val):
-    """Add task_ids on top of common 'cannot_map_rule'"""
-    task = cannot_map_rule(val)
-    task.task_id = clean_value(task_common_args(val)["task_id"])
-    return task
-
 
 @task_filter_rule(priority=1)
 def task_filter_rule(val) -> list[dict] | None:
@@ -282,12 +272,10 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
         ruleset=[
             bash_script_rule,
             bash_command_rule,
-            _cannot_map_rule,
+            create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"]),
         ]
     ),
-    task_dependency_ruleset=TaskDependencyRuleset(
-        ruleset=[simple_event_task_dependencies]
-    ),
+    task_dependency_ruleset=TaskDependencyRuleset(ruleset=[simple_event_task_dependencies]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
 

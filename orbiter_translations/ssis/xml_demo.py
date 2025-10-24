@@ -40,13 +40,13 @@ Contact Astronomer @ https://astronomer.io/contact for access to our full transl
 ... ''').dags['demo.extract_sample_currency_data']
 ... # doctest: +ELLIPSIS
 from airflow import DAG
-from airflow.operators.empty import EmptyOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
+from include.unmapped import UnmappedOperator
 with DAG(dag_id='demo.extract_sample_currency_data', doc_md=...):
-    extract_sample_currency_data_task = EmptyOperator(task_id='extract_sample_currency_data', doc_md=...)
+    extract_sample_currency_data_task = UnmappedOperator(task_id='extract_sample_currency_data', ...)
     lookup_currency_key_task = SQLExecuteQueryOperator(task_id='lookup_currency_key', conn_id='mssql_default', sql="select * from (select * from [dbo].[DimCurrency]) as refTable where [refTable].[CurrencyAlternateKey] = 'ARS' OR [refTable].[CurrencyAlternateKey] = 'VEB'")
     lookup_date_key_task = SQLExecuteQueryOperator(task_id='lookup_date_key', conn_id='mssql_default', sql='select * from [dbo].[DimTime]')
-    sample_ole__db_destination_task = EmptyOperator(task_id='sample_ole__db_destination', doc_md=...)
+    sample_ole__db_destination_task = UnmappedOperator(task_id='sample_ole__db_destination', ...)
     extract_sample_currency_data_task >> lookup_currency_key_task
     lookup_currency_key_task >> lookup_date_key_task
     lookup_date_key_task >> sample_ole__db_destination_task
@@ -63,7 +63,6 @@ from pathlib import Path
 import inflection
 import jq
 
-from orbiter import clean_value
 from orbiter.file_types import FileTypeXML
 from orbiter.objects import conn_id
 from orbiter.objects.dag import OrbiterDAG
@@ -75,7 +74,7 @@ from orbiter.rules import (
     dag_rule,
     task_filter_rule,
     task_rule,
-    cannot_map_rule,
+    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     TranslationRuleset,
@@ -301,14 +300,6 @@ def sql_command_rule(val) -> OrbiterSQLExecuteQueryOperator | None:
     return None
 
 
-@task_rule(priority=1)
-def _cannot_map_rule(val):
-    """Add task_ids on top of common 'cannot_map_rule'"""
-    task = cannot_map_rule(val)
-    task.task_id = clean_value(task_common_args(val)["task_id"])
-    return task
-
-
 @task_dependency_rule
 def simple_task_dependencies(
     val: OrbiterDAG,
@@ -387,7 +378,8 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[dag_filter_rule]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[task_filter_rule]),
-    task_ruleset=TaskRuleset(ruleset=[sql_command_rule, _cannot_map_rule]),
+    task_ruleset=TaskRuleset(ruleset=[sql_command_rule,
+            create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[simple_task_dependencies]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
