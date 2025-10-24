@@ -182,10 +182,10 @@ def python_pushdown_rule(val: dict) -> OrbiterPythonOperator | None:
 
 
 @task_rule(priority=10)
-def end_pipeline_rule(val: dict) -> OrbiterEmptyOperator | None:
+def end_task_rule(val: dict) -> OrbiterEmptyOperator | None:
     """Map `end` to `EmptyOperator`
     ```pycon
-    >>> end_pipeline_rule(val={
+    >>> end_task_rule(val={
     ...     "type": "end",
     ...     "parameters": {
     ...         "componentName": "Print Pipeline Finished",
@@ -251,7 +251,7 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[matillion_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[matillion_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[matillion_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[start_task_rule, python_pushdown_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
+    task_ruleset=TaskRuleset(ruleset=[start_task_rule, end_task_rule, python_pushdown_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[matillion_dependency_rule]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
