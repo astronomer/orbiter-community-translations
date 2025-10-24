@@ -47,7 +47,7 @@ from orbiter.rules import (
     task_filter_rule,
     task_rule,
     task_dependency_rule,
-    cannot_map_rule,
+    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
@@ -228,7 +228,7 @@ translation_ruleset = TranslationRuleset(
             linux_ssh_task_rule,
             win_ssh_task_rule,
             basic_task_rule,
-            cannot_map_rule,
+            create_cannot_map_rule_with_task_id_fn(lambda val: common_args(val)["task_id"]),
         ]
     ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[basic_task_dependency_rule]),

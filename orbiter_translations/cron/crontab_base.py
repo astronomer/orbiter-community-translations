@@ -26,13 +26,7 @@ from copy import copy
 from orbiter.objects import OrbiterConnection, OrbiterEnvVar
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.bash import OrbiterBashOperator
-from orbiter.rules import (
-    dag_filter_rule,
-    dag_rule,
-    task_filter_rule,
-    task_rule,
-    cannot_map_rule,
-)
+from orbiter.rules import dag_filter_rule, dag_rule, task_filter_rule, task_rule, cannot_map_rule
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,

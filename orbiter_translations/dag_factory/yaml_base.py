@@ -28,7 +28,7 @@ from orbiter.rules import (
     task_filter_rule,
     task_rule,
     task_dependency_rule,
-    cannot_map_rule,
+    create_cannot_map_rule_with_task_id_fn,
     post_processing_rule,
 )
 from orbiter.rules.rulesets import (
@@ -414,15 +414,13 @@ translation_ruleset = TranslationRuleset(
     file_type={FileTypeYAML},
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
-    task_filter_ruleset=TaskFilterRuleset(
-        ruleset=[basic_task_filter, basic_task_group_filter]
-    ),
+    task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter, basic_task_group_filter]),
     task_ruleset=TaskRuleset(
         ruleset=[
             python_operator_rule,
             task_group_rule,
             basic_task_rule,
-            cannot_map_rule,
+            create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"]),
         ]
     ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[basic_task_dependency_rule]),

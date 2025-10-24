@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Literal
 
 import inflection
-from orbiter import clean_value
 from orbiter.file_types import FileTypeXML
 from orbiter.objects import conn_id, OrbiterRequirement
 from orbiter.objects.dag import OrbiterDAG
@@ -30,7 +29,7 @@ from orbiter.rules import (
     task_dependency_rule,
     task_rule,
     task_filter_rule,
-    cannot_map_rule,
+    create_cannot_map_rule_with_task_id_fn,
     post_processing_rule,
 )
 from orbiter.rules.rulesets import (
@@ -352,7 +351,7 @@ def task_filter_rule(val: dict) -> list[dict]:
 def task_common_args(val: dict) -> dict:
     """Common mappings for all tasks
 
-    `name` -> `task_id`
+    - `name` -> `task_id`
     """
     return {"task_id": val.get("@name", "UNKNOWN")}
 
@@ -426,14 +425,6 @@ def kill(val: dict) -> OrbiterOperator | None:
             **task_common_args(val),
         )
     return None
-
-
-@task_rule(priority=1)
-def _cannot_map_rule(val):
-    """Add task_ids on top of common 'cannot_map_rule'"""
-    task = cannot_map_rule(val)
-    task.task_id = clean_value(task_common_args(val)["task_id"])
-    return task
 
 
 @task_rule(priority=2)
@@ -647,7 +638,7 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
             join,
             java_action,
             shell_action,
-            _cannot_map_rule,
+            create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"]),
         ]
     ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[to_task_dependency]),

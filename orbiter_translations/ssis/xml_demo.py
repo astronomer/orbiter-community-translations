@@ -63,7 +63,6 @@ from pathlib import Path
 import inflection
 import jq
 
-from orbiter import clean_value
 from orbiter.file_types import FileTypeXML
 from orbiter.objects import conn_id
 from orbiter.objects.dag import OrbiterDAG
@@ -75,7 +74,7 @@ from orbiter.rules import (
     dag_rule,
     task_filter_rule,
     task_rule,
-    cannot_map_rule,
+    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     TranslationRuleset,
@@ -301,14 +300,6 @@ def sql_command_rule(val) -> OrbiterSQLExecuteQueryOperator | None:
     return None
 
 
-@task_rule(priority=1)
-def _cannot_map_rule(val):
-    """Add task_ids on top of common 'cannot_map_rule'"""
-    task = cannot_map_rule(val)
-    task.task_id = clean_value(task_common_args(val)["task_id"])
-    return task
-
-
 @task_dependency_rule
 def simple_task_dependencies(
     val: OrbiterDAG,
@@ -387,7 +378,8 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[dag_filter_rule]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[task_filter_rule]),
-    task_ruleset=TaskRuleset(ruleset=[sql_command_rule, _cannot_map_rule]),
+    task_ruleset=TaskRuleset(ruleset=[sql_command_rule,
+            create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[simple_task_dependencies]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )

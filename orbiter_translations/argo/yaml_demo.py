@@ -34,7 +34,7 @@ from orbiter.rules import (
     dag_rule,
     task_filter_rule,
     task_rule,
-    cannot_map_rule,
+    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
@@ -86,16 +86,22 @@ def basic_task_filter(val: dict) -> list | None:
     ):
         return templates
 
+def task_common_args(val) -> dict:
+    """Common mappings for all tasks
+    - name -> task_id
+    """
+    return {"task_id": val.get('name', "UNKNOWN")}
+
 
 @task_rule(priority=2)
 def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
     """Translate a pod definition into a KubernetesPodOperator"""
-    if (name := val.get('name')) and (container := val.get('container', {})):
+    if container := val.get('container', {}):
         return OrbiterKubernetesPodOperator(
-            task_id=name,
             image=container.get("image") or None,
             cmds=container.get("command") or None,
             arguments=container.get("args") or None,
+            **task_common_args(val)
         )
 
 translation_ruleset = TranslationRuleset(
@@ -103,7 +109,9 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[basic_task_rule, cannot_map_rule]),
+    task_ruleset=TaskRuleset(
+        ruleset=[basic_task_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]
+    ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )

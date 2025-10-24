@@ -60,7 +60,7 @@ from orbiter.rules import (
     task_dependency_rule,
     task_filter_rule,
     task_rule,
-    cannot_map_rule
+    create_cannot_map_rule_with_task_id_fn
 )
 from orbiter.rules.rulesets import (
     TranslationRuleset,
@@ -180,14 +180,6 @@ def python_pushdown_rule(val: dict) -> OrbiterPythonOperator | None:
         )
     return None
 
-
-@task_rule(priority=1)
-def fallback_task_rule(val: dict):
-    _common_args = task_common_args(val)
-    task = cannot_map_rule(val)
-    task.task_id = _common_args['task_id']
-    return task
-
 ### Dependency Rule
 @task_dependency_rule
 def matillion_dependency_rule(val: OrbiterDAG) -> list[OrbiterTaskDependency]:
@@ -240,7 +232,7 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[matillion_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[matillion_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[matillion_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[start_task_rule, python_pushdown_rule, fallback_task_rule]),
+    task_ruleset=TaskRuleset(ruleset=[start_task_rule, python_pushdown_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[matillion_dependency_rule]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )

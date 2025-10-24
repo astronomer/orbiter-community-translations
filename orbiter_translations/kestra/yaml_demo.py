@@ -27,7 +27,6 @@ import textwrap
 
 from orbiter.file_types import FileTypeYAML
 from orbiter.objects.dag import OrbiterDAG
-from orbiter.objects.operators.empty import OrbiterEmptyOperator
 from orbiter.objects.operators.python import OrbiterDecoratedPythonOperator
 from orbiter.objects.task import OrbiterOperator
 from orbiter.objects.task_group import OrbiterTaskGroup
@@ -37,7 +36,7 @@ from orbiter.rules import (
     task_filter_rule,
     task_rule,
     task_dependency_rule,
-    cannot_map_rule,
+    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
@@ -200,14 +199,6 @@ def dag_as_task_rule(val: dict) -> OrbiterTaskGroup | None:
             **common_args
         )
 
-@task_rule(priority=1)
-def _cannot_map_rule(val: dict) -> OrbiterEmptyOperator | None:
-    cannot_map_task = cannot_map_rule(val)
-    if task_id := task_common_args(val).get('task_id'):
-        cannot_map_task.task_id = task_id
-    return cannot_map_task
-
-
 @task_dependency_rule
 def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
     """Not Implemented for Demo"""
@@ -219,7 +210,13 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[log_task_rule, dag_as_task_rule, _cannot_map_rule]),
+    task_ruleset=TaskRuleset(
+        ruleset=[
+            log_task_rule,
+            dag_as_task_rule,
+            create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"]),
+        ]
+    ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[basic_task_dependency_rule]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
