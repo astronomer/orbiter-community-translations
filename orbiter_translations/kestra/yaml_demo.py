@@ -181,8 +181,8 @@ def dag_as_task_rule(val: dict) -> OrbiterTaskGroup | None:
     ...   {'task': {'id': 'bar', 'dependsOn': ['foo']}}
     ... ]}) # doctest: +ELLIPSIS
     with TaskGroup(group_id='foo') as foo:
-        foo_task = EmptyOperator(task_id='foo', ...)
-        bar_task = EmptyOperator(task_id='bar', ...)
+        foo_task = UnmappedOperator(task_id='foo', ...)
+        bar_task = UnmappedOperator(task_id='bar', ...)
 
     ```
     """
@@ -198,6 +198,7 @@ def dag_as_task_rule(val: dict) -> OrbiterTaskGroup | None:
             },
             **common_args
         )
+    return None
 
 @task_dependency_rule
 def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
