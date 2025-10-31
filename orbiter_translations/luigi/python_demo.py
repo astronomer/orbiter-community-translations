@@ -24,6 +24,7 @@ with DAG(dag_id='hello_world'):
 """
 from __future__ import annotations
 
+import json
 import logging
 
 from orbiter.objects.dag import OrbiterDAG
@@ -116,7 +117,7 @@ def decorated_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
         args = val.get('args', {})
         args['args'] = [arg for arg in args.get('args', []) if arg.get('arg') != 'self']
 
-        py_fn: str = ast.unparse(json2ast(val))
+        py_fn: str = ast.unparse(json2ast(json.loads(json.dumps(val))))
         return OrbiterDecoratedPythonOperator(**task_common_args(val), python_callable=py_fn)
     except Exception as e:
         logging.exception(e)
