@@ -59,7 +59,7 @@ from orbiter.rules.rulesets import (
     TranslationRuleset,
 )
 
-from orbiter_translations.esp.wld_parser import FileTypeWLD
+from orbiter_parsers.file_types.wld import FileTypeWLD
 
 
 @dag_filter_rule
