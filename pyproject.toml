@@ -46,6 +46,9 @@ dependencies = [
 
     # for luigi / python conversions
     "json2ast",
+
+    # Parsers / FileTypes
+    "orbiter-parsers"
 ]
 
 [project.optional-dependencies]
