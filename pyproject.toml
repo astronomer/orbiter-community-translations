@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 include-package-data = false
 
 [tool.setuptools.dynamic]
-version = { attr = "orbiter_translations.__version__" }
+version = { attr = "orbiter_translations.version.__version__" }
 
 [tool.setuptools.packages.find]
 exclude = [
