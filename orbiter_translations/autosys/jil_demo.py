@@ -22,7 +22,7 @@ with DAG(dag_id='foo_job', default_args={'owner': 'foo@bar.com'}, doc_md=...):
 
 from __future__ import annotations
 
-from orbiter.file_types import FileTypeJIL
+from orbiter_parsers.file_types.jil import FileTypeJIL
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.ssh import OrbiterSSHOperator
 from orbiter.objects import conn_id
