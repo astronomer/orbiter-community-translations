@@ -1,7 +1,7 @@
 #!/usr/bin/env just --justfile
 set dotenv-load := true
 EXTRAS := "dev"
-VERSION := `echo $(python -c 'from orbiter_translations import __version__; print(__version__)')`
+VERSION := `echo $(python -c 'from orbiter_translations.version import __version__; print(__version__)')`
 PYTHON := `which python || which python3`
 
 default:
