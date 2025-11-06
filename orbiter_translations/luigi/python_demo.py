@@ -48,7 +48,7 @@ from orbiter.rules.rulesets import (
     TranslationRuleset,
 )
 
-from orbiter.file_types import FileTypePython
+from orbiter_parsers.file_types.python import FileTypePython
 from json2ast import json2ast
 import ast
 
