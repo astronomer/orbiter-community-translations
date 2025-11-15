@@ -226,7 +226,7 @@ def demo_connection_common_args(val: dict) -> dict:
     return common_args
 
 
-@task_rule(priority=2, params_doc=_demo_task_common_args_params_doc |_demo_connection_common_args_params_doc | {"scriptname": "command"})
+@task_rule(priority=2, params_doc=_demo_task_common_args_params_doc | _demo_connection_common_args_params_doc | {"scriptname": "command"})
 def demo_unix_script_rule(val: dict) -> OrbiterSSHOperator | None:
     """Run a script on a unix host via ssh
 
@@ -240,7 +240,7 @@ def demo_unix_script_rule(val: dict) -> OrbiterSSHOperator | None:
         return OrbiterSSHOperator(**demo_task_common_args(val), **demo_connection_common_args(val), command=command)
     return None
 
-@task_rule(priority=2, params_doc=_demo_task_common_args_params_doc |_demo_connection_common_args_params_doc | {"docommand": "command"})
+@task_rule(priority=2, params_doc=_demo_task_common_args_params_doc | _demo_connection_common_args_params_doc | {"docommand": "command"})
 def demo_unix_command_rule(val: dict) -> OrbiterSSHOperator | None:
     """Run a command on a unix host via ssh
 
