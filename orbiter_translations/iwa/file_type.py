@@ -179,7 +179,7 @@ def iwa_loads(s: str) -> list[dict]:
             current_task_definition += f"\n{line}"
             if line.rstrip().endswith('</jsdl:jobDefinition>'):
                 # set
-                current_job['task'] = xmltodict_parse(current_task_definition)
+                current_job['task'] = xmltodict_parse(current_task_definition.strip())
 
                 # reset
                 current_task_definition = None
