@@ -139,7 +139,6 @@ def iwa_loads(s: str) -> list[dict]:
     ...
     ... END
     ... ''') # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-    ```
     [{'schedule': 'MACHINE#/FOO_BAR/BAZ_FW_CHECK1',
     'description': '"XXXXXXXXXX yyyy."',
     'on': 'REQUEST',
@@ -153,6 +152,8 @@ def iwa_loads(s: str) -> list[dict]:
         'at': '0030 TIMEZONE US/Pacific UNTIL 2359 TIMEZONE US/Pacific',
         'every': '0005',
         'opens': 'MACHINE#"/data/SFTP/XXXXXXXXX/FOO001_2_7/OUT/*.txt" (f %p)'}]}]
+
+    ```
     """
     jobs: list[dict] = []
 

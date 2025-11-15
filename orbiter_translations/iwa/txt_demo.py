@@ -97,13 +97,13 @@ def dag_common_args(val: dict) -> dict:
     if ' ' in (schedule := val.get('schedule')):
         # TODO - VALIDFROM or etc might be on `schedule` line
         [dag_id, _] = schedule.split(" ", maxsplit=1)
-        dag_id = clean_value(dag_id)
     else:
-        dag_id = clean_value(schedule)
+        dag_id = schedule
 
     # remove the workstation from the jobstream id
     if '#' in dag_id:
         [_, dag_id] = dag_id.split("#", maxsplit=1)
+    dag_id = clean_value(dag_id)
 
     common_args = {
         "dag_id": dag_id
