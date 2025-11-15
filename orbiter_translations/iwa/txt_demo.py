@@ -279,7 +279,7 @@ def demo_win_command_rule(val: dict) -> OrbiterWinRMOperator | None:
     ```
     """
     if "id" in val and val.get('tasktype', '').lower() == 'windows' and (command := val.get('docommand')):
-        return OrbiterWinRMOperator(**demo_task_common_args(val), **demo_connection_common_args(val),  command=command)
+        return OrbiterWinRMOperator(**demo_task_common_args(val), **demo_connection_common_args(val), command=command)
     return None
 
 @task_rule(priority=2, params_doc=_demo_task_common_args_params_doc)
