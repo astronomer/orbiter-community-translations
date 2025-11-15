@@ -113,8 +113,8 @@ def dag_common_args(val: dict) -> dict:
         common_args["concurrency"] = int(limit)
     if validfrom := val.get('validfrom'):
         common_args["start_date"] = pendulum.parse(validfrom, strict=False)
-    if validfrom := val.get("validto"):
-        common_args["end_date"] = pendulum.parse(validfrom, strict=False)
+    if validto := val.get("validto"):
+        common_args["end_date"] = pendulum.parse(validto, strict=False)
     return common_args
 
 
