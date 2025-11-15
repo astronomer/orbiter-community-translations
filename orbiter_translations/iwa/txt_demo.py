@@ -36,6 +36,7 @@ with DAG(dag_id='sched_first1', ...):
 from __future__ import annotations
 
 import pendulum
+from orbiter import clean_value
 from orbiter.objects import conn_id
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.empty import OrbiterEmptyOperator
@@ -60,8 +61,7 @@ from orbiter.rules.rulesets import (
     TranslationRuleset,
 )
 
-from file_type import FileTypeIWA
-
+from orbiter_translations.iwa.file_type import FileTypeIWA
 
 @dag_filter_rule
 def demo_dag_filter(val: dict) -> list | None:
@@ -97,9 +97,9 @@ def dag_common_args(val: dict) -> dict:
     if ' ' in (schedule := val.get('schedule')):
         # TODO - VALIDFROM or etc might be on `schedule` line
         [dag_id, _] = schedule.split(" ", maxsplit=1)
-        dag_id = dag_id.replace(".", "_").lower()
+        dag_id = clean_value(dag_id)
     else:
-        dag_id = schedule.replace(".", "_").lower()
+        dag_id = clean_value(schedule)
 
     # remove the workstation from the jobstream id
     if '#' in dag_id:
@@ -181,7 +181,7 @@ def demo_task_common_args(val: dict) -> dict:
     """
     if "#" in (_id := val["id"]):
         [_, task_id] = _id.split("#", maxsplit=1)
-        task_id = task_id.replace(".", "_").lower()
+        task_id = clean_value(task_id)
     else:
         task_id = _id
     common_args = {
