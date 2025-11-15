@@ -121,8 +121,38 @@ def iwa_loads(s: str) -> list[dict]:
     'priority': '30',
     'needs': '16 M235062_99#JOBSLOTS',
     'prompt': 'PRMT3'}]}]
-
+    >>> iwa_loads('''
+    ... SCHEDULE MACHINE#/FOO_BAR/BAZ_FW_CHECK1
+    ... DESCRIPTION "XXXXXXXXXX yyyy."
+    ... ON REQUEST
+    ... MATCHING PREVIOUS
+    ... :
+    ... MACHINE#/FOO_BAR/BAZ_FW_CHECK_TEST
+    ...  DOCOMMAND "SLEEP 100"
+    ...  STREAMLOGON XXXXX
+    ...  DESCRIPTION "File Watcher for Check file"
+    ...  TASKTYPE UNIX
+    ...  RECOVERY STOP
+    ...  AT 0030 TIMEZONE US/Pacific UNTIL 2359 TIMEZONE US/Pacific
+    ...  EVERY 0005
+    ... OPENS MACHINE#"/data/SFTP/XXXXXXXXX/FOO001_2_7/OUT/*.txt" (f %p)
+    ...
+    ... END
+    ... ''') # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     ```
+    [{'schedule': 'MACHINE#/FOO_BAR/BAZ_FW_CHECK1',
+    'description': '"XXXXXXXXXX yyyy."',
+    'on': 'REQUEST',
+    'matching': 'PREVIOUS',
+    'jobs': [{'id': 'MACHINE#/FOO_BAR/BAZ_FW_CHECK_TEST',
+        'docommand': '"SLEEP 100"',
+        'streamlogon': 'XXXXX',
+        'description': '"File Watcher for Check file"',
+        'tasktype': 'UNIX',
+        'recovery': 'STOP',
+        'at': '0030 TIMEZONE US/Pacific UNTIL 2359 TIMEZONE US/Pacific',
+        'every': '0005',
+        'opens': 'MACHINE#"/data/SFTP/XXXXXXXXX/FOO001_2_7/OUT/*.txt" (f %p)'}]}]
     """
     jobs: list[dict] = []
 
@@ -218,7 +248,7 @@ def iwa_loads(s: str) -> list[dict]:
 
         ####### JOB CASES #######
         # check for a job attr
-        if key in JOB_ATTRS:
+        if key in JOB_ATTRS and current_job:
             # set
             if key == "task":
                 current_task_definition = ""
