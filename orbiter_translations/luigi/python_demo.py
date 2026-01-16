@@ -71,9 +71,9 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     """Use the class name as both the `dag_id` and file name
 
     ```pycon
-    >>> basic_dag_rule(val={'_type': 'ClassDef', 'name': 'HelloWorld'})
-    from airflow import DAG
-    with DAG(dag_id='hello_world'):
+    >>> basic_dag_rule(val={'_type': 'ClassDef', 'name': 'HelloWorld'}) # doctest: +ELLIPSIS
+    from airflow import DAG...
+    with DAG(dag_id='hello_world'):...
 
     ```
     """

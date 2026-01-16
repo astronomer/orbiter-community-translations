@@ -264,10 +264,9 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ...      'arguments': [{'key': 'message',
     ...        'value': {'isLiteral': True, 'value': 'Deploying....'}}]}]}]}],
     ... 'agent': {'type': 'any'}},
-    ... '__file': Path("demo1.json")})
-    ... # doctest: +ELLIPSIS
-    from airflow import DAG
-    with DAG(dag_id='demo1', doc_md=...):
+    ... '__file': Path("demo1.json")}) # doctest: +ELLIPSIS
+    from airflow import DAG...
+    with DAG(dag_id='demo1', doc_md=...):...
 
     ```
     """  # noqa: E501

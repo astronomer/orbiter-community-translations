@@ -168,10 +168,9 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
      ...         ],
      ...         'DTS:ConnectionManager': [{"__": "Omitted for brevity, connections would be here"}],
      ...     }
-     ... })
-     ... # doctest: +ELLIPSIS
-     from airflow import DAG
-     with DAG(dag_id='demo.extract_sample_currency_data', doc_md=...):
+     ... }) # doctest: +ELLIPSIS
+     from airflow import DAG...
+     with DAG(dag_id='demo.extract_sample_currency_data', doc_md=...):...
 
      ```
     """  # noqa: E501

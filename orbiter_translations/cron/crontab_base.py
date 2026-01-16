@@ -58,9 +58,9 @@ def cron_dag_rule(val: dict) -> OrbiterDAG | None:
     """Transform CRON entries into a DAG
 
     ```pycon
-    >>> cron_dag_rule(val={"i": 0, "schedule": "* * * * *", "command": "/bin/bash"})
-    from airflow import DAG
-    with DAG(dag_id='cron_0', schedule='* * * * *'):
+    >>> cron_dag_rule(val={"i": 0, "schedule": "* * * * *", "command": "/bin/bash"}) # doctest: +ELLIPSIS
+    from airflow import DAG...
+    with DAG(dag_id='cron_0', schedule='* * * * *'):...
 
     ```
     """

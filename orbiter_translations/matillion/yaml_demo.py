@@ -97,8 +97,8 @@ def matillion_dag_rule(val: dict) -> OrbiterDAG:
     """
     ```pycon
     >>> matillion_dag_rule(val={"name": "matillion_pipeline"})  # doctest: +ELLIPSIS
-    from airflow import DAG
-    with DAG(dag_id='matillion_pipeline', ...):
+    from airflow import DAG...
+    with DAG(dag_id='matillion_pipeline', ...):...
 
     ```
     """

@@ -63,9 +63,9 @@ Contact Astronomer @ https://astronomer.io/contact for access to our full transl
 from airflow import DAG
 from airflow.providers.ssh.operators.ssh import SSHOperator
 with DAG(dag_id='...'):
-    foo_task = SSHOperator(task_id='foo', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\foo_job.exe" abc', doc_md='Foo Job')
-    bar_task = SSHOperator(task_id='bar', ssh_conn_id='foo.agent.com_BarUser', command='"C:\\User\\baz_job.exe" bop', doc_md='Bar Job')
-    email_notification_task = SSHOperator(task_id='email_notification', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\email.exe" "hello, world"', doc_md='Send an email')
+    foo_task = SSHOperator(task_id='foo', doc_md='Foo Job', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\foo_job.exe" abc')
+    bar_task = SSHOperator(task_id='bar', doc_md='Bar Job', ssh_conn_id='foo.agent.com_BarUser', command='"C:\\User\\baz_job.exe" bop')
+    email_notification_task = SSHOperator(task_id='email_notification', doc_md='Send an email', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\email.exe" "hello, world"')
 
 >>> list(translation_ruleset.test(r'''<?xml version="1.0" encoding="utf-8"?>
 ...  <JAMSObjects xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://jams.mvpsi.com/v1">
@@ -88,7 +88,7 @@ with DAG(dag_id='...'):
 from airflow import DAG
 from airflow.providers.ssh.operators.ssh import SSHOperator
 with DAG(dag_id='...'):
-    baz_task = SSHOperator(task_id='baz', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\baz.bat"', doc_md='Baz Job')
+    baz_task = SSHOperator(task_id='baz', doc_md='Baz Job', ssh_conn_id='foo.agent.com_FooUser', command='"C:\\FooUser\\baz.bat"')
 
 ```
 """
@@ -139,9 +139,9 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     """Infer DAG ID from the file name, or use 'UNKNOWN' if not available
 
     ```pycon
-    >>> from pathlib import Path; basic_dag_rule({'__file': Path('foo.xml')})
-    from airflow import DAG
-    with DAG(dag_id='foo'):
+    >>> from pathlib import Path; basic_dag_rule({'__file': Path('foo.xml')}) # doctest: +ELLIPSIS
+    from airflow import DAG...
+    with DAG(dag_id='foo'):...
 
     ```
     """

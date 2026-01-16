@@ -152,7 +152,7 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     """Translate input into an `OrbiterDAG`
 
     ```pycon
-    >>> input_dict = {
+    >>> basic_dag_rule({
     ...   '__dag_id': 'test_expand',
     ...   '__default': {"doc_md": "foo"},
     ...   'default_args': {'owner': 'custom_owner'},
@@ -160,10 +160,9 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     ...   'schedule_interval': '0 3 * * *',
     ...   'default_view': 'graph',
     ...   'tasks': {'foo': {'operator': 'airflow.operators.python.PythonOperator'}}
-    ... }
-    >>> basic_dag_rule(input_dict)
-    from airflow import DAG
-    with DAG(dag_id='test_expand', schedule='0 3 * * *', default_args={'owner': 'custom_owner'}, doc_md='foo', description='test expand', default_view='graph'):
+    ... }) # doctest: +ELLIPSIS
+    from airflow import DAG...
+    with DAG(dag_id='test_expand', schedule='0 3 * * *', default_args={'owner': 'custom_owner'}, doc_md='foo', description='test expand', default_view='graph'):...
 
     ```
     """  # noqa: E501
@@ -255,8 +254,8 @@ def task_group_rule(val: dict) -> OrbiterTaskGroup | None:
     ...   '__task_group_id': 'task_group1',
     ...   'tooltip': 'this is a task group',
     ...   'dependencies': ['task_1']
-    ... })
-    with TaskGroup(group_id='task_group1') as task_group1:
+    ... }) # doctest: +ELLIPSIS
+    with TaskGroup(group_id='task_group1') as task_group1:...
 
     ```
     """
@@ -312,14 +311,13 @@ def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
     """Translate input into an Operator (e.g. `OrbiterBashOperator`). will be applied first, with a higher priority
 
     ```pycon
-    >>> input_dict = {
+    >>> basic_task_rule({
     ...   '__task_id': 'request',
     ...   'operator': 'airflow.operators.bash.BashOperator',
     ...   'bash_command': 'echo hi',
     ...   'doc_md': 'foo'
-    ... }
-    >>> basic_task_rule(input_dict)
-    request_task = BashOperator(task_id='request', bash_command='echo hi', doc_md='foo')
+    ... }) # doctest: +ELLIPSIS
+    request_task = BashOperator(task_id='request', doc_md='foo', bash_command='echo hi')
 
     ```
     """

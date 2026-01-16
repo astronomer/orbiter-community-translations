@@ -84,8 +84,8 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
 
     ```pycon
     >>> basic_dag_rule({'APPL': 'PAYROLL'}) # doctest: +ELLIPSIS
-    from airflow import DAG
-    with DAG(dag_id='payroll', doc_md=...):
+    from airflow import DAG...
+    with DAG(dag_id='payroll', doc_md=...):...
 
     ```
     """

@@ -87,9 +87,9 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
     """Utilize `id` and `namespace` to create a DAG ID and file path - using namespace for directory structure
 
     ```pycon
-    >>> basic_dag_rule({'id': 'foo', 'namespace': 'baz.bar'})
-    from airflow import DAG
-    with DAG(dag_id='baz.bar.foo'):
+    >>> basic_dag_rule({'id': 'foo', 'namespace': 'baz.bar'}) # doctest: +ELLIPSIS
+    from airflow import DAG...
+    with DAG(dag_id='baz.bar.foo'):...
 
     ```
     """

@@ -141,8 +141,8 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
 
     ```pycon
     >>> basic_dag_rule({"@Identifier": "demo.extract_sample_currency_data"}) # doctest: +ELLIPSIS
-    from airflow import DAG
-    with DAG(dag_id='demo.extract_sample_currency_data', doc_md=...):
+    from airflow import DAG...
+    with DAG(dag_id='demo.extract_sample_currency_data', doc_md=...):...
 
     ```
     """

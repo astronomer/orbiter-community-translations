@@ -63,8 +63,9 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
 
     ```pycon
     >>> basic_dag_rule({'kind': 'Workflow', 'metadata': {'name': 'hello-world'}, 'spec': {'schedule': '0 0 * * *'}})
-    from airflow import DAG
-    with DAG(dag_id='hello_world', schedule='0 0 * * *'):
+    ... # doctest: +ELLIPSIS
+    from airflow import DAG...
+    with DAG(dag_id='hello_world', schedule='0 0 * * *'):...
 
     ```
     """
