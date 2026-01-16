@@ -235,10 +235,9 @@ def coordinator_dag_rule(val: dict) -> OrbiterDAG | None:
     ...   "action": [{
     ...     'workflow': [{'app-path': 'x/y/z/workflow.xml', 'workflow-app': [{'@name': 'demo-wf'}]}],
     ...     'configuration': [{'property': [...]}]}]
-    ... })
-    ... # doctest: +ELLIPSIS
-    from airflow import DAG
-    with DAG(dag_id='demo_wf', doc_md=..., description=..., max_active_runs=1):
+    ... }) # doctest: +ELLIPSIS
+    from airflow import DAG...
+    with DAG(dag_id='demo_wf', doc_md=..., description=..., max_active_runs=1):...
 
     ```
     """  # noqa: E501

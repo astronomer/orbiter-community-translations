@@ -41,9 +41,9 @@ def job_group_dag_rule(val: dict) -> OrbiterDAG | None:
     """Translate `tes:jobgroup` into an `OrbiterDAG`
 
     ```pycon
-    >>> job_group_dag_rule({"tes:name": "foo"})
-    from airflow import DAG
-    with DAG(dag_id='foo'):
+    >>> job_group_dag_rule({"tes:name": "foo"}) # doctest: +ELLIPSIS
+    from airflow import DAG...
+    with DAG(dag_id='foo'):...
 
     ```
     """

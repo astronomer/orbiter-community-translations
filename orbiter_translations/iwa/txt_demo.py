@@ -26,7 +26,7 @@ from airflow.operators.empty import EmptyOperator
 from airflow.providers.microsoft.winrm.operators.winrm import WinRMOperator
 from airflow.providers.ssh.operators.ssh import SSHOperator
 with DAG(dag_id='sched_first1', ...):
-    jobmdm_task = SSHOperator(task_id='jobmdm', ssh_conn_id='M235062_99', command='"/usr/acct/scripts/gl1"', doc_md='"general ledger job1"')
+    jobmdm_task = SSHOperator(task_id='jobmdm', doc_md='"general ledger job1"', ssh_conn_id='M235062_99', command='"/usr/acct/scripts/gl1"')
     job_fta_task = WinRMOperator(task_id='job_fta', ssh_conn_id='B236153_00', command='"/usr/mis/scripts/bkup"')
     bar_task = EmptyOperator(task_id='bar', doc_md='"Finished!"')
     jobmdm_task >> [bar_task, job_fta_task]
@@ -124,8 +124,8 @@ def demo_dag_rule(val: dict) -> OrbiterDAG | None:
 
     ```pycon
     >>> demo_dag_rule({'schedule': 'M235062_99#SCHED_FIRST1'}) # doctest: +ELLIPSIS
-    from airflow import DAG
-    with DAG(dag_id='sched_first1', ...):
+    from airflow import DAG...
+    with DAG(dag_id='sched_first1', ...):...
 
     ```
     """

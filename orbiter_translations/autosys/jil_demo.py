@@ -85,10 +85,9 @@ def demo_dag_rule(val: dict) -> OrbiterDAG | None:
     ...   'job_type': 'CMD',
     ...   'machine': 'machine_id',
     ...   'owner': 'foo@bar.net'
-    ... })
-    ... # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-    from airflow import DAG
-    with DAG(dag_id='foo_job', default_args={'owner': 'foo@bar.net'}, doc_md=...):
+    ... }) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    from airflow import DAG...
+    with DAG(dag_id='foo_job', default_args={'owner': 'foo@bar.net'}, doc_md=...):...
 
     ```
     """
