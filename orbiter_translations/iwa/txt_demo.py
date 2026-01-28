@@ -33,6 +33,7 @@ with DAG(dag_id='sched_first1', ...):
 
 ```
 """
+
 from __future__ import annotations
 
 import pendulum
@@ -44,38 +45,42 @@ from orbiter.objects.operators.ssh import OrbiterSSHOperator
 from orbiter.objects.operators.win_rm import OrbiterWinRMOperator
 from orbiter.objects.task import OrbiterTaskDependency
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
+    task_dependency_rule,
     task_filter_rule,
     task_rule,
-    task_dependency_rule,
-    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    TaskDependencyRuleset,
-    PostProcessingRuleset,
     TranslationRuleset,
 )
 
 from orbiter_translations.iwa.file_type import FileTypeIWA
 
+
 @dag_filter_rule
 def demo_dag_filter(val: dict) -> list | None:
     """Look for `schedule` in the input dictionary."""
-    if 'schedule' in val:
+    if "schedule" in val:
         return [val]
     return None
+
 
 _demo_dag_common_args_params_doc = {
     "schedule.2": "DAG.dag_id",
     "limit": "DAG.concurrency",
     "validfrom": "DAG.start_date",
-    "validto": "DAG.end_date"
+    "validto": "DAG.end_date",
 }
+
+
 def dag_common_args(val: dict) -> dict:
     """Common arguments for all DAGs
 
@@ -94,24 +99,22 @@ def dag_common_args(val: dict) -> dict:
 
     ```
     """
-    if ' ' in (schedule := val.get('schedule')):
+    if " " in (schedule := val.get("schedule")):
         # TODO - VALIDFROM or etc might be on `schedule` line
         [dag_id, _] = schedule.split(" ", maxsplit=1)
     else:
         dag_id = schedule
 
     # remove the workstation from the jobstream id
-    if '#' in dag_id:
+    if "#" in dag_id:
         [_, dag_id] = dag_id.split("#", maxsplit=1)
     dag_id = clean_value(dag_id)
 
-    common_args = {
-        "dag_id": dag_id
-    }
+    common_args = {"dag_id": dag_id}
 
-    if limit := val.get('limit'):
+    if limit := val.get("limit"):
         common_args["concurrency"] = int(limit)
-    if validfrom := val.get('validfrom'):
+    if validfrom := val.get("validfrom"):
         common_args["start_date"] = pendulum.parse(validfrom, strict=False)
     if validto := val.get("validto"):
         common_args["end_date"] = pendulum.parse(validto, strict=False)
@@ -129,7 +132,7 @@ def demo_dag_rule(val: dict) -> OrbiterDAG | None:
 
     ```
     """
-    if 'schedule' in val:
+    if "schedule" in val:
         common_args = dag_common_args(val)
         return OrbiterDAG(
             file_path=f"{common_args['dag_id']}.py",
@@ -156,12 +159,9 @@ def demo_task_filter(val: dict) -> list | None:
 
     ```
     """
-    if 'jobs' in val:
-        jobs: list[dict] = val.pop('jobs')
-        return [
-            j | {"jobstream": val}
-            for j in jobs
-        ]
+    if "jobs" in val:
+        jobs: list[dict] = val.pop("jobs")
+        return [j | {"jobstream": val} for j in jobs]
     return None
 
 
@@ -169,6 +169,8 @@ _demo_task_common_args_params_doc = {
     "job_id.2": "Operator.task_id",
     "description": "Operator.doc_md",
 }
+
+
 def demo_task_common_args(val: dict) -> dict:
     """Common properties for all tasks
 
@@ -187,16 +189,19 @@ def demo_task_common_args(val: dict) -> dict:
     common_args = {
         "task_id": task_id,
     }
-    if description := val.get('description'):
+    if description := val.get("description"):
         common_args |= {"doc_md": description}
 
     return common_args
+
 
 _demo_connection_common_args_params_doc = {
     "job_id.1": "Operator.*_conn_id",
     "jobstream.schedule.1": "Operator.*_conn_id",
     "streamlogon": "Connection.user",
 }
+
+
 def demo_connection_common_args(val: dict) -> dict:
     """Common connection properties for all tasks
 
@@ -218,15 +223,18 @@ def demo_connection_common_args(val: dict) -> dict:
         _conn_id = None
     if _conn_id:
         common_args |= conn_id(conn_id=_conn_id, prefix="ssh", conn_type="ssh")
-        if user := val.get('streamlogon'):
-            conns = list(common_args['orbiter_conns'])
+        if user := val.get("streamlogon"):
+            conns = list(common_args["orbiter_conns"])
             conn = conns[-1]
             conn = conn.model_copy(update={"user": user})
-            common_args['orbiter_conns'] = set(conns[:-1] + [conn])
+            common_args["orbiter_conns"] = set(conns[:-1] + [conn])
     return common_args
 
 
-@task_rule(priority=2, params_doc=_demo_task_common_args_params_doc | _demo_connection_common_args_params_doc | {"scriptname": "command"})
+@task_rule(
+    priority=2,
+    params_doc=_demo_task_common_args_params_doc | _demo_connection_common_args_params_doc | {"scriptname": "command"},
+)
 def demo_unix_script_rule(val: dict) -> OrbiterSSHOperator | None:
     """Run a script on a unix host via ssh
 
@@ -236,11 +244,15 @@ def demo_unix_script_rule(val: dict) -> OrbiterSSHOperator | None:
 
     ```
     """
-    if "id" in val and val.get('tasktype', '').lower() == 'unix' and (command := val.get('scriptname')):
+    if "id" in val and val.get("tasktype", "").lower() == "unix" and (command := val.get("scriptname")):
         return OrbiterSSHOperator(**demo_task_common_args(val), **demo_connection_common_args(val), command=command)
     return None
 
-@task_rule(priority=2, params_doc=_demo_task_common_args_params_doc | _demo_connection_common_args_params_doc | {"docommand": "command"})
+
+@task_rule(
+    priority=2,
+    params_doc=_demo_task_common_args_params_doc | _demo_connection_common_args_params_doc | {"docommand": "command"},
+)
 def demo_unix_command_rule(val: dict) -> OrbiterSSHOperator | None:
     """Run a command on a unix host via ssh
 
@@ -250,11 +262,15 @@ def demo_unix_command_rule(val: dict) -> OrbiterSSHOperator | None:
 
     ```
     """
-    if "id" in val and val.get('tasktype', '').lower() == 'unix' and (command := val.get('docommand')):
+    if "id" in val and val.get("tasktype", "").lower() == "unix" and (command := val.get("docommand")):
         return OrbiterSSHOperator(**demo_task_common_args(val), **demo_connection_common_args(val), command=command)
     return None
 
-@task_rule(priority=2, params_doc=_demo_task_common_args_params_doc | _demo_connection_common_args_params_doc | {"scriptname": "command"})
+
+@task_rule(
+    priority=2,
+    params_doc=_demo_task_common_args_params_doc | _demo_connection_common_args_params_doc | {"scriptname": "command"},
+)
 def demo_win_script_rule(val: dict) -> OrbiterWinRMOperator | None:
     """Run a script on a windows host via winrm
 
@@ -264,11 +280,15 @@ def demo_win_script_rule(val: dict) -> OrbiterWinRMOperator | None:
 
     ```
     """
-    if "id" in val and val.get('tasktype', '').lower() == 'windows' and (command := val.get('scriptname')):
+    if "id" in val and val.get("tasktype", "").lower() == "windows" and (command := val.get("scriptname")):
         return OrbiterWinRMOperator(**demo_task_common_args(val), **demo_connection_common_args(val), command=command)
     return None
 
-@task_rule(priority=2, params_doc=_demo_task_common_args_params_doc | _demo_connection_common_args_params_doc | {"docommand": "command"})
+
+@task_rule(
+    priority=2,
+    params_doc=_demo_task_common_args_params_doc | _demo_connection_common_args_params_doc | {"docommand": "command"},
+)
 def demo_win_command_rule(val: dict) -> OrbiterWinRMOperator | None:
     """Run a command on a windows host via winrm
 
@@ -278,9 +298,10 @@ def demo_win_command_rule(val: dict) -> OrbiterWinRMOperator | None:
 
     ```
     """
-    if "id" in val and val.get('tasktype', '').lower() == 'windows' and (command := val.get('docommand')):
+    if "id" in val and val.get("tasktype", "").lower() == "windows" and (command := val.get("docommand")):
         return OrbiterWinRMOperator(**demo_task_common_args(val), **demo_connection_common_args(val), command=command)
     return None
+
 
 @task_rule(priority=2, params_doc=_demo_task_common_args_params_doc)
 def empty_task_rule(val: dict) -> OrbiterEmptyOperator | None:
@@ -292,7 +313,7 @@ def empty_task_rule(val: dict) -> OrbiterEmptyOperator | None:
 
     ```
     """
-    if 'id' in val and 'tasktype' not in val and 'task' not in val:
+    if "id" in val and "tasktype" not in val and "task" not in val:
         return OrbiterEmptyOperator(**demo_task_common_args(val))
     return None
 
@@ -312,7 +333,7 @@ def demo_task_dependency_rule(val: OrbiterDAG) -> list | None:
     """
     task_dependencies = []
     for task in val.tasks.values():
-        if follows := (getattr(task, 'orbiter_kwargs', {}) or {}).get("val", {}).get('follows'):
+        if follows := (getattr(task, "orbiter_kwargs", {}) or {}).get("val", {}).get("follows"):
             task_dependencies.append(OrbiterTaskDependency(task_id=follows, downstream=task.task_id))
     return task_dependencies
 
@@ -322,16 +343,20 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[demo_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[demo_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[demo_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[
-        demo_unix_script_rule,
-        demo_unix_command_rule,
-        demo_win_script_rule,
-        demo_win_command_rule,
-        empty_task_rule,
-        create_cannot_map_rule_with_task_id_fn(lambda v: demo_task_common_args(v)["task_id"])
-    ]),
-    task_dependency_ruleset=TaskDependencyRuleset(ruleset=[
-        demo_task_dependency_rule,
-    ]),
+    task_ruleset=TaskRuleset(
+        ruleset=[
+            demo_unix_script_rule,
+            demo_unix_command_rule,
+            demo_win_script_rule,
+            demo_win_command_rule,
+            empty_task_rule,
+            create_cannot_map_rule_with_task_id_fn(lambda v: demo_task_common_args(v)["task_id"]),
+        ]
+    ),
+    task_dependency_ruleset=TaskDependencyRuleset(
+        ruleset=[
+            demo_task_dependency_rule,
+        ]
+    ),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )

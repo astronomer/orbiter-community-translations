@@ -1,14 +1,15 @@
 import luigi  # noqa: F401
 
+
 class GenerateWords(luigi.Task):
     def output(self):
-        return luigi.LocalTarget('words.txt')
+        return luigi.LocalTarget("words.txt")
 
     def run(self):
-        words = ['apple', 'banana', 'grapefruit']
-        with self.output().open('w') as f:
+        words = ["apple", "banana", "grapefruit"]
+        with self.output().open("w") as f:
             for word in words:
-                f.write('{word}\n'.format(word=word))
+                f.write(f"{word}\n")
 
 
 class CountLetters(luigi.Task):
@@ -16,16 +17,11 @@ class CountLetters(luigi.Task):
         return GenerateWords()
 
     def output(self):
-        return luigi.LocalTarget('letter_counts.txt')
+        return luigi.LocalTarget("letter_counts.txt")
 
     def run(self):
-        with self.input().open('r') as infile:
+        with self.input().open("r") as infile:
             words = infile.read().splitlines()
-        with self.output().open('w') as outfile:
+        with self.output().open("w") as outfile:
             for word in words:
-                outfile.write(
-                    '{word} | {letter_count}\n'.format(
-                        word=word,
-                        letter_count=len(word)
-                    )
-                )
+                outfile.write(f"{word} | {len(word)}\n")

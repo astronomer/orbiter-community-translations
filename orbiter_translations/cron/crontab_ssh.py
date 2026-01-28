@@ -17,6 +17,7 @@ with DAG(dag_id='cron_1', schedule='0-30/5 30 9 ? MON-FRI'):
 
 ```
 """
+
 from __future__ import annotations
 
 from copy import copy, deepcopy
@@ -25,9 +26,10 @@ from orbiter.objects import conn_id
 from orbiter.objects.operators.ssh import OrbiterSSHOperator
 from orbiter.rules import task_rule
 
-from orbiter_translations.cron.crontab_base import translation_ruleset, task_common_args
+from orbiter_translations.cron.crontab_base import task_common_args, translation_ruleset
 
 translation_ruleset = deepcopy(translation_ruleset)
+
 
 @task_rule(priority=99)
 def ssh_agent_rule(val: dict) -> OrbiterSSHOperator | None:
@@ -42,21 +44,18 @@ def ssh_agent_rule(val: dict) -> OrbiterSSHOperator | None:
     ```
     """
     val = copy(val)
-    if (command := val.pop('command', None)) and (user := val.pop('user', '')):
-        val.pop('i', None)
-        val.pop('schedule', None)
+    if (command := val.pop("command", None)) and (user := val.pop("user", "")):
+        val.pop("i", None)
+        val.pop("schedule", None)
 
         common_args = task_common_args(val)
         conn_args = conn_id(user, "ssh", "ssh")
-        if 'orbiter_conns' in common_args:
-            common_args['orbiter_conns'] |= conn_args.pop('orbiter_conns')
+        if "orbiter_conns" in common_args:
+            common_args["orbiter_conns"] |= conn_args.pop("orbiter_conns")
         common_args |= conn_args
 
         # noinspection PyTypeChecker
-        return OrbiterSSHOperator(
-            task_id="cron_task",
-            command=command,
-            **common_args
-        )
+        return OrbiterSSHOperator(task_id="cron_task", command=command, **common_args)
+
 
 translation_ruleset.task_ruleset.ruleset.extend([ssh_agent_rule])

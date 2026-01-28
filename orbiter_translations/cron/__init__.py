@@ -1,22 +1,24 @@
 from __future__ import annotations
 
 import re
-from typing import ClassVar, Set, Callable
+from collections.abc import Callable
+from typing import ClassVar, Set
 
 from orbiter.file_types import FileType
 
 env_pattern = re.compile(r"^(?P<key>[A-Z_]+)=(?P<value>.*)$")
 cron_pattern = re.compile(
     r"(?P<schedule>("
-        r"@(annually|yearly|monthly|weekly|daily|hourly|reboot)"  # predefined schedules
+    r"@(annually|yearly|monthly|weekly|daily|hourly|reboot)"  # predefined schedules
     r")|("
-        r"@every (\d+(ns|us|µs|ms|s|m|h))+"  # 'every 4h', etc
+    r"@every (\d+(ns|us|µs|ms|s|m|h))+"  # 'every 4h', etc
     r")|("
-        r"(((\d+,)+\d+|(\d+(\/|-|#)\d+)|\d+L?|\*(\/\d+)?|L(-\d+)?|\?|[A-Z]{3}(-[A-Z]{3})?) ?){5,7}"  # normal cronstrings
+    r"(((\d+,)+\d+|(\d+(\/|-|#)\d+)|\d+L?|\*(\/\d+)?|L(-\d+)?|\?|[A-Z]{3}(-[A-Z]{3})?) ?){5,7}"  # normal cronstrings
     r"))\s+"
     r"(?P<user>\w+)?\s*"
     r"(?P<command>.*)"
 )
+
 
 def maybe_extract_env_pattern(s: str) -> dict | None:
     """Extract environment variables from a string.
@@ -32,6 +34,7 @@ def maybe_extract_env_pattern(s: str) -> dict | None:
     ```
     """
     return dict(env_pattern.findall(s)) or None
+
 
 def maybe_extract_cron_pattern(s: str) -> dict | None:
     """Extract CRON patterns from a string.
@@ -69,14 +72,15 @@ def load_cron(s: str) -> dict:
     r = {}
     for line in s.splitlines():
         if env := maybe_extract_env_pattern(line):
-            if 'env' not in r:
-                r['env'] = {}
-            r['env'] |= env
+            if "env" not in r:
+                r["env"] = {}
+            r["env"] |= env
         if cron := maybe_extract_cron_pattern(line):
-            if 'cron' not in r:
-                r['cron'] = []
-            r['cron'].append(cron)
+            if "cron" not in r:
+                r["cron"] = []
+            r["cron"].append(cron)
     return r
+
 
 def dump_cron(d: dict) -> str:
     raise NotImplementedError()
@@ -85,6 +89,6 @@ def dump_cron(d: dict) -> str:
 class FileTypeCRON(FileType):
     """A FileType for CRON files."""
 
-    extension: ClassVar[Set[str]] = {"CRON"}
+    extension: ClassVar[set[str]] = {"CRON"}
     load_fn: ClassVar[Callable[[str], dict]] = load_cron
     dump_fn: ClassVar[Callable[[dict], str]] = dump_cron

@@ -57,9 +57,7 @@ def _simplify_value_recursively(value: str, contents_dict: dict):
                 return _simplify_value_recursively(replaced, contents_dict)
             except KeyError:
                 if var_key not in ["MIN", "HOUR", "DAY", "MONTH", "YEAR"]:
-                    logging.error(
-                        f"Missing property substituting key={var_key}, not found in properties sources"
-                    )
+                    logging.error(f"Missing property substituting key={var_key}, not found in properties sources")
                 logging.debug(f"Contents dict: {contents_dict}")
     return value
 
@@ -98,17 +96,10 @@ def parse_template_file(file: Path) -> dict:
 
 
 def get_coordinator_configuration_blocks(val: dict) -> list:
-    return (
-        val.get("coordinator-app", [{}])[0]
-        .get("action", [{}])[0]
-        .get("workflow", [{}])[0]
-        .get("configuration", [])
-    )
+    return val.get("coordinator-app", [{}])[0].get("action", [{}])[0].get("workflow", [{}])[0].get("configuration", [])
 
 
-def load_properties(
-        coordinator_file: Path | None = None, configuration_blocks: list = None
-) -> dict:
+def load_properties(coordinator_file: Path | None = None, configuration_blocks: list = None) -> dict:
     """
     Search for a .properties file in the same directory as the workflow file,
     and combine it with any other properties, then return it
@@ -119,24 +110,18 @@ def load_properties(
     env_properties = {}
 
     if coordinator_file and coordinator_file.exists():
-        files = [
-            f for f in coordinator_file.parent.iterdir() if ".properties" in f.name
-        ]
+        files = [f for f in coordinator_file.parent.iterdir() if ".properties" in f.name]
         if not files:
             logging.debug(f"No .properties files found in {coordinator_file.parent}")
         for file in files:
             env_properties |= parse_template_file(file)
     else:
-        logging.debug(
-            "__file property not set, and required for `load_properties` - skipping"
-        )
+        logging.debug("__file property not set, and required for `load_properties` - skipping")
 
     # Extract properties from the <action><workflow><configuration><property>... blocks
     for configuration in configuration_blocks:
         for prop in configuration.get("property", []):
-            env_properties[prop["name"]] = substitute_properties_recursively(
-                prop["value"], env_properties
-            )
+            env_properties[prop["name"]] = substitute_properties_recursively(prop["value"], env_properties)
 
     return env_properties
 

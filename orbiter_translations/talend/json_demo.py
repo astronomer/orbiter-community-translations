@@ -3,40 +3,40 @@
 Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
 
 """
+
 from __future__ import annotations
+
 from pathlib import Path
 
 import inflection
-
 from orbiter.file_types import FileTypeJSON
-from orbiter.objects.include import OrbiterInclude
 from orbiter.objects import OrbiterRequirement
 from orbiter.objects.dag import OrbiterDAG
+from orbiter.objects.include import OrbiterInclude
 from orbiter.objects.operators.python import OrbiterPythonOperator
 from orbiter.objects.task import OrbiterTaskDependency
 from orbiter.rules import (
-    task_dependency_rule,
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
+    task_dependency_rule,
     task_filter_rule,
     task_rule,
-    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
-    TranslationRuleset,
-    TaskDependencyRuleset,
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    PostProcessingRuleset,
+    TranslationRuleset,
 )
 
 
 # noinspection t
 @dag_filter_rule
 def dag_filter_rule(val) -> list[dict] | None:
-
     if isinstance(val, dict) and "userFlow" in val:
         return [val["userFlow"]]
     return None
@@ -44,7 +44,6 @@ def dag_filter_rule(val) -> list[dict] | None:
 
 @dag_rule
 def basic_dag_rule(val: dict) -> OrbiterDAG | None:
-
     if isinstance(val, dict) and "label" in val:
         dag_id = inflection.underscore(val["label"])
         return OrbiterDAG(
@@ -59,12 +58,7 @@ def task_common_args(val: dict) -> dict:
     """
     Common mappings for all tasks
     """
-    task_id = (
-        val.get("data", {})
-        .get("properties", {})
-        .get("$componentMetadata", {})
-        .get("name", "UNKNOWN")
-    )
+    task_id = val.get("data", {}).get("properties", {}).get("$componentMetadata", {}).get("name", "UNKNOWN")
 
     params = {
         "task_id": task_id.replace(" ", "_"),
@@ -75,7 +69,6 @@ def task_common_args(val: dict) -> dict:
 # noinspection t
 @task_filter_rule
 def task_filter_rule(val: dict) -> list[dict] | None:
-
     if isinstance(val, dict) and "pipelines" in val:
         components = []
         for pipeline in val["pipelines"]:
@@ -86,21 +79,11 @@ def task_filter_rule(val: dict) -> list[dict] | None:
 
 @task_rule(priority=2)
 def python_task_rule(val: dict) -> OrbiterPythonOperator | None:
-
     if (
         "python3"
-        in val.get("data", {})
-        .get("properties", {})
-        .get("$componentMetadata", {})
-        .get("technicalType", "")
-        .lower()
+        in val.get("data", {}).get("properties", {}).get("$componentMetadata", {}).get("technicalType", "").lower()
     ):
-        code = (
-            val.get("data", {})
-            .get("properties", {})
-            .get("configuration", {})
-            .get("pythonCode", "")
-        )
+        code = val.get("data", {}).get("properties", {}).get("configuration", {}).get("pythonCode", "")
         name = (
             val.get("data", {})
             .get("properties", {})
@@ -123,9 +106,7 @@ def python_task_rule(val: dict) -> OrbiterPythonOperator | None:
                 },
                 imports=[
                     OrbiterRequirement(module=f"include.{name}", names=[f"{name}"]),
-                    OrbiterRequirement(
-                        module="airflow.operators.python", names=["PythonOperator"]
-                    ),
+                    OrbiterRequirement(module="airflow.operators.python", names=["PythonOperator"]),
                 ],
                 python_callable=f"{name}",
                 **task_common_args(val),
@@ -143,20 +124,13 @@ def simple_task_dependencies(
 
     component_to_task_name = {}
     for component in pipeline.get("components", []):
-        name = (
-            component.get("data", {})
-            .get("properties", {})
-            .get("$componentMetadata", {})
-            .get("name")
-        )
+        name = component.get("data", {}).get("properties", {}).get("$componentMetadata", {}).get("name")
         if name:
             component_to_task_name[component["id"]] = name.replace(" ", "_").lower()
 
     port_to_component = {}
     for port in pipeline.get("ports", []):
-        port_type = (
-            port.get("graphicalAttributes", {}).get("properties", {}).get("type")
-        )
+        port_type = port.get("graphicalAttributes", {}).get("properties", {}).get("type")
         port_to_component[port["id"]] = (port["nodeId"], port_type)
 
     for step in pipeline.get("steps", []):
@@ -174,11 +148,7 @@ def simple_task_dependencies(
             target_task_name = component_to_task_name.get(target_component_id)
 
             if source_task_name and target_task_name:
-                dependencies.append(
-                    OrbiterTaskDependency(
-                        task_id=source_task_name, downstream=target_task_name
-                    )
-                )
+                dependencies.append(OrbiterTaskDependency(task_id=source_task_name, downstream=target_task_name))
 
     return dependencies if dependencies else None
 
@@ -198,8 +168,4 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
 if __name__ == "__main__":
     import doctest
 
-    doctest.testmod(
-        optionflags=doctest.ELLIPSIS
-        | doctest.NORMALIZE_WHITESPACE
-        | doctest.IGNORE_EXCEPTION_DETAIL
-    )
+    doctest.testmod(optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE | doctest.IGNORE_EXCEPTION_DETAIL)

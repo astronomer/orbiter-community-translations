@@ -21,6 +21,7 @@ with DAG(dag_id='company.team.getting_started'):
 
 ```
 """
+
 from __future__ import annotations
 
 import textwrap
@@ -31,20 +32,20 @@ from orbiter.objects.operators.python import OrbiterDecoratedPythonOperator
 from orbiter.objects.task import OrbiterOperator
 from orbiter.objects.task_group import OrbiterTaskGroup
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
+    task_dependency_rule,
     task_filter_rule,
     task_rule,
-    task_dependency_rule,
-    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    TaskDependencyRuleset,
-    PostProcessingRuleset,
     TranslationRuleset,
 )
 
@@ -59,7 +60,7 @@ def basic_dag_filter(val: dict) -> list | None:
 
     ```
     """
-    if 'id' in val and 'tasks' in val:
+    if "id" in val and "tasks" in val:
         return [val]
 
 
@@ -69,16 +70,16 @@ def common_dag_args(val) -> dict:
     - Extract a `cron` schedule from a `io.kestra.plugin.core.trigger.Schedule` trigger  (only last, if multiple)
     """
     args = {}
-    if triggers := val.get('trigger'):
+    if triggers := val.get("trigger"):
         for trigger in triggers:
-            if cron := trigger.get('cron') and trigger.get('type') == 'io.kestra.plugin.core.trigger.Schedule':
-                args['schedule'] = cron
-    if labels := val.get('labels'):
-        if labels.get('owner'):
-            args['owner'] = labels.pop('owner')
-        args['tags'] = [f"{k}={v}" for k, v in labels.items()]
-    if description := val.get('description'):
-        args['doc_md'] = description
+            if cron := trigger.get("cron") and trigger.get("type") == "io.kestra.plugin.core.trigger.Schedule":
+                args["schedule"] = cron
+    if labels := val.get("labels"):
+        if labels.get("owner"):
+            args["owner"] = labels.pop("owner")
+        args["tags"] = [f"{k}={v}" for k, v in labels.items()]
+    if description := val.get("description"):
+        args["doc_md"] = description
     return args
 
 
@@ -93,15 +94,11 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
 
     ```
     """
-    id = val.get('id')
-    namespace = val.get('namespace')
+    id = val.get("id")
+    namespace = val.get("namespace")
     if id and namespace:
         dag_id = f"{namespace}.{id}"
-        return OrbiterDAG(
-            dag_id=dag_id,
-            file_path=dag_id.replace('.', '/') + ".py",
-            **common_dag_args(val)
-        )
+        return OrbiterDAG(dag_id=dag_id, file_path=dag_id.replace(".", "/") + ".py", **common_dag_args(val))
 
 
 @task_filter_rule
@@ -114,15 +111,15 @@ def basic_task_filter(val: dict) -> list | None:
 
     ```
     """
-    return val.get('tasks', []) or None
+    return val.get("tasks", []) or None
 
 
 def task_common_args(val) -> dict:
     args = {}
-    if task_id := val.get('id'):
-        args['task_id'] = task_id
-    if description := val.get('description'):
-        args['doc_md'] = description
+    if task_id := val.get("id"):
+        args["task_id"] = task_id
+    if description := val.get("description"):
+        args["doc_md"] = description
     return args
 
 
@@ -138,16 +135,13 @@ def log_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
 
     ```
     """
-    if (
-        (message := val.get('message'))
-        and val.get('type', '') == 'io.kestra.plugin.core.log.Log'
-    ):
+    if (message := val.get("message")) and val.get("type", "") == "io.kestra.plugin.core.log.Log":
         common_args = task_common_args(val)
-        task_id = common_args['task_id']
+        task_id = common_args["task_id"]
         return OrbiterDecoratedPythonOperator(
-            python_callable=f"def {task_id}():\n    print('''{message}''')",
-            **common_args
+            python_callable=f"def {task_id}():\n    print('''{message}''')", **common_args
         )
+
 
 @task_rule
 def python_task(val: dict) -> OrbiterDecoratedPythonOperator | None:
@@ -160,16 +154,17 @@ def python_task(val: dict) -> OrbiterDecoratedPythonOperator | None:
 
     ```
     """
-    if val.get('type', '') == 'io.kestra.plugin.core.python.Python':
+    if val.get("type", "") == "io.kestra.plugin.core.python.Python":
         common_args = task_common_args(val)
-        task_id = common_args['task_id']
+        task_id = common_args["task_id"]
         return OrbiterDecoratedPythonOperator(
             python_callable=textwrap.dedent(f"""
             def {task_id}():
-                {val.get('script')}
+                {val.get("script")}
             """),
-            **common_args
+            **common_args,
         )
+
 
 @task_rule
 def dag_as_task_rule(val: dict) -> OrbiterTaskGroup | None:
@@ -186,19 +181,20 @@ def dag_as_task_rule(val: dict) -> OrbiterTaskGroup | None:
 
     ```
     """
-    if val.get('type', '') == 'io.kestra.plugin.core.flow.Dag':
+    if val.get("type", "") == "io.kestra.plugin.core.flow.Dag":
         common_args = task_common_args(val)
-        common_args['task_group_id'] = common_args.pop('task_id')
-        common_args.pop('doc_md', None)
+        common_args["task_group_id"] = common_args.pop("task_id")
+        common_args.pop("doc_md", None)
         return OrbiterTaskGroup(
             tasks={
                 _task.task_id: _task
-                for task in val.get('tasks', [])
-                if (_task := translation_ruleset.task_ruleset.apply(val=task.get('task', {}), take_first=True))
+                for task in val.get("tasks", [])
+                if (_task := translation_ruleset.task_ruleset.apply(val=task.get("task", {}), take_first=True))
             },
-            **common_args
+            **common_args,
         )
     return None
+
 
 @task_dependency_rule
 def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:

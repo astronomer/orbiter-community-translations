@@ -28,26 +28,27 @@ with DAG(dag_id='bar', doc_md=...):
 
 ```
 """
+
 from __future__ import annotations
 
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.bash import OrbiterBashOperator
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
     task_filter_rule,
     task_rule,
-    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
-    TranslationRuleset,
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    PostProcessingRuleset,
+    TranslationRuleset,
     translate,
-    TaskDependencyRuleset,
 )
 from orbiter_parsers.file_types.jil import FileTypeJIL
 
@@ -57,10 +58,10 @@ def demo_dag_filter_rule(val: dict) -> list[dict] | None:
     """Pass parsed JIL through filter."""
     return [val]
 
-_demo_dag_common_args_params_doc = {
-    "owner": "DAG.default_args.owner",
-    "insert_job": "DAG.dag_id"
-}
+
+_demo_dag_common_args_params_doc = {"owner": "DAG.default_args.owner", "insert_job": "DAG.dag_id"}
+
+
 def demo_dag_common_args(val: dict) -> dict:
     """Generates common DAG arguments."""
     dag_id = val["insert_job"].replace(".", "_").lower()
@@ -71,6 +72,7 @@ def demo_dag_common_args(val: dict) -> dict:
     if default_args:
         params["default_args"] = default_args
     return params
+
 
 @dag_rule(params_doc=_demo_dag_common_args_params_doc)
 def demo_dag_rule(val: dict) -> OrbiterDAG | None:
@@ -96,8 +98,8 @@ def demo_dag_rule(val: dict) -> OrbiterDAG | None:
         return OrbiterDAG(
             file_path=f"{common_args['dag_id']}.py",
             doc_md="**Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\n"
-                   "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
-                   "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
+            "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
+            "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
             **common_args,
         )
     return None
@@ -109,10 +111,9 @@ def demo_task_filter(val: dict) -> list[dict] | None:
     return [val]
 
 
-_demo_task_common_args_params_doc = {
-    "insert_job": "Operator.task_id",
-    "description": "Operator.doc"
-}
+_demo_task_common_args_params_doc = {"insert_job": "Operator.task_id", "description": "Operator.doc"}
+
+
 def demo_task_common_args(val: dict) -> dict:
     """Generates common task arguments.
 
@@ -127,6 +128,7 @@ def demo_task_common_args(val: dict) -> dict:
     if description := val.get("description"):
         params["doc"] = description
     return params
+
 
 @task_rule(params_doc={"command": "BashOperator.bash_command"} | _demo_task_common_args_params_doc)
 def demo_bash_command_job_rule(val) -> OrbiterBashOperator | None:
@@ -157,7 +159,12 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[demo_dag_filter_rule]),
     dag_ruleset=DAGRuleset(ruleset=[demo_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[demo_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[demo_bash_command_job_rule, create_cannot_map_rule_with_task_id_fn(lambda val: demo_task_common_args(val)['task_id'])]),
+    task_ruleset=TaskRuleset(
+        ruleset=[
+            demo_bash_command_job_rule,
+            create_cannot_map_rule_with_task_id_fn(lambda val: demo_task_common_args(val)["task_id"]),
+        ]
+    ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
     translate_fn=translate,

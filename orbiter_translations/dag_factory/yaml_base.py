@@ -1,14 +1,16 @@
 """Full DAG Factory YAML Translation Ruleset.
 
 Convert DAG Factory YAML into full Airflow DAGs"""
+
 from __future__ import annotations
 
 import inspect
 import os
 import re
+from collections.abc import MutableMapping
 from copy import deepcopy
 from pathlib import Path
-from typing import MutableMapping, Literal
+from typing import Literal
 
 import inflection
 from loguru import logger
@@ -23,21 +25,21 @@ from orbiter.objects.requirement import OrbiterRequirement
 from orbiter.objects.task import OrbiterOperator, OrbiterTask, OrbiterTaskDependency
 from orbiter.objects.task_group import OrbiterTaskGroup
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
+    post_processing_rule,
+    task_dependency_rule,
     task_filter_rule,
     task_rule,
-    task_dependency_rule,
-    create_cannot_map_rule_with_task_id_fn,
-    post_processing_rule,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    TaskDependencyRuleset,
-    PostProcessingRuleset,
     TranslationRuleset,
 )
 
@@ -87,22 +89,16 @@ def callback_args(val: dict) -> dict:
 
         # Search for
         try:
-            (callback_type, name_or_file) = re.match(
-                r"on_([a-z]+)_callback_(name|file)", k
-            ).groups()
+            (callback_type, name_or_file) = re.match(r"on_([a-z]+)_callback_(name|file)", k).groups()
 
             if callback_type not in seen_callback_types:
                 seen_callback_types.add(callback_type)
                 callback_file = val.pop(f"on_{callback_type}_callback_file")
                 callback_name = val.pop(f"on_{callback_type}_callback_name")
-                [*module, function] = file_and_name_to_import(
-                    callback_file, callback_name, return_type="str"
-                ).split(".")
-                src_file = Path(
-                    inspect.getfile(
-                        file_and_name_to_import(callback_file, callback_name)
-                    )
+                [*module, function] = file_and_name_to_import(callback_file, callback_name, return_type="str").split(
+                    "."
                 )
+                src_file = Path(inspect.getfile(file_and_name_to_import(callback_file, callback_name)))
                 if src_file.exists():
                     callback_includes = {
                         OrbiterInclude(
@@ -111,13 +107,9 @@ def callback_args(val: dict) -> dict:
                         )
                     }
                 else:
-                    logger.warning(
-                        f"Callback file {src_file} does not exist! Unable to copy contents"
-                    )
+                    logger.warning(f"Callback file {src_file} does not exist! Unable to copy contents")
                     callback_includes = {}
-                callback_keys["orbiter_includes"] = (
-                    callback_keys.get("orbiter_includes", set()) | callback_includes
-                )
+                callback_keys["orbiter_includes"] = callback_keys.get("orbiter_includes", set()) | callback_includes
                 callback_keys[f"on_{callback_type}_callback"] = OrbiterCallback(
                     imports=[
                         OrbiterRequirement(
@@ -285,10 +277,7 @@ def python_operator_rule(val: dict) -> OrbiterOperator | None:
     if (
         (
             (val.get("operator", "") == "airflow.operators.python.PythonOperator")
-            or (
-                val.get("operator", "")
-                == "airflow.operators.python_operator.PythonOperator"
-            )
+            or (val.get("operator", "") == "airflow.operators.python_operator.PythonOperator")
         )
         and (python_callable_file := val.pop("python_callable_file"))
         and (python_callable_name := val.pop("python_callable_name"))
@@ -297,9 +286,7 @@ def python_operator_rule(val: dict) -> OrbiterOperator | None:
         # noinspection PyUnboundLocalVariable
         return OrbiterPythonOperator(
             **task_common_args(val),
-            python_callable=file_and_name_to_import(
-                python_callable_file, python_callable_name
-            ),
+            python_callable=file_and_name_to_import(python_callable_file, python_callable_name),
             **val,
         )
     else:
@@ -321,11 +308,7 @@ def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
 
     ```
     """
-    if (
-        "operator" in val
-        and "python_callable_file" not in val
-        and "python_callable_name" not in val
-    ):
+    if "operator" in val and "python_callable_file" not in val and "python_callable_name" not in val:
         val = deepcopy(val)
         operator = val.pop("operator")
         module, cls = operator.rsplit(".", 1)
@@ -362,16 +345,10 @@ def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
     """
     task_dependencies = []
     for task in val.tasks.values():
-        if (
-            dependencies := (task.orbiter_kwargs or {})
-            .get("val", {})
-            .get("dependencies", [])
-        ):
+        if dependencies := (task.orbiter_kwargs or {}).get("val", {}).get("dependencies", []):
             for dependency in dependencies:
                 # dependencies are upstream, not downstream, so need to be reversed
-                task_dependencies.append(
-                    OrbiterTaskDependency(task_id=dependency, downstream=task.task_id)
-                )
+                task_dependencies.append(OrbiterTaskDependency(task_id=dependency, downstream=task.task_id))
     return task_dependencies
 
 
@@ -384,9 +361,7 @@ def move_tasks_to_task_group(val: OrbiterProject):
         dag: OrbiterDAG
         for task in deepcopy(list(dag.tasks.values())):
             task: OrbiterOperator | OrbiterTaskGroup
-            if task_group_name := task.orbiter_kwargs.get("val", {}).get(
-                "task_group_name"
-            ):
+            if task_group_name := task.orbiter_kwargs.get("val", {}).get("task_group_name"):
                 task_group_names.add(task_group_name)
                 dag.tasks[task_group_name].tasks.append(task)
                 del dag.tasks[task.task_id]
@@ -399,11 +374,7 @@ def move_tasks_to_task_group(val: OrbiterProject):
                 task: OrbiterOperator | OrbiterTaskGroup
                 # Fix - task_a >> task_group_task ==> task_a >> task_group
                 task.downstream = set(
-                    (
-                        downstream
-                        if downstream != f"{task_group_name}_task"
-                        else task_group_name
-                    )
+                    (downstream if downstream != f"{task_group_name}_task" else task_group_name)
                     for downstream in task.downstream
                 )
 

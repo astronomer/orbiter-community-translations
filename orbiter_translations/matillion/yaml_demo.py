@@ -43,38 +43,41 @@ with DAG(dag_id='matillion_pipeline', ...):
 
 ```
 """
+
 from __future__ import annotations
 
+import re
 import textwrap
 from pathlib import Path
-import re
 
 from orbiter.file_types import FileTypeYAML
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.empty import OrbiterEmptyOperator
-from orbiter.objects.operators.python import OrbiterPythonOperator, OrbiterDecoratedPythonOperator
+from orbiter.objects.operators.python import OrbiterDecoratedPythonOperator, OrbiterPythonOperator
 from orbiter.objects.task import OrbiterTaskDependency
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
     task_dependency_rule,
     task_filter_rule,
     task_rule,
-    create_cannot_map_rule_with_task_id_fn
 )
 from orbiter.rules.rulesets import (
-    TranslationRuleset,
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
     TaskDependencyRuleset,
     TaskFilterRuleset,
-    PostProcessingRuleset,
-    TaskRuleset
+    TaskRuleset,
+    TranslationRuleset,
 )
+
 
 ### Helper
 def _slugify(name: str) -> str:
     return re.sub(r"[^A-Za-z0-9_]+", "_", name).lower().strip("_")
+
 
 ### DAG Filter
 @dag_filter_rule
@@ -108,9 +111,10 @@ def matillion_dag_rule(val: dict) -> OrbiterDAG:
         dag_id=dag_id,
         file_path=Path(f"{dag_id}.py"),
         doc_md="**Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\n"
-            "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
-            "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
+        "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
+        "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
     )
+
 
 @task_filter_rule
 def matillion_task_filter(val: dict) -> list[dict] | None:
@@ -122,6 +126,7 @@ def matillion_task_filter(val: dict) -> list[dict] | None:
     ```
     """
     return list(val.get("components", {}).values())
+
 
 def task_common_args(val: dict) -> dict:
     """
@@ -135,6 +140,7 @@ def task_common_args(val: dict) -> dict:
         return {
             "task_id": "UNKNOWN",
         }
+
 
 @task_rule(priority=10)
 def start_task_rule(val: dict) -> OrbiterEmptyOperator | None:
@@ -169,7 +175,7 @@ def python_pushdown_rule(val: dict) -> OrbiterPythonOperator | None:
     """
     if val.get("type") == "python-pushdown":
         _common_args = task_common_args(val)
-        task_id = _common_args['task_id']
+        task_id = _common_args["task_id"]
 
         return OrbiterDecoratedPythonOperator(
             **_common_args,
@@ -198,6 +204,7 @@ def end_task_rule(val: dict) -> OrbiterEmptyOperator | None:
     if val.get("type") == "end":
         return OrbiterEmptyOperator(**task_common_args(val))
     return None
+
 
 ### Dependency Rule
 @task_dependency_rule
@@ -240,9 +247,7 @@ def matillion_dependency_rule(val: OrbiterDAG) -> list[OrbiterTaskDependency]:
         for target in component.get("transitions", {}).get("unconditional", []):
             tgt = _slugify(target)
             if src in val.tasks and tgt in val.tasks:
-                dependencies.append(
-                    OrbiterTaskDependency(task_id=src, downstream=tgt)
-                )
+                dependencies.append(OrbiterTaskDependency(task_id=src, downstream=tgt))
     return dependencies
 
 
@@ -251,7 +256,14 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[matillion_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[matillion_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[matillion_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[start_task_rule, end_task_rule, python_pushdown_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
+    task_ruleset=TaskRuleset(
+        ruleset=[
+            start_task_rule,
+            end_task_rule,
+            python_pushdown_rule,
+            create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"]),
+        ]
+    ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[matillion_dependency_rule]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )

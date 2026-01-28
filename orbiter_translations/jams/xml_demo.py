@@ -92,6 +92,7 @@ with DAG(dag_id='...'):
 
 ```
 """
+
 from __future__ import annotations
 
 from orbiter.file_types import FileTypeXML
@@ -99,20 +100,20 @@ from orbiter.objects import conn_id
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.ssh import OrbiterSSHOperator
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
+    task_dependency_rule,
     task_filter_rule,
     task_rule,
-    task_dependency_rule,
-    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    TaskDependencyRuleset,
-    PostProcessingRuleset,
     TranslationRuleset,
 )
 
@@ -129,8 +130,8 @@ def basic_dag_filter(val: dict) -> list | None:
 
     ```
     """
-    jobs = val.get('Jobs', [])
-    jams_objects = val.get('JAMSObjects', [])
+    jobs = val.get("Jobs", [])
+    jams_objects = val.get("JAMSObjects", [])
     return (jobs + jams_objects) or None
 
 
@@ -145,8 +146,8 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
 
     ```
     """
-    dag_id = file.stem if (file := val.get('__file')) else 'UNKNOWN'
-    return OrbiterDAG(dag_id=dag_id, file_path=dag_id+'.py')
+    dag_id = file.stem if (file := val.get("__file")) else "UNKNOWN"
+    return OrbiterDAG(dag_id=dag_id, file_path=dag_id + ".py")
 
 
 @task_filter_rule
@@ -161,9 +162,10 @@ def basic_task_filter(val: dict) -> list | None:
 
     ```
     """
-    jobs = val.get('Job', [])
-    jams_objects = [job for job in val.get('anyType', []) if job.get('@xsi:type') == 'Job']
+    jobs = val.get("Job", [])
+    jams_objects = [job for job in val.get("anyType", []) if job.get("@xsi:type") == "Job"]
     return (jobs + jams_objects) or None
+
 
 def task_common_args(val) -> dict:
     """Common properties for all tasks
@@ -171,9 +173,10 @@ def task_common_args(val) -> dict:
     - `Description` -> `description`
     """
     common_args = {}
-    if description := val.get('Description'):
-        common_args['doc_md'] = description
+    if description := val.get("Description"):
+        common_args["doc_md"] = description
     return common_args
+
 
 @task_rule(priority=2)
 def ssh_rule(val: dict) -> OrbiterSSHOperator | None:
@@ -185,18 +188,14 @@ def ssh_rule(val: dict) -> OrbiterSSHOperator | None:
 
     ```
     """
-    if (
-        (task_id := val.get("@name"))
-        and (command := val.get("Source"))
-        and (agent := val.get('AgentNode'))
-    ):
-        user = val.get('UserName')
+    if (task_id := val.get("@name")) and (command := val.get("Source")) and (agent := val.get("AgentNode")):
+        user = val.get("UserName")
         conn = f"{agent}_{user}" if user else agent
         return OrbiterSSHOperator(
             task_id=task_id,
             command=command,
-            **conn_id(conn_id=conn, prefix='ssh', conn_type='ssh'),
-            **task_common_args(val)
+            **conn_id(conn_id=conn, prefix="ssh", conn_type="ssh"),
+            **task_common_args(val),
         )
     else:
         return None
@@ -207,12 +206,15 @@ def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
     """Translate input into a list of task dependencies"""
     return None
 
+
 translation_ruleset = TranslationRuleset(
     file_type={FileTypeXML},
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[ssh_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
+    task_ruleset=TaskRuleset(
+        ruleset=[ssh_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]
+    ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[basic_task_dependency_rule]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )

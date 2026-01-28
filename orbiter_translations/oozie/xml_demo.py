@@ -2,6 +2,7 @@
 
 Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
 """
+
 from __future__ import annotations
 
 import logging
@@ -13,7 +14,7 @@ from typing import Literal
 
 import inflection
 from orbiter.file_types import FileTypeXML
-from orbiter.objects import conn_id, OrbiterRequirement
+from orbiter.objects import OrbiterRequirement, conn_id
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.empty import OrbiterEmptyOperator
 from orbiter.objects.operators.ssh import OrbiterSSHOperator
@@ -24,25 +25,25 @@ from orbiter.objects.task import (
 )
 from orbiter.objects.task_group import OrbiterTaskGroup
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
-    task_dependency_rule,
-    task_rule,
-    task_filter_rule,
-    create_cannot_map_rule_with_task_id_fn,
     post_processing_rule,
+    task_dependency_rule,
+    task_filter_rule,
+    task_rule,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
-    TranslationRuleset,
-    TaskDependencyRuleset,
     DAGRuleset,
-    TaskRuleset,
-    TaskFilterRuleset,
     PostProcessingRuleset,
+    TaskDependencyRuleset,
+    TaskFilterRuleset,
+    TaskRuleset,
+    TranslationRuleset,
 )
 
-from orbiter_translations.oozie import substitute_properties_recursively, load_properties
+from orbiter_translations.oozie import load_properties, substitute_properties_recursively
 
 
 def _load_workflow(file: Path, app_path: str, env_properties: dict):
@@ -60,10 +61,7 @@ def _load_workflow(file: Path, app_path: str, env_properties: dict):
             logging.debug(f"Found workflow file={workflow_file.name}")
             return workflow_dict
         else:
-            logging.error(
-                f"No <workflow-app> found in workflow file={workflow_file}! "
-                "Failing to load workflow file."
-            )
+            logging.error(f"No <workflow-app> found in workflow file={workflow_file}! Failing to load workflow file.")
     else:
         logging.error(
             f"Workflow file not found in the same directory as coordinator: {workflow_file} ! "
@@ -80,24 +78,15 @@ def _embed_workflow(file: Path, val: dict, env_properties: dict) -> dict | None:
     # find the action / workflow - read that file in, parse it, and return the DAG - get its DAG ID.
     if wf_actions := val.get("action", [{}]):
         if len(wf_actions) > 1:
-            logging.error(
-                f"More than 1 action found in coordinator! Only first is supported!\n{wf_actions}"
-            )
+            logging.error(f"More than 1 action found in coordinator! Only first is supported!\n{wf_actions}")
         if workflows := wf_actions[0].get("workflow", [{}]):
             if len(workflows) > 1:
-                logging.error(
-                    f"More than 1 workflow found in coordinator! Only first is supported!\n{workflows}"
-                )
+                logging.error(f"More than 1 workflow found in coordinator! Only first is supported!\n{workflows}")
             if workflow := workflows[0]:
-                if workflow_dict := _load_workflow(
-                        file, workflow.get("app-path"), env_properties
-                ):
+                if workflow_dict := _load_workflow(file, workflow.get("app-path"), env_properties):
                     val["action"][0]["workflow"][0] = workflow | workflow_dict
                 return val
-    logging.error(
-        "Unable to get valid workflow from coordinator! "
-        f"Failing to attach workflow contents!\n{val}"
-    )
+    logging.error(f"Unable to get valid workflow from coordinator! Failing to attach workflow contents!\n{val}")
     return None
 
 
@@ -137,23 +126,17 @@ def coordinator_filter_rule(val: dict) -> list[dict] | None:
     if coordinator_app := val.get("coordinator-app", [{}])[0]:
         if file := val.get("__file"):
             configuration_blocks = (
-                coordinator_app.get("action", [{}])[0]
-                .get("workflow", [{}])[0]
-                .get("configuration", [])
+                coordinator_app.get("action", [{}])[0].get("workflow", [{}])[0].get("configuration", [])
             )
             env_properties = load_properties(file, configuration_blocks)
-            coordinator_app = substitute_properties_recursively(
-                coordinator_app, env_properties
-            )
+            coordinator_app = substitute_properties_recursively(coordinator_app, env_properties)
             _embed_workflow(file, coordinator_app, env_properties)
             coordinator_app["__properties"] = env_properties
         return [coordinator_app]
     return None
 
 
-frequency = re.compile(
-    r".*\{\{.*(functions\.)?coord.(?P<unit>minutes|hours|days|months)\((?P<num>\d+)\).*}}.*"
-)
+frequency = re.compile(r".*\{\{.*(functions\.)?coord.(?P<unit>minutes|hours|days|months)\((?P<num>\d+)\).*}}.*")
 
 
 def translate_schedule(schedule: str) -> str | timedelta:
@@ -173,9 +156,7 @@ def translate_schedule(schedule: str) -> str | timedelta:
     datetime.timedelta(seconds=26640)
     """
     if "coord.endOf" in schedule:
-        logging.warning(
-            f"'endOf*' schedule not yet supported! Received {schedule} ! Skipping!"
-        )
+        logging.warning(f"'endOf*' schedule not yet supported! Received {schedule} ! Skipping!")
     elif match := frequency.match(schedule):
         unit = match.groupdict().get("unit")
         num = int(match.groupdict().get("num"))
@@ -202,9 +183,7 @@ def dag_common_args(val):
         throttle = controls.get("throttle")
         if concurrency or throttle:
             # Airflow only has `max_active_runs` - so we'll set that to the max of the two
-            dag_kwargs["max_active_runs"] = max(
-                int(concurrency or "0"), int(throttle or "0")
-            )
+            dag_kwargs["max_active_runs"] = max(int(concurrency or "0"), int(throttle or "0"))
 
         if (timeout := controls.get("timeout")) and int(timeout) > 0:
             # oozie frequencies are in minutes
@@ -246,11 +225,7 @@ def coordinator_dag_rule(val: dict) -> OrbiterDAG | None:
         # use the workflow's @name if it exists and leave a note in the description
         # else coordinator @name
         coordinator_id = val.get("@name", "UNKNOWN")
-        workflow_id = (
-            val.get("action", [{}])[0]
-            .get("workflow", [{}])[0]["workflow-app"][0]
-            .get("@name")
-        )
+        workflow_id = val.get("action", [{}])[0].get("workflow", [{}])[0]["workflow-app"][0].get("@name")
         file = val.get("__file", "<unknown file>")
         file_relative = file.relative_to(Path.cwd()) if isinstance(file, Path) else file
         dag_args = (
@@ -270,15 +245,11 @@ def coordinator_dag_rule(val: dict) -> OrbiterDAG | None:
             **dag_args,
             **dag_common_args(val),
             doc_md="**Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\n"
-                   "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
-                   "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
+            "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
+            "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
         )
-        if isinstance(dag.schedule, timedelta) or isinstance(
-                getattr(dag, "dagrun_timeout", None), timedelta
-        ):
-            dag.imports.append(
-                OrbiterRequirement(package="datetime", names=["datetime"])
-            )
+        if isinstance(dag.schedule, timedelta) or isinstance(getattr(dag, "dagrun_timeout", None), timedelta):
+            dag.imports.append(OrbiterRequirement(package="datetime", names=["datetime"]))
         return dag
     return None
 
@@ -317,9 +288,7 @@ def task_filter_rule(val: dict) -> list[dict]:
                 task_additions = {}
                 if global_block := workflow_app.get("global", [{}])[0]:
                     task_additions["@globals"] = global_block
-                if credentials := workflow_app.get("credentials", [{"credential": []}])[
-                    0
-                ]["credential"]:
+                if credentials := workflow_app.get("credentials", [{"credential": []}])[0]["credential"]:
                     task_additions["@credentials"] = credentials
                 if properties := val.get("__properties"):
                     task_additions["__properties"] = properties
@@ -327,18 +296,18 @@ def task_filter_rule(val: dict) -> list[dict]:
                     task_additions["__file"] = file
                 for k, v in workflow_app.items():
                     if (
-                            not k.startswith("@")
-                            and isinstance(v, list)
-                            and k
-                            in [
-                        "start",
-                        "end",
-                        "action",
-                        "kill",
-                        "fork",
-                        "join",
-                        "decision",
-                    ]
+                        not k.startswith("@")
+                        and isinstance(v, list)
+                        and k
+                        in [
+                            "start",
+                            "end",
+                            "action",
+                            "kill",
+                            "fork",
+                            "join",
+                            "decision",
+                        ]
                     ):
                         for task in v:
                             task["@type"] = k
@@ -488,11 +457,7 @@ def shell_action(val: dict) -> OrbiterOperator | None:
             if environment := shell_block.get("env-var"):
                 if isinstance(environment, str):
                     environment = [environment]
-                environment_kwarg = {
-                    "environment": {
-                        kv.split("=")[0]: kv.split("=")[1] for kv in environment
-                    }
-                }
+                environment_kwarg = {"environment": {kv.split("=")[0]: kv.split("=")[1] for kv in environment}}
 
             return OrbiterSSHOperator(
                 command=shlex.join(command),
@@ -522,17 +487,11 @@ def java_action(val: dict) -> OrbiterOperator | None:
     if val.get("@type") == "action":
         if javas := val.get("java", [{}]):
             if len(javas) > 1:
-                logging.error(
-                    f"More than 1 java config in action found! Only first is supported!\n{javas}"
-                )
+                logging.error(f"More than 1 java config in action found! Only first is supported!\n{javas}")
             if java := javas[0]:
                 command = f"java -jar {java['main-class']}"
-                command += (
-                    f" {shlex.join(java['java-opts'])}" if "java-opts" in java else ""
-                )
-                command += (
-                    f" {shlex.join(java['java-opt'])}" if "java-opt" in java else ""
-                )
+                command += f" {shlex.join(java['java-opts'])}" if "java-opts" in java else ""
+                command += f" {shlex.join(java['java-opt'])}" if "java-opt" in java else ""
                 command += f" {shlex.join(java['arg'])}" if "arg" in java else ""
 
                 return OrbiterSSHOperator(
@@ -544,9 +503,7 @@ def java_action(val: dict) -> OrbiterOperator | None:
     return None
 
 
-def _get_nodes_of_type(
-        val: dict, edge_type: Literal["error", "ok", "to"] = "to"
-) -> list[str]:
+def _get_nodes_of_type(val: dict, edge_type: Literal["error", "ok", "to"] = "to") -> list[str]:
     if edge_type == "to":
         if top_level_to := val.get("@" + edge_type):
             return [top_level_to]
@@ -561,12 +518,8 @@ def _get_dependencies_for_task(task: OrbiterOperator | OrbiterTaskGroup):
         for d in sorted(
             list(
                 set(
-                    _get_nodes_of_type(
-                        (getattr(task, "orbiter_kwargs", {}) or {}).get("val", {}), "to"
-                    )
-                    + _get_nodes_of_type(
-                        (getattr(task, "orbiter_kwargs", {}) or {}).get("val", {}), "ok"
-                    )
+                    _get_nodes_of_type((getattr(task, "orbiter_kwargs", {}) or {}).get("val", {}), "to")
+                    + _get_nodes_of_type((getattr(task, "orbiter_kwargs", {}) or {}).get("val", {}), "ok")
                     + _get_nodes_of_type(
                         (getattr(task, "orbiter_kwargs", {}) or {}).get("val", {}),
                         "error",
@@ -577,13 +530,9 @@ def _get_dependencies_for_task(task: OrbiterOperator | OrbiterTaskGroup):
         if d
     ]
     if len(downstream) > 1:
-        _task_dependencies.append(
-            OrbiterTaskDependency(task_id=task_id, downstream=downstream)
-        )
+        _task_dependencies.append(OrbiterTaskDependency(task_id=task_id, downstream=downstream))
     elif len(downstream) == 1:
-        _task_dependencies.append(
-            OrbiterTaskDependency(task_id=task_id, downstream=downstream[0])
-        )
+        _task_dependencies.append(OrbiterTaskDependency(task_id=task_id, downstream=downstream[0]))
     return _task_dependencies
 
 
@@ -647,8 +596,4 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
 if __name__ == "__main__":
     import doctest
 
-    doctest.testmod(
-        optionflags=doctest.ELLIPSIS
-                    | doctest.NORMALIZE_WHITESPACE
-                    | doctest.IGNORE_EXCEPTION_DETAIL
-    )
+    doctest.testmod(optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE | doctest.IGNORE_EXCEPTION_DETAIL)

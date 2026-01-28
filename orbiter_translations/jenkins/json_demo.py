@@ -122,32 +122,33 @@ with DAG(dag_id=..., doc_md=...):
 
 ```
 """  # noqa: E501
+
 from __future__ import annotations
+
+import json
 
 import inflection
 import jq
-import json
-
 from orbiter.file_types import FileTypeJSON
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.bash import OrbiterBashOperator
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
+    task_dependency_rule,
     task_filter_rule,
     task_rule,
-    task_dependency_rule,
-    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,
+    OrbiterTaskDependency,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    TaskDependencyRuleset,
-    PostProcessingRuleset,
     TranslationRuleset,
-    OrbiterTaskDependency,
 )
 
 
@@ -405,19 +406,12 @@ def basic_task_rule(val: dict) -> OrbiterBashOperator | None:
         command.append(step["name"])
         for argument in step["arguments"]:
             argument_defn = argument["value"]
-            command.append(
-                f"""'{argument_defn["value"]}'"""
-                if argument_defn["isLiteral"]
-                else argument_defn["value"]
-            )
+            command.append(f"""'{argument_defn["value"]}'""" if argument_defn["isLiteral"] else argument_defn["value"])
         commands.append(command)
     commands = [" ".join(command) for command in commands]
     bash_command = "; ".join(commands)
 
-    return OrbiterBashOperator(
-        bash_command=bash_command,
-        **task_common_args(val)
-    )
+    return OrbiterBashOperator(bash_command=bash_command, **task_common_args(val))
 
 
 @task_dependency_rule
@@ -444,11 +438,7 @@ def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
     tasks = list(val.tasks.values())
 
     for i in range(len(tasks) - 1):
-        task_dependencies.append(
-            OrbiterTaskDependency(
-                task_id=tasks[i].task_id, downstream=tasks[i + 1].task_id
-            )
-        )
+        task_dependencies.append(OrbiterTaskDependency(task_id=tasks[i].task_id, downstream=tasks[i + 1].task_id))
 
     return task_dependencies
 
@@ -458,7 +448,9 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[basic_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[basic_task_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
+    task_ruleset=TaskRuleset(
+        ruleset=[basic_task_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]
+    ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[basic_task_dependency_rule]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
@@ -466,8 +458,4 @@ translation_ruleset = TranslationRuleset(
 if __name__ == "__main__":
     import doctest
 
-    doctest.testmod(
-        optionflags=doctest.ELLIPSIS
-        | doctest.NORMALIZE_WHITESPACE
-        | doctest.IGNORE_EXCEPTION_DETAIL
-    )
+    doctest.testmod(optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE | doctest.IGNORE_EXCEPTION_DETAIL)

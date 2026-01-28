@@ -24,6 +24,7 @@ with DAG(dag_id='hello_world'):
 
 ```
 """
+
 from __future__ import annotations
 
 from orbiter.file_types import FileTypeYAML
@@ -32,19 +33,19 @@ from orbiter.objects.operators.kubernetes_pod import OrbiterKubernetesPodOperato
 from orbiter.objects.task import OrbiterOperator
 from orbiter.objects.task_group import OrbiterTaskGroup
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
     task_filter_rule,
     task_rule,
-    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    TaskDependencyRuleset,
-    PostProcessingRuleset,
     TranslationRuleset,
 )
 
@@ -52,9 +53,8 @@ from orbiter.rules.rulesets import (
 @dag_filter_rule
 def basic_dag_filter(val: dict) -> list | None:
     """Allow input of kind `Workflow` or `CronWorkflow`"""
-    if val.get('kind') in ('Workflow', 'CronWorkflow'):
+    if val.get("kind") in ("Workflow", "CronWorkflow"):
         return [val]
-
 
 
 @dag_rule
@@ -69,12 +69,12 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
 
     ```
     """
-    if val.get('kind') in ('Workflow', 'CronWorkflow'):
-        metadata = val.get('metadata', {})
-        dag_id = metadata.get('name', metadata.get('generateName', '')[:-1])
+    if val.get("kind") in ("Workflow", "CronWorkflow"):
+        metadata = val.get("metadata", {})
+        dag_id = metadata.get("name", metadata.get("generateName", "")[:-1])
         args = {}
-        if schedule := val.get('spec', {}).get('schedule'):
-            args['schedule'] = schedule
+        if schedule := val.get("spec", {}).get("schedule"):
+            args["schedule"] = schedule
         return OrbiterDAG(dag_id=dag_id, file_path=f"{dag_id}.py", **args)
 
 
@@ -83,29 +83,31 @@ def basic_task_filter(val: dict) -> list | None:
     """Reshape and filter input to `template` tasks"""
     # noinspection PyUnboundLocalVariable
     if (
-        val.get('kind') in ('Workflow', 'CronWorkflow')
-        and (spec := val.get('spec', {}))
-        and (templates := spec.get('templates'))
+        val.get("kind") in ("Workflow", "CronWorkflow")
+        and (spec := val.get("spec", {}))
+        and (templates := spec.get("templates"))
     ):
         return templates
+
 
 def task_common_args(val) -> dict:
     """Common mappings for all tasks
     - name -> task_id
     """
-    return {"task_id": val.get('name', "UNKNOWN")}
+    return {"task_id": val.get("name", "UNKNOWN")}
 
 
 @task_rule(priority=2)
 def basic_task_rule(val: dict) -> OrbiterOperator | OrbiterTaskGroup | None:
     """Translate a pod definition into a KubernetesPodOperator"""
-    if container := val.get('container', {}):
+    if container := val.get("container", {}):
         return OrbiterKubernetesPodOperator(
             image=container.get("image") or None,
             cmds=container.get("command") or None,
             arguments=container.get("args") or None,
-            **task_common_args(val)
+            **task_common_args(val),
         )
+
 
 translation_ruleset = TranslationRuleset(
     file_type={FileTypeYAML},

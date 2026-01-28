@@ -15,9 +15,5 @@ def test_dag_factory_translation(change_test_dir):
             "test_expand",
         ]
     )
-    assert sorted(actual.dags["example_dag"].tasks.keys()) == sorted(
-        ["task_1", "task_2", "task_3"]
-    )
-    assert sorted(actual.dags["example_dag"].tasks["task_1"].downstream) == sorted(
-        ["task_2", "task_3"]
-    )
+    assert sorted(actual.dags["example_dag"].tasks.keys()) == sorted(["task_1", "task_2", "task_3"])
+    assert sorted(actual.dags["example_dag"].tasks["task_1"].downstream) == sorted(["task_2", "task_3"])

@@ -62,28 +62,27 @@ from pathlib import Path
 
 import inflection
 import jq
-
 from orbiter.file_types import FileTypeXML
 from orbiter.objects import conn_id
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.sql import OrbiterSQLExecuteQueryOperator
 from orbiter.objects.task import OrbiterTaskDependency
 from orbiter.rules import (
-    task_dependency_rule,
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
+    task_dependency_rule,
     task_filter_rule,
     task_rule,
-    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
-    TranslationRuleset,
-    TaskDependencyRuleset,
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    PostProcessingRuleset,
+    TranslationRuleset,
 )
 
 
@@ -125,9 +124,7 @@ def dag_filter_rule(val) -> list[dict] | None:
     """  # noqa: E501
     dags = []
     for package in val.get("DTS:Executable", []):  # package is top-level
-        if "SSIS.Package" in package.get(
-            "@DTS:ExecutableType", ""
-        ):  # check for 'package' as type
+        if "SSIS.Package" in package.get("@DTS:ExecutableType", ""):  # check for 'package' as type
             pipelines = deepcopy(package.get("DTS:Executable", []))
             if pipelines:
                 del package["DTS:Executable"]
@@ -179,18 +176,14 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
         try:
             # Pipeline name is <DTS:Property><DTS:Name="ObjectName">...</DTS:Name>
             pipeline_name = (
-                jq.compile(
-                    """."DTS:Property"[]? | select(."@DTS:Name" == "ObjectName") | ."#text" """
-                )
+                jq.compile("""."DTS:Property"[]? | select(."@DTS:Name" == "ObjectName") | ."#text" """)
                 .input_value(val)
                 .first()
             )
 
             # Package is in modified @package property, and is <DTS:Property><DTS:Name="ObjectName">...</DTS:Name>
             package_name = (
-                jq.compile(
-                    """."@package"?."DTS:Property"[]? | select(."@DTS:Name" == "ObjectName") | ."#text" """
-                )
+                jq.compile("""."@package"?."DTS:Property"[]? | select(."@DTS:Name" == "ObjectName") | ."#text" """)
                 .input_value(val)
                 .first()
             )
@@ -250,13 +243,7 @@ def task_filter_rule(val: dict) -> list[dict] | None:
     if isinstance(val, dict):
         val = json.loads(json.dumps(val, default=str))  # pre-serialize values, for JQ
         try:
-            return (
-                jq.compile(
-                    """."DTS:ObjectData"[]?.pipeline[]?.components[]?.component[]"""
-                )
-                .input_value(val)
-                .all()
-            )
+            return jq.compile("""."DTS:ObjectData"[]?.pipeline[]?.components[]?.component[]""").input_value(val).all()
         except StopIteration:
             pass
     return None
@@ -282,9 +269,7 @@ def sql_command_rule(val) -> OrbiterSQLExecuteQueryOperator | None:
     """  # noqa: E501
     try:
         sql: str = (
-            jq.compile(
-                """.properties[]?.property[]? | select(."@name" == "SqlCommand") | ."#text" """
-            )
+            jq.compile(""".properties[]?.property[]? | select(."@name" == "SqlCommand") | ."#text" """)
             .input_value(val)
             .first()
         )
@@ -377,8 +362,9 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[dag_filter_rule]),
     dag_ruleset=DAGRuleset(ruleset=[basic_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[task_filter_rule]),
-    task_ruleset=TaskRuleset(ruleset=[sql_command_rule,
-            create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
+    task_ruleset=TaskRuleset(
+        ruleset=[sql_command_rule, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]
+    ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[simple_task_dependencies]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )
@@ -386,8 +372,4 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
 if __name__ == "__main__":
     import doctest
 
-    doctest.testmod(
-        optionflags=doctest.ELLIPSIS
-        | doctest.NORMALIZE_WHITESPACE
-        | doctest.IGNORE_EXCEPTION_DETAIL
-    )
+    doctest.testmod(optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE | doctest.IGNORE_EXCEPTION_DETAIL)

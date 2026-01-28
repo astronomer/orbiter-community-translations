@@ -1,5 +1,6 @@
 from orbiter_translations.matillion.yaml_demo import translation_ruleset
 
+
 def test_matillion_demo(project_root):
     # Point to the folder containing the input YAML workflow
     input_dir = project_root / "tests/matillion/demo/workflow/"
@@ -12,11 +13,13 @@ def test_matillion_demo(project_root):
     task_names = sorted(list(dag.tasks.keys()))
 
     # All three tasks from the YAML should be present
-    assert task_names == sorted([
-        "start",
-        "print_hello_world",
-        "print_pipeline_finished",
-    ])
+    assert task_names == sorted(
+        [
+            "start",
+            "print_hello_world",
+            "print_pipeline_finished",
+        ]
+    )
 
     # Check the downstream dependencies for "print_hello_world"
     assert sorted(list(dag.tasks["print_hello_world"].downstream)) == ["print_pipeline_finished"]

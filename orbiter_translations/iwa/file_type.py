@@ -1,84 +1,85 @@
 from __future__ import annotations
 
-from typing import ClassVar, Set, Callable
+from collections.abc import Callable
+from typing import ClassVar
 
 from loguru import logger
-from orbiter.file_types import xmltodict_parse, FileType
+from orbiter.file_types import FileType, xmltodict_parse
 from orbiter_parsers.file_types import unimplemented_dump
 
 JOB_STREAM_ATTRS = [
     "at",
     "carryforward",
-    'comment',
+    "comment",
     "confirmed",
     "critical",
-    'deadline',
-    'description',
-    'draft',
-    'end',
-    'every',
-    'except',
-    'fdignore',
-    'follows',
-    'freedays',
-    'interval',
-    'job',
-    'join',
-    'jsuntil',
-    'keyjob',
-    'keysched',
-    'limit',
-    'matching',
-    'maxdur',
-    'mindur',
-    'needs',
-    'nop',
-    'on',
-    'onlate',
-    'onoverlap',
-    'opens',
-    'onuntil',
-    'outcond',
-    'priority',
-    'prompt',
-    'runcycle',
-    'schedule',
-    'schedtime',
-    'statisticstype',
-    'startcond',
-    'timezone',
-    'until',
-    'validfrom',
-    'validto',
-    'vartable'
+    "deadline",
+    "description",
+    "draft",
+    "end",
+    "every",
+    "except",
+    "fdignore",
+    "follows",
+    "freedays",
+    "interval",
+    "job",
+    "join",
+    "jsuntil",
+    "keyjob",
+    "keysched",
+    "limit",
+    "matching",
+    "maxdur",
+    "mindur",
+    "needs",
+    "nop",
+    "on",
+    "onlate",
+    "onoverlap",
+    "opens",
+    "onuntil",
+    "outcond",
+    "priority",
+    "prompt",
+    "runcycle",
+    "schedule",
+    "schedtime",
+    "statisticstype",
+    "startcond",
+    "timezone",
+    "until",
+    "validfrom",
+    "validto",
+    "vartable",
 ]
 JOB_ATTRS = [
-    'at',
-    'critical',
-    'deadline',
-    'description',
-    'docommand',
-    'every',
-    'follows',
-    'interactive',
-    'join',
-    'keyjob',
-    'maxdur',
-    'mindur',
-    'needs',
-    'nop',
-    'opens',
-    'outputcond',
-    'priority',
-    'prompt',
-    'recovery',
-    'scriptname',
-    'statisticstype',
-    'streamlogon',
-    'succoutputcond',
-    'task',
-    'tasktype',
-    'until',
+    "at",
+    "critical",
+    "deadline",
+    "description",
+    "docommand",
+    "every",
+    "follows",
+    "interactive",
+    "join",
+    "keyjob",
+    "maxdur",
+    "mindur",
+    "needs",
+    "nop",
+    "opens",
+    "outputcond",
+    "priority",
+    "prompt",
+    "recovery",
+    "scriptname",
+    "statisticstype",
+    "streamlogon",
+    "succoutputcond",
+    "task",
+    "tasktype",
+    "until",
 ]
 
 
@@ -169,7 +170,7 @@ def iwa_loads(s: str) -> list[dict]:
 
     current_task_definition: str | None = None
 
-    for line in [line for line in s.splitlines() if line.strip() and not line.lstrip()[0] == '#']:
+    for line in [line for line in s.splitlines() if line.strip() and not line.lstrip()[0] == "#"]:
         line = line.strip()
 
         ####### SPECIAL CASES #######
@@ -177,31 +178,31 @@ def iwa_loads(s: str) -> list[dict]:
         if current_task_definition is not None:
             # consume
             current_task_definition += f"\n{line}"
-            if line.rstrip().endswith('</jsdl:jobDefinition>'):
+            if line.rstrip().endswith("</jsdl:jobDefinition>"):
                 # set
-                current_job['task'] = xmltodict_parse(current_task_definition.strip())
+                current_job["task"] = xmltodict_parse(current_task_definition.strip())
 
                 # reset
                 current_task_definition = None
             continue
 
         # skip empty lines and comments
-        if not line or line.startswith('#'):
+        if not line or line.startswith("#"):
             continue
 
         # : separator - job def is next
-        if line == ':':
+        if line == ":":
             # setup
             next_line_jobdef = True
-            if 'jobs' not in current_jobstream:
-                current_jobstream['jobs'] = []
+            if "jobs" not in current_jobstream:
+                current_jobstream["jobs"] = []
             continue
 
         # job definition line (we saw : on the last line)
         if next_line_jobdef:
             # setup
             in_job = True
-            current_jobstream["jobs"].append({'id': line})
+            current_jobstream["jobs"].append({"id": line})
             current_job = current_jobstream["jobs"][-1]
 
             # reset
@@ -209,7 +210,7 @@ def iwa_loads(s: str) -> list[dict]:
             continue
 
         # end of a jobstream definition
-        if line.lower() == 'end':
+        if line.lower() == "end":
             # reset
             # in_jobstream = False
             in_job = False
@@ -259,7 +260,7 @@ def iwa_loads(s: str) -> list[dict]:
 
         ####### JOBSTREAM CASES #######
         # found 'schedule' - start of a new jobstream
-        elif key == 'schedule':
+        elif key == "schedule":
             # in_jobstream = True
             # add a new job, set the pointer
             jobs.append({key: value})
@@ -279,7 +280,7 @@ def iwa_loads(s: str) -> list[dict]:
             current_jobstream[current_jobstream_attr] = value
             continue
 
-        else: # continuation, such as ON RUNCYCLE ... \n ( AT 1010 )
+        else:  # continuation, such as ON RUNCYCLE ... \n ( AT 1010 )
             in_job = False
             current_jobstream[current_jobstream_attr] += f" {line}"
             continue
@@ -298,6 +299,6 @@ class FileTypeIWA(FileType):
     :type dump_fn: Callable[[dict], str]
     """
 
-    extension: ClassVar[Set[str]] = {"TXT", "IWA"}
+    extension: ClassVar[set[str]] = {"TXT", "IWA"}
     load_fn: ClassVar[Callable[[str], dict | list[dict]]] = iwa_loads
     dump_fn: ClassVar[Callable[[dict], str]] = unimplemented_dump

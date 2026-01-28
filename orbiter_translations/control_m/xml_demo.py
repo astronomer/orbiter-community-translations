@@ -27,6 +27,7 @@ with DAG(dag_id='demo', doc_md=...):
 
 ```
 """  # noqa: E501
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -38,21 +39,21 @@ from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.bash import OrbiterBashOperator
 from orbiter.objects.task import OrbiterTaskDependency
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
-    task_rule,
-    task_filter_rule,
     task_dependency_rule,
-    create_cannot_map_rule_with_task_id_fn,
+    task_filter_rule,
+    task_rule,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
     TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
     TranslationRuleset,
-    PostProcessingRuleset,
 )
 
 
@@ -126,11 +127,7 @@ def bash_script_rule(val) -> OrbiterBashOperator | None:
 
     ```
     """
-    if (
-        val.get("@APPL_TYPE", "") == "OS"
-        and val.get("@FILE_PATH")
-        and val.get("@FILE_NAME")
-    ):
+    if val.get("@APPL_TYPE", "") == "OS" and val.get("@FILE_PATH") and val.get("@FILE_NAME"):
         return OrbiterBashOperator(
             bash_command=val["@FILE_PATH"] + "/" + val["@FILE_NAME"],
             **task_common_args(val),
@@ -152,10 +149,9 @@ def bash_command_rule(val) -> OrbiterBashOperator | None:
     ```
     """
     if val.get("@APPL_TYPE", "") == "OS" and val.get("@CMDLINE"):
-        return OrbiterBashOperator(
-            bash_command=val["@CMDLINE"], **task_common_args(val)
-        )
+        return OrbiterBashOperator(bash_command=val["@CMDLINE"], **task_common_args(val))
     return None
+
 
 @task_filter_rule(priority=1)
 def task_filter_rule(val) -> list[dict] | None:
@@ -282,8 +278,4 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
 if __name__ == "__main__":
     import doctest
 
-    doctest.testmod(
-        optionflags=doctest.ELLIPSIS
-        | doctest.NORMALIZE_WHITESPACE
-        | doctest.IGNORE_EXCEPTION_DETAIL
-    )
+    doctest.testmod(optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE | doctest.IGNORE_EXCEPTION_DETAIL)

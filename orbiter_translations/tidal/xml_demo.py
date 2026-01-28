@@ -2,6 +2,7 @@
 
 Contact Astronomer @ https://astronomer.io/contact for access to our full translation.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -11,21 +12,21 @@ from orbiter.file_types import FileTypeXML, xmltodict_parse
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.bash import OrbiterBashOperator
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
+    task_dependency_rule,
     task_filter_rule,
     task_rule,
-    task_dependency_rule,
-    create_cannot_map_rule_with_task_id_fn
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,
     OrbiterTaskDependency,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    TaskDependencyRuleset,
-    PostProcessingRuleset,
     TranslationRuleset,
 )
 
@@ -64,12 +65,12 @@ def basic_task_filter(val: dict) -> list | None:
                 tasks.append(task["tes:job"][0])
     return tasks
 
+
 def task_common_args(val: dict) -> dict:
     """Common properties for all tasks
     - `tes:name` -> `task_id`
     """
     return {"task_id": val.get("tes:name", "UNKNOWN")}
-
 
 
 @task_rule(priority=2)
@@ -91,8 +92,8 @@ def basic_command_task(val: dict) -> OrbiterBashOperator | None:
 def job_dependency_rule(val: OrbiterDAG) -> list | None:
     """Use `Job.dependencies.xml` to find dependencies"""
     dependencies = []
-    __file: Path = val.orbiter_kwargs.get('val', {}).get("__file")
-    __input_dir: Path = val.orbiter_kwargs.get('val', {}).get("__input_dir")
+    __file: Path = val.orbiter_kwargs.get("val", {}).get("__file")
+    __input_dir: Path = val.orbiter_kwargs.get("val", {}).get("__input_dir")
     basedir: Path = (__input_dir / __file.relative_to(__file.parts[0])).parent
     for path in basedir.rglob("*"):
         if path.name == "Job.dependencies.xml":
@@ -118,7 +119,12 @@ translation_ruleset = TranslationRuleset(
     dag_filter_ruleset=DAGFilterRuleset(ruleset=[job_group_dag_filter]),
     dag_ruleset=DAGRuleset(ruleset=[job_group_dag_rule]),
     task_filter_ruleset=TaskFilterRuleset(ruleset=[basic_task_filter]),
-    task_ruleset=TaskRuleset(ruleset=[basic_command_task, create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"])]),
+    task_ruleset=TaskRuleset(
+        ruleset=[
+            basic_command_task,
+            create_cannot_map_rule_with_task_id_fn(lambda val: task_common_args(val)["task_id"]),
+        ]
+    ),
     task_dependency_ruleset=TaskDependencyRuleset(ruleset=[job_dependency_rule]),
     post_processing_ruleset=PostProcessingRuleset(ruleset=[]),
 )

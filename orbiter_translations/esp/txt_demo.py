@@ -33,6 +33,7 @@ with DAG(dag_id='payroll', doc_md=...):
 
 ```
 """
+
 from __future__ import annotations
 
 from orbiter.objects import conn_id
@@ -42,23 +43,22 @@ from orbiter.objects.operators.ssh import OrbiterSSHOperator
 from orbiter.objects.task import OrbiterOperator, OrbiterTaskDependency
 from orbiter.objects.task_group import OrbiterTaskGroup
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
+    task_dependency_rule,
     task_filter_rule,
     task_rule,
-    task_dependency_rule,
-    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    TaskDependencyRuleset,
-    PostProcessingRuleset,
     TranslationRuleset,
 )
-
 from orbiter_parsers.file_types.wld import FileTypeWLD
 
 
@@ -95,8 +95,8 @@ def basic_dag_rule(val: dict) -> OrbiterDAG | None:
             dag_id=dag_id,
             file_path=f"{dag_id}.py",
             doc_md="**Created via [Orbiter](https://astronomer.github.io/orbiter) w/ Demo Translation Ruleset**.\n"
-                   "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
-                   "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
+            "Contact Astronomer @ [humans@astronomer.io](mailto:humans@astronomer.io) "
+            "or at [astronomer.io/contact](https://www.astronomer.io/contact/) for more!",
         )
 
 
@@ -116,9 +116,7 @@ def basic_task_filter(val: dict) -> list | None:
     ```
     """
     return [
-        v
-        for v in (v for v in val.values() if isinstance(v, dict))
-        if any("job" in _k.lower() for _k in v.keys())
+        v for v in (v for v in val.values() if isinstance(v, dict)) if any("job" in _k.lower() for _k in v.keys())
     ] or None
 
 
@@ -206,13 +204,11 @@ def basic_task_dependency_rule(val: OrbiterDAG) -> list | None:
         if "RELEASE" in original_task_kwargs:
             dependencies = original_task_kwargs["RELEASE"].split(",")
             dependencies = [
-                dependency.replace("(", "").replace(")", "").replace(" ", "")
-                for dependency in dependencies
+                dependency.replace("(", "").replace(")", "").replace(" ", "") for dependency in dependencies
             ]
             task_dependencies.append(
                 OrbiterTaskDependency(
-                    task_id=task.task_id,
-                    downstream=dependencies if len(dependencies) > 1 else dependencies[0]
+                    task_id=task.task_id, downstream=dependencies if len(dependencies) > 1 else dependencies[0]
                 )
             )
     return task_dependencies or None

@@ -19,6 +19,7 @@ with DAG(dag_id='cron_1', schedule='0-30/5 30 9 ? MON-FRI'):
 
 ```
 """
+
 from __future__ import annotations
 
 from copy import copy
@@ -26,14 +27,14 @@ from copy import copy
 from orbiter.objects import OrbiterConnection, OrbiterEnvVar
 from orbiter.objects.dag import OrbiterDAG
 from orbiter.objects.operators.bash import OrbiterBashOperator
-from orbiter.rules import dag_filter_rule, dag_rule, task_filter_rule, task_rule, cannot_map_rule
+from orbiter.rules import cannot_map_rule, dag_filter_rule, dag_rule, task_filter_rule, task_rule
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    TaskDependencyRuleset,
-    PostProcessingRuleset,
     TranslationRuleset,
 )
 
@@ -50,7 +51,7 @@ def cron_dag_filter(val: dict) -> list | None:
 
     ```
     """
-    return [{'i': i} | c | val.get('env', {}) for i, c in enumerate(val.get("cron", []))]
+    return [{"i": i} | c | val.get("env", {}) for i, c in enumerate(val.get("cron", []))]
 
 
 @dag_rule
@@ -64,8 +65,8 @@ def cron_dag_rule(val: dict) -> OrbiterDAG | None:
 
     ```
     """
-    if (index := val.get('i', None)) is not None and (schedule := val.get('schedule')):
-        dag_id=f"cron_{index}"
+    if (index := val.get("i", None)) is not None and (schedule := val.get("schedule")):
+        dag_id = f"cron_{index}"
         # noinspection PyUnboundLocalVariable
         return OrbiterDAG(dag_id=dag_id, file_path=f"{dag_id}.py", schedule=schedule)
 
@@ -75,6 +76,7 @@ def cron_task_filter(val: dict) -> list | None:
     """Tasks will just be the command to execute, so pass it through"""
     return [val]
 
+
 def task_common_args(val: dict) -> dict:
     """Common arguments for all tasks
 
@@ -82,14 +84,14 @@ def task_common_args(val: dict) -> dict:
     - `env` is a dictionary of environment variables to set
     """
     args = {}
-    if mailto := val.pop('MAILTO', None):
-        args['email'] = mailto
-        args['email_on_failure'] = True
-        args['orbiter_env_vars'] = {OrbiterEnvVar(key='AIRFLOW__EMAIL__EMAIL_CONN_ID', value="smtp_default")}
-        args['orbiter_conns'] = {OrbiterConnection(conn_id="smtp_default")}
+    if mailto := val.pop("MAILTO", None):
+        args["email"] = mailto
+        args["email_on_failure"] = True
+        args["orbiter_env_vars"] = {OrbiterEnvVar(key="AIRFLOW__EMAIL__EMAIL_CONN_ID", value="smtp_default")}
+        args["orbiter_conns"] = {OrbiterConnection(conn_id="smtp_default")}
 
-    if env := val.get('env', {}):
-        args['env'] = env
+    if env := val.get("env", {}):
+        args["env"] = env
 
     return args
 
@@ -107,17 +109,13 @@ def cron_task_rule(val: dict) -> OrbiterBashOperator | None:
     ```
     """
     val = copy(val)
-    if command := val.pop('command', None):
-        val.pop('i', None)
-        val.pop('schedule', None)
-        val.pop('user', None)
+    if command := val.pop("command", None):
+        val.pop("i", None)
+        val.pop("schedule", None)
+        val.pop("user", None)
 
         # noinspection PyArgumentList,PyTypeChecker
-        return OrbiterBashOperator(
-            task_id="cron_task",
-            bash_command=command,
-            **task_common_args(val)
-        )
+        return OrbiterBashOperator(task_id="cron_task", bash_command=command, **task_common_args(val))
 
 
 translation_ruleset = TranslationRuleset(

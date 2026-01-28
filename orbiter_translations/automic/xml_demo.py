@@ -64,6 +64,7 @@ with DAG(dag_id='jobp.dummy.workflow', doc_md=...):
 """  # noqa: E501
 
 from __future__ import annotations
+
 import json
 from pathlib import Path
 
@@ -72,25 +73,25 @@ import jq
 from orbiter.file_types import FileTypeXML
 from orbiter.objects import conn_id
 from orbiter.objects.dag import OrbiterDAG
-from orbiter.objects.operators.empty import OrbiterEmptyOperator
 from orbiter.objects.operators.bash import OrbiterBashOperator
+from orbiter.objects.operators.empty import OrbiterEmptyOperator
 from orbiter.objects.operators.sql import OrbiterSQLExecuteQueryOperator
 from orbiter.objects.task import OrbiterTaskDependency
 from orbiter.rules import (
+    create_cannot_map_rule_with_task_id_fn,
     dag_filter_rule,
     dag_rule,
+    task_dependency_rule,
     task_filter_rule,
     task_rule,
-    task_dependency_rule,
-    create_cannot_map_rule_with_task_id_fn,
 )
 from orbiter.rules.rulesets import (
     DAGFilterRuleset,
     DAGRuleset,
+    PostProcessingRuleset,
+    TaskDependencyRuleset,
     TaskFilterRuleset,
     TaskRuleset,
-    TaskDependencyRuleset,
-    PostProcessingRuleset,
     TranslationRuleset,
 )
 
@@ -265,7 +266,7 @@ def sql_command_rule(
             return OrbiterSQLExecuteQueryOperator(
                 sql=val["script"]["SCRIPT"].split(":SQL")[-1].strip(),
                 **conn_id(conn_id="mssql_default", conn_type="mssql"),
-                **task_common_args(val)
+                **task_common_args(val),
             )
     return None
 
@@ -296,10 +297,7 @@ def bash_command_rule(
     ```
     """  # noqa: E501
     if val["@OType"] == "SCRI":
-        return OrbiterBashOperator(
-            bash_command=val["script"]["SCRIPT"][0]["#text"],
-            **task_common_args(val)
-        )
+        return OrbiterBashOperator(bash_command=val["script"]["SCRIPT"][0]["#text"], **task_common_args(val))
     return None
 
 
@@ -367,9 +365,7 @@ def simple_task_dependencies(val: OrbiterDAG) -> list[OrbiterTaskDependency] | N
         task = task_attr.orbiter_kwargs.get("val", {})
         task_no = task["@Lnr"]
         if task.get("predecessors", None):
-            predecessor = (
-                task.get("predecessors", [{}])[0].get("pre", [{}])[0].get("@PreLnr", [])
-            )
+            predecessor = task.get("predecessors", [{}])[0].get("pre", [{}])[0].get("@PreLnr", [])
         else:
             predecessor = None
         all_tasks[task_no] = {
@@ -409,8 +405,4 @@ translation_ruleset: TranslationRuleset = TranslationRuleset(
 if __name__ == "__main__":
     import doctest
 
-    doctest.testmod(
-        optionflags=doctest.ELLIPSIS
-        | doctest.NORMALIZE_WHITESPACE
-        | doctest.IGNORE_EXCEPTION_DETAIL
-    )
+    doctest.testmod(optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE | doctest.IGNORE_EXCEPTION_DETAIL)
